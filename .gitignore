@@ -1,0 +1,11 @@
+﻿# IDE
+.vs/
+.vsconfig
+*.sln
+
+# Project
+Binaries/
+DerivedDataCache/
+Intermediate/
+Plugins/*/Intermediate/
+Saved/
