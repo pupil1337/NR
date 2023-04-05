@@ -48,9 +48,12 @@ ANRCharacter::ANRCharacter()
 	Camera->SetupAttachment(MeshArm, NAME_Socket_Camera);
 }
 
-void ANRCharacter::PostInitializeComponents()
+void ANRCharacter::OnConstruction(const FTransform& Transform)
 {
-	Super::PostInitializeComponents();
+	Super::OnConstruction(Transform);
+
+	// Mesh
+	GetMesh()->bRenderInMainPass = !GetWorld()->IsGameWorld();
 	
 	// MeshArm
 	const FVector CameraLocation = MeshArm->GetSocketTransform(NAME_Socket_CameraToRoot, RTS_ParentBoneSpace).GetLocation();

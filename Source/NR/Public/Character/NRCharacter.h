@@ -43,7 +43,7 @@ class NR_API ANRCharacter : public ACharacter
 	
 public:
 	ANRCharacter();
-	virtual void PostInitializeComponents() override;
+	virtual void OnConstruction(const FTransform& Transform) override;
 	virtual void PostNetInit() override;
 
 protected:
