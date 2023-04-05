@@ -1,11 +1,14 @@
 ﻿# IDE
+.idea
 .vs/
 .vsconfig
 *.sln
 
 # Project
 Binaries/
+Content/Collections/
+Content/Developers/
 DerivedDataCache/
 Intermediate/
-Plugins/*/Intermediate/
+Plugins/Developer/
 Saved/
