@@ -51,9 +51,6 @@ ANRCharacter::ANRCharacter()
 void ANRCharacter::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
-
-	// Mesh
-	GetMesh()->bRenderInMainPass = !GetWorld()->IsGameWorld();
 	
 	// MeshArm
 	const FVector CameraLocation = MeshArm->GetSocketTransform(NAME_Socket_CameraToRoot, RTS_ParentBoneSpace).GetLocation();
