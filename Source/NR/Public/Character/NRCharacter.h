@@ -32,12 +32,6 @@ class NR_API ANRCharacter : public ACharacter
 	TObjectPtr<UCameraComponent> Camera;
 
 	// Settings
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="配置|角色", DisplayName="胶囊体-半高")
-	float OriginCapsuleHalfHeight = 88.0f;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="配置|角色", DisplayName="胶囊体-半径")
-	float OriginCapsuleRadius = 34.0f;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="配置|角色", DisplayName="胶囊体-蹲伏半高")
-	float OriginCapsuleCrouchHalfHeight = 60.0f;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="配置|角色", DisplayName="摄像机-站立相对地面位置")
 	FVector CameraToRootLocation_Standing = FVector(30.0f, 0.0f, 154.0f);
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="配置|角色", DisplayName="摄像机-蹲伏相对地面位置")
@@ -57,7 +51,6 @@ class NR_API ANRCharacter : public ACharacter
 	
 public:
 	ANRCharacter();
-	virtual void OnConstruction(const FTransform& Transform) override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -72,6 +65,7 @@ private:
 	void SetMeshesVisibleAndComponentsDestroy();
 
 	// FuncType-LocallyControlleds
+	void SetSpringMode(/* TODO: 3P视角 */);
 	void UpdateSpringLocation(float DeltaSeconds);
 	
 	// Inputs
