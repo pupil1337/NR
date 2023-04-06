@@ -8,6 +8,7 @@
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 const FName NAME_Socket_Camera(TEXT("SOCKET_Camera"));
 const FName NAME_Socket_CameraToRoot(TEXT("SOCKET_CameraToRoot"));
@@ -15,10 +16,12 @@ const FName NAME_Bone_Spine_01(TEXT("spine_01"));
 
 ANRCharacter::ANRCharacter()
 {
-	PrimaryActorTick.bCanEverTick = false;
-	PrimaryActorTick.bStartWithTickEnabled = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	bUseControllerRotationYaw = true;
+	
+	// CharacterMovement
+	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
 	
 	// Spring
 	Spring = CreateDefaultSubobject<USpringArmComponent>(TEXT("弹簧臂"));
@@ -48,13 +51,24 @@ ANRCharacter::ANRCharacter()
 	Camera->SetupAttachment(MeshArm, NAME_Socket_Camera);
 }
 
-void ANRCharacter::PreInitializeComponents()
+void ANRCharacter::OnConstruction(const FTransform& Transform)
 {
-	Super::PreInitializeComponents();
+	Super::OnConstruction(Transform);
 
+	// CapsuleComponent
+	GetCapsuleComponent()->SetCapsuleSize(OriginCapsuleRadius, OriginCapsuleHalfHeight);
+
+	// CharacterMovement
+	GetCharacterMovement()->SetCrouchedHalfHeight(OriginCapsuleCrouchHalfHeight);
+
+	// Spring
+	Spring->SetRelativeLocation(CameraToRootLocation_Standing - FVector(0.0f, 0.0f, OriginCapsuleHalfHeight));
+	SpringCurrLocation = SpringTargetLocation = Spring->GetRelativeLocation();
+	
 	// MeshArm
 	const FVector CameraLocation = MeshArm->GetSocketTransform(NAME_Socket_CameraToRoot, RTS_ParentBoneSpace).GetLocation();
 	MeshArm->SetRelativeLocation(FVector(-CameraLocation.Y, -CameraLocation.X, -CameraLocation.Z));
+	MeshArm->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
 	
 	// MeshLeg
 	MeshLeg->HideBoneByName(NAME_Bone_Spine_01, PBO_None);
@@ -92,12 +106,27 @@ void ANRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 						}
 						if (IA_Jump)
 						{
-							EnhancedInputComponent->BindAction(IA_Jump, ETriggerEvent::Triggered, this, &ThisClass::Jump);
+							EnhancedInputComponent->BindAction(IA_Jump, ETriggerEvent::Started, this, &ThisClass::Jump);
+						}
+						if (IA_Crouch)
+						{
+							EnhancedInputComponent->BindAction(IA_Crouch, ETriggerEvent::Started, this, &ThisClass::OnCrouchInput);
+							EnhancedInputComponent->BindAction(IA_Crouch, ETriggerEvent::Completed, this, &ThisClass::OnUnCrouchInput);
 						}
 					}
 				}
 			}		
 		}
+	}
+}
+
+void ANRCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (IsLocallyControlled())
+	{
+		UpdateSpringLocation(DeltaSeconds);
 	}
 }
 
@@ -115,6 +144,20 @@ void ANRCharacter::SetMeshesVisibleAndComponentsDestroy()
 		Camera->DestroyComponent();
 		MeshArm->DestroyComponent();
 		MeshLeg->DestroyComponent();
+	}
+}
+
+// FuncType-LocallyControlleds ===================================================================================
+void ANRCharacter::UpdateSpringLocation(float DeltaSeconds)
+{
+	if (bSpringNeedMove)
+	{
+		SpringCurrLocation = FMath::VInterpTo(SpringCurrLocation, SpringTargetLocation, DeltaSeconds, 10);
+		Spring->SetRelativeLocation(SpringCurrLocation);
+		if (SpringCurrLocation.Equals(SpringTargetLocation, 0.1))
+		{
+			bSpringNeedMove = false;
+		}
 	}
 }
 
@@ -143,5 +186,22 @@ void ANRCharacter::OnLookInput(const FInputActionValue& Value)
 			PlayerController->RotationInput.Pitch = 0.0f;
 		}
 	}
+}
+
+void ANRCharacter::OnCrouchInput()
+{
+	Crouch();
+	
+	bSpringNeedMove = true;
+	SpringTargetLocation = CameraToRootLocation_Crouching - FVector(0.0f, 0.0f, OriginCapsuleCrouchHalfHeight);
+}
+
+void ANRCharacter::OnUnCrouchInput()
+{
+	UnCrouch();
+
+	bSpringNeedMove = true;
+	SpringTargetLocation = CameraToRootLocation_Standing - FVector(0.0f, 0.0f, OriginCapsuleHalfHeight);
+	
 }
 
