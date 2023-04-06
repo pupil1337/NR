@@ -43,8 +43,7 @@ class NR_API ANRCharacter : public ACharacter
 	
 public:
 	ANRCharacter();
-	virtual void OnConstruction(const FTransform& Transform) override;
-	virtual void PostNetInit() override;
+	virtual void PreInitializeComponents() override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -54,6 +53,9 @@ public:
 
 //~ This Class Begin
 private:
+	// Initializes
+	void SetMeshesVisibleAndComponentsDestroy();
+	
 	// Inputs
 	void OnMoveInput(const FInputActionValue& Value);
 	void OnLookInput(const FInputActionValue& Value);

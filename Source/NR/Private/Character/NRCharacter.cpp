@@ -48,10 +48,10 @@ ANRCharacter::ANRCharacter()
 	Camera->SetupAttachment(MeshArm, NAME_Socket_Camera);
 }
 
-void ANRCharacter::OnConstruction(const FTransform& Transform)
+void ANRCharacter::PreInitializeComponents()
 {
-	Super::OnConstruction(Transform);
-	
+	Super::PreInitializeComponents();
+
 	// MeshArm
 	const FVector CameraLocation = MeshArm->GetSocketTransform(NAME_Socket_CameraToRoot, RTS_ParentBoneSpace).GetLocation();
 	MeshArm->SetRelativeLocation(FVector(-CameraLocation.Y, -CameraLocation.X, -CameraLocation.Z));
@@ -60,19 +60,11 @@ void ANRCharacter::OnConstruction(const FTransform& Transform)
 	MeshLeg->HideBoneByName(NAME_Bone_Spine_01, PBO_None);
 }
 
-void ANRCharacter::PostNetInit()
-{
-	Super::PostNetInit();
-
-	if (!IsLocallyControlled())
-	{
-		GetMesh()->SetRenderInMainPass(true);
-	}
-}
-
 void ANRCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	SetMeshesVisibleAndComponentsDestroy();
 }
 
 void ANRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -106,6 +98,23 @@ void ANRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 				}
 			}		
 		}
+	}
+}
+
+// Initializes ===================================================================================
+void ANRCharacter::SetMeshesVisibleAndComponentsDestroy()
+{
+	if (IsLocallyControlled())
+	{
+		GetMesh()->SetRenderInMainPass(false);
+	}
+	else
+	{
+		GetMesh()->SetRenderInMainPass(true);
+		Spring->DestroyComponent();
+		Camera->DestroyComponent();
+		MeshArm->DestroyComponent();
+		MeshLeg->DestroyComponent();
 	}
 }
 
