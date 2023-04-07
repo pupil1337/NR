@@ -32,6 +32,8 @@ ANRCharacter::ANRCharacter()
 	// MeshArm
 	MeshArm = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("手臂"));
 	MeshArm->SetupAttachment(Spring);
+	MeshArm->SetRelativeLocation(FVector(3.977629,-0.000008,-165.516068));
+	MeshArm->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
 	MeshArm->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
 	MeshArm->CanCharacterStepUpOn = ECB_No;
 	MeshArm->CastShadow = false;
@@ -48,6 +50,13 @@ ANRCharacter::ANRCharacter()
 	// Camera
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("摄像机"));
 	Camera->SetupAttachment(MeshArm, NAME_Socket_Camera);
+}
+
+void ANRCharacter::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+
+	Spring->SetRelativeLocation(FVector(0.0f, 0.0f, BaseEyeHeight) + SpringOffsetFPS);
 }
 
 void ANRCharacter::BeginPlay()
@@ -93,8 +102,8 @@ void ANRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 						}
 						if (IA_Crouch)
 						{
-							EnhancedInputComponent->BindAction(IA_Crouch, ETriggerEvent::Started, this, &ThisClass::OnCrouchInput);
-							EnhancedInputComponent->BindAction(IA_Crouch, ETriggerEvent::Completed, this, &ThisClass::OnUnCrouchInput);
+							EnhancedInputComponent->BindAction(IA_Crouch, ETriggerEvent::Started, this, &ThisClass::Crouch, false);
+							EnhancedInputComponent->BindAction(IA_Crouch, ETriggerEvent::Completed, this, &ThisClass::UnCrouch, false);
 						}
 					}
 				}
@@ -134,21 +143,15 @@ void ANRCharacter::SetMeshesVisibleAndComponentsDestroy()
 // FuncType-LocallyControlleds ===================================================================================
 void ANRCharacter::SetSpringMode(/* TODO: 3P视角 */)
 {
-	Spring->SetRelativeLocation(CameraToRootLocation_Standing - FVector(0.0f, 0.0f, GetClass()->GetDefaultObject<ACharacter>()->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()));
-	SpringCurrLocation = Spring->GetRelativeLocation();
+	Spring->SetRelativeLocation(FVector(0.0f, 0.0f, BaseEyeHeight) + SpringOffsetFPS);
 }
 
 void ANRCharacter::UpdateSpringLocation(float DeltaSeconds)
 {
-	if (bSpringNeedMove)
-	{
-		SpringCurrLocation = FMath::VInterpTo(SpringCurrLocation, SpringTargetLocation, DeltaSeconds, 10);
-		Spring->SetRelativeLocation(SpringCurrLocation);
-		if (SpringCurrLocation.Equals(SpringTargetLocation, 0.1))
-		{
-			bSpringNeedMove = false;
-		}
-	}
+	//if (FPS)
+	//{
+	Spring->SetRelativeLocation(FMath::VInterpTo(Spring->GetRelativeLocation(), FVector(0.0f, 0.0f, BaseEyeHeight) + SpringOffsetFPS, DeltaSeconds, 10));
+	//}
 }
 
 // Inputs ===================================================================================
@@ -176,24 +179,5 @@ void ANRCharacter::OnLookInput(const FInputActionValue& Value)
 			PlayerController->RotationInput.Pitch = 0.0f;
 		}
 	}
-}
-
-void ANRCharacter::OnCrouchInput()
-{
-	Crouch();
-
-	if (UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement())
-	{
-		bSpringNeedMove = true;
-		SpringTargetLocation = CameraToRootLocation_Crouching - FVector(0.0f, 0.0f, CharacterMovementComponent->GetCrouchedHalfHeight());
-	}
-}
-
-void ANRCharacter::OnUnCrouchInput()
-{
-	UnCrouch();
-
-	bSpringNeedMove = true;
-	SpringTargetLocation = CameraToRootLocation_Standing - FVector(0.0f, 0.0f, GetClass()->GetDefaultObject<ACharacter>()->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight());
 }
 

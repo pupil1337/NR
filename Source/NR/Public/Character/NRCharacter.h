@@ -32,10 +32,8 @@ class NR_API ANRCharacter : public ACharacter
 	TObjectPtr<UCameraComponent> Camera;
 
 	// Settings
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="配置|角色", DisplayName="摄像机-站立相对地面位置")
-	FVector CameraToRootLocation_Standing = FVector(30.0f, 0.0f, 154.0f);
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="配置|角色", DisplayName="摄像机-蹲伏相对地面位置")
-	FVector CameraToRootLocation_Crouching = FVector(30.0f, 0.0f, 88.0f);
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="配置|角色", DisplayName="摄像机-FPS弹簧臂相对eyes位置偏移")
+	FVector SpringOffsetFPS = FVector(30.0f, 0.0f, 0.0f);
 
 	// Inputs
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="配置|输入")
@@ -51,6 +49,7 @@ class NR_API ANRCharacter : public ACharacter
 	
 public:
 	ANRCharacter();
+	virtual void OnConstruction(const FTransform& Transform) override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -71,14 +70,4 @@ private:
 	// Inputs
 	void OnMoveInput(const FInputActionValue& Value);
 	void OnLookInput(const FInputActionValue& Value);
-	void OnCrouchInput();
-	void OnUnCrouchInput();
-	
-	// Transients
-	UPROPERTY(Transient)
-	uint8 bSpringNeedMove;
-	UPROPERTY(Transient)
-	FVector SpringCurrLocation;
-	UPROPERTY(Transient)
-	FVector SpringTargetLocation;
 };
