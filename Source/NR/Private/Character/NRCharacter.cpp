@@ -12,6 +12,7 @@
 
 const FName NAME_Socket_Camera(TEXT("SOCKET_Camera"));
 const FName NAME_Bone_Spine_01(TEXT("spine_01"));
+const FName NAME_Separate_FOV_Alpha(TEXT("Separate_FOV Alpha"));
 
 ANRCharacter::ANRCharacter()
 {
@@ -35,7 +36,6 @@ ANRCharacter::ANRCharacter()
 	MeshArm->SetRelativeLocation(FVector(3.977629,-0.000008,-165.516068));
 	MeshArm->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
 	MeshArm->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
-	MeshArm->CanCharacterStepUpOn = ECB_No;
 	MeshArm->CastShadow = false;
 	MeshArm->bOnlyOwnerSee = true;
 
@@ -43,7 +43,6 @@ ANRCharacter::ANRCharacter()
 	MeshLeg = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("腿"));
 	MeshLeg->SetupAttachment(GetMesh());
 	MeshLeg->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
-	MeshLeg->CanCharacterStepUpOn = ECB_No;
 	MeshLeg->CastShadow = false;
 	MeshLeg->bOnlyOwnerSee = true;
 
@@ -128,6 +127,7 @@ void ANRCharacter::SetMeshesVisibleAndComponentsDestroy()
 	if (IsLocallyControlled())
 	{
 		GetMesh()->SetRenderInMainPass(false);
+		MeshArm->SetScalarParameterValueOnMaterials(NAME_Separate_FOV_Alpha, 1.0f);
 		MeshLeg->HideBoneByName(NAME_Bone_Spine_01, PBO_None);
 	}
 	else
