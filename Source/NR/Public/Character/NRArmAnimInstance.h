@@ -12,7 +12,10 @@ struct FNRArmAnimInstanceProxy : public FAnimInstanceProxy
 	GENERATED_BODY()
 
 	FNRArmAnimInstanceProxy(): FAnimInstanceProxy(),
-		MoveDir(FVector2D::ZeroVector)
+		VelocityAlpha(0.0f),
+		VelocityNormalized(FVector::ZeroVector),
+		VelocityPlayRate(1.0f),
+		BreathingAlpha(1.0f)
 	{}
 	FNRArmAnimInstanceProxy(UAnimInstance* Instance): FAnimInstanceProxy(Instance) {}
 
@@ -24,7 +27,13 @@ struct FNRArmAnimInstanceProxy : public FAnimInstanceProxy
 
 private:
 	UPROPERTY(Transient, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
-	FVector2D MoveDir;
+	float VelocityAlpha; // 与设定动画最大移动速度比率 (clamp 0 1)
+	UPROPERTY(Transient, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
+	FVector VelocityNormalized; // 速度归一化后
+	UPROPERTY(Transient, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
+	float VelocityPlayRate; // 动画播放速率 (>=1.0f 默认1.0f)
+	UPROPERTY(Transient, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
+	float BreathingAlpha; // 呼吸 (clamp 0 1)
 };
 
 /**

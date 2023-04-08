@@ -4,6 +4,8 @@
 #include "Character/NRArmAnimInstance.h"
 
 #include "Character/NRCharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void FNRArmAnimInstanceProxy::Initialize(UAnimInstance* InAnimInstance)
 {
@@ -18,7 +20,16 @@ void FNRArmAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float Del
 	{
 		if (NRCharacter->IsLocallyControlled())
 		{
-			
+			FVector Velocity = UKismetMathLibrary::InverseTransformDirection(NRCharacter->GetActorTransform(), NRCharacter->GetVelocity());
+			float MaxSpeed = Cast<ANRCharacter>(NRCharacter->GetClass()->GetDefaultObject())->GetCharacterMovement()->MaxWalkSpeed; // TODO:蹲伏等
+			// 1. VelocityAlpha
+			VelocityAlpha = FMath::Clamp<float>(Velocity.Size() / MaxSpeed, 0.0f, 1.0f);
+			// 2. VelocityNormalized
+			VelocityNormalized = Velocity.GetSafeNormal() * VelocityAlpha;
+			// 3. VelocityPlayRate
+			VelocityPlayRate = FMath::Max<float>(Velocity.Size() / MaxSpeed, 1.0f);
+			// 4. BreathingAlpha
+			BreathingAlpha = 1.0f - VelocityAlpha;
 		}
 	}
 }

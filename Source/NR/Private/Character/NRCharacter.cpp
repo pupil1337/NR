@@ -66,6 +66,15 @@ void ANRCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		Spring->DestroyComponent();
+		MeshArm->DestroyComponent();
+		MeshLeg->DestroyComponent();
+		Camera->DestroyComponent();
+		SeparateFOVCheckBox->DestroyComponent();
+	}
+
 	// TODO:换成背包组件
 	if (HasAuthority())
 	{
@@ -164,6 +173,9 @@ void ANRCharacter::UpdateWhetherSeparateFOV()
 		QueryParams
 		))
 	{
+#ifdef WITH_EDITOR
+	GEngine->AddOnScreenDebugMessage(0, 1.0f, FColor::Red, FString::Printf(TEXT("穿模.并修复")));
+#endif
 		if (EquippedWeapon) EquippedWeapon->SetFPS_SeparateFOV(true, true);
 		SetFPS_SeparateFOV(true, true);
 	}
