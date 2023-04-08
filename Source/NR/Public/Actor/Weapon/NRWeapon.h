@@ -7,6 +7,7 @@
 #include "NRWeapon.generated.h"
 
 class USkeletalMeshComponent;
+class UBoxComponent;
 
 UCLASS()
 class NR_API ANRWeapon : public AActor
@@ -18,7 +19,10 @@ class NR_API ANRWeapon : public AActor
 	
 public:
 	ANRWeapon();
-
-protected:
+	
 	virtual void BeginPlay() override;
+
+// This Class Func
+public:
+	void SetFPS_SeparateFOV(bool bEnable, bool bSeparate = false);
 };

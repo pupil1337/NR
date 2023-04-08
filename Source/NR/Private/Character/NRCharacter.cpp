@@ -8,11 +8,15 @@
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
+#include "Actor/Weapon/NRWeapon.h"
+#include "Components/BoxComponent.h"
+#include "Net/UnrealNetwork.h"
 
 const FName NAME_Socket_Camera(TEXT("SOCKET_Camera"));
 const FName NAME_Bone_Spine_01(TEXT("spine_01"));
+const FName NAME_Socket_Weapon(TEXT("SOCKET_Weapon"));
 const FName NAME_Separate_FOV_Alpha(TEXT("Separate_FOV Alpha"));
+const FName NAME_Separate_Alpha(TEXT("Separate Alpha"));
 
 ANRCharacter::ANRCharacter()
 {
@@ -20,56 +24,67 @@ ANRCharacter::ANRCharacter()
 
 	bUseControllerRotationYaw = true;
 	
-	// CharacterMovement
-	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
-	
 	// Spring
 	Spring = CreateDefaultSubobject<USpringArmComponent>(TEXT("弹簧臂"));
 	Spring->SetupAttachment(GetCapsuleComponent());
-	Spring->bDoCollisionTest = false;
-	Spring->bUsePawnControlRotation = true;
-	Spring->TargetArmLength = 0.0f;
 
 	// MeshArm
 	MeshArm = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("手臂"));
 	MeshArm->SetupAttachment(Spring);
-	MeshArm->SetRelativeLocation(FVector(3.977629,-0.000008,-165.516068));
-	MeshArm->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
-	MeshArm->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
-	MeshArm->CastShadow = false;
-	MeshArm->bOnlyOwnerSee = true;
+	MeshArm->SetRelativeLocation(FVector(3.977629, -0.000008, -165.516068));
 
 	// MeshLeg
 	MeshLeg = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("腿"));
 	MeshLeg->SetupAttachment(GetMesh());
 	MeshLeg->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
-	MeshLeg->CastShadow = false;
-	MeshLeg->bOnlyOwnerSee = true;
 
 	// Camera
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("摄像机"));
 	Camera->SetupAttachment(MeshArm, NAME_Socket_Camera);
+
+	// SeparateFOVCheckBox
+	SeparateFOVCheckBox = CreateDefaultSubobject<UBoxComponent>(TEXT("穿模检测盒"));
+	SeparateFOVCheckBox->SetupAttachment(MeshArm, NAME_Socket_Camera);
 }
 
 void ANRCharacter::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
 
+	// Only For Preview
 	Spring->SetRelativeLocation(FVector(0.0f, 0.0f, BaseEyeHeight) + SpringOffsetFPS);
+}
+
+void ANRCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ANRCharacter, EquippedWeapon, COND_None)
 }
 
 void ANRCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// initializes
-	SetMeshesVisibleAndComponentsDestroy();
-	
-	// TODO:换位置
-	if (IsLocallyControlled())
+	// TODO:换成背包组件
+	if (HasAuthority())
 	{
-		SetSpringMode();
+		if (WeaponClass)
+		{
+			FActorSpawnParameters Params;
+			Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			Params.Owner = this;
+			EquippedWeapon = GetWorld()->SpawnActor<ANRWeapon>(WeaponClass, Params);
+			OnRep_EquippedWeapon(nullptr);
+		}
 	}
+}
+
+void ANRCharacter::PawnClientRestart()
+{
+	Super::PawnClientRestart();
+	
+	SetMeshesVisibility();
 }
 
 void ANRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -118,40 +133,54 @@ void ANRCharacter::Tick(float DeltaSeconds)
 	if (IsLocallyControlled())
 	{
 		UpdateSpringLocation(DeltaSeconds);
-	}
-}
-
-// Initializes ===================================================================================
-void ANRCharacter::SetMeshesVisibleAndComponentsDestroy()
-{
-	if (IsLocallyControlled())
-	{
-		GetMesh()->SetRenderInMainPass(false);
-		MeshArm->SetScalarParameterValueOnMaterials(NAME_Separate_FOV_Alpha, 1.0f);
-		MeshLeg->HideBoneByName(NAME_Bone_Spine_01, PBO_None);
-	}
-	else
-	{
-		GetMesh()->SetRenderInMainPass(true);
-		Spring->DestroyComponent();
-		Camera->DestroyComponent();
-		MeshArm->DestroyComponent();
-		MeshLeg->DestroyComponent();
+		UpdateWhetherSeparateFOV();
 	}
 }
 
 // FuncType-LocallyControlleds ===================================================================================
-void ANRCharacter::SetSpringMode(/* TODO: 3P视角 */)
+void ANRCharacter::SetMeshesVisibility()
 {
-	Spring->SetRelativeLocation(FVector(0.0f, 0.0f, BaseEyeHeight) + SpringOffsetFPS);
+	GetMesh()->SetRenderInMainPass(false);
+	MeshLeg->HideBoneByName(NAME_Bone_Spine_01, PBO_None);
 }
 
 void ANRCharacter::UpdateSpringLocation(float DeltaSeconds)
 {
-	//if (FPS)
-	//{
 	Spring->SetRelativeLocation(FMath::VInterpTo(Spring->GetRelativeLocation(), FVector(0.0f, 0.0f, BaseEyeHeight) + SpringOffsetFPS, DeltaSeconds, 10));
-	//}
+}
+
+void ANRCharacter::UpdateWhetherSeparateFOV()
+{
+	FHitResult Res;
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+	if (GetWorld()->SweepSingleByChannel(
+		Res,
+		SeparateFOVCheckBox->GetComponentLocation(),
+		SeparateFOVCheckBox->GetComponentLocation() + SeparateFOVCheckBox->GetComponentRotation().Vector() * 10.0f,
+		FQuat(FRotator(0.0f)),
+		ECC_Camera,
+		SeparateFOVCheckBox->GetCollisionShape(),
+		QueryParams
+		))
+	{
+		if (EquippedWeapon) EquippedWeapon->SetFPS_SeparateFOV(true, true);
+		SetFPS_SeparateFOV(true, true);
+	}
+	else
+	{
+		if (EquippedWeapon) EquippedWeapon->SetFPS_SeparateFOV(true, false);
+		SetFPS_SeparateFOV(true, false);
+	}
+}
+
+void ANRCharacter::SetFPS_SeparateFOV(bool bEnable, bool bSeparate)
+{
+	float SeparateFOVAlpha = bEnable ? 1.0f : 0.0f;
+	float SeparateAlpha = bSeparate ? 0.1f : 1.0f;
+	MeshArm->SetScalarParameterValueOnMaterials(NAME_Separate_FOV_Alpha, SeparateFOVAlpha);
+	MeshArm->SetScalarParameterValueOnMaterials(NAME_Separate_Alpha, SeparateAlpha);
+	MeshArm->SetCastShadow(!bSeparate);
 }
 
 // Inputs ===================================================================================
@@ -178,6 +207,24 @@ void ANRCharacter::OnLookInput(const FInputActionValue& Value)
 		{
 			PlayerController->RotationInput.Pitch = 0.0f;
 		}
+	}
+}
+
+// Temp
+void ANRCharacter::OnRep_EquippedWeapon(ANRWeapon* OldEquippedWeapon)
+{
+	if (OldEquippedWeapon)
+	{
+		// ....
+	}
+
+	if (IsLocallyControlled())
+	{
+		EquippedWeapon->AttachToComponent(MeshArm, FAttachmentTransformRules::KeepRelativeTransform, NAME_Socket_Weapon);
+	}
+	else
+	{
+		EquippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, NAME_Socket_Weapon);
 	}
 }
 

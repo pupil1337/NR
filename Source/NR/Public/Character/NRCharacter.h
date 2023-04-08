@@ -12,6 +12,8 @@ class USkeletalMeshComponent;
 class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
+class ANRWeapon;
+class UBoxComponent;
 
 UCLASS()
 class NR_API ANRCharacter : public ACharacter
@@ -31,6 +33,9 @@ class NR_API ANRCharacter : public ACharacter
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UCameraComponent> Camera;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
+	TObjectPtr<UBoxComponent> SeparateFOVCheckBox;
+
 	// Settings
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="配置|角色", DisplayName="摄像机-FPS弹簧臂相对eyes位置偏移")
 	FVector SpringOffsetFPS = FVector(30.0f, 0.0f, 0.0f);
@@ -47,27 +52,35 @@ class NR_API ANRCharacter : public ACharacter
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="配置|输入")
 	TObjectPtr<UInputAction> IA_Crouch;
 	
+	// Temp TODO:换成背包组件
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="配置|临时")
+	TSubclassOf<ANRWeapon> WeaponClass;
+	UPROPERTY(Transient, ReplicatedUsing=OnRep_EquippedWeapon)
+	ANRWeapon* EquippedWeapon;
+	
 public:
 	ANRCharacter();
 	virtual void OnConstruction(const FTransform& Transform) override;
-
-protected:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
 	virtual void BeginPlay() override;
-
-public:
+	virtual void PawnClientRestart() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Tick(float DeltaSeconds) override;
 
 //~ This Class Begin
 private:
-	// Initializes
-	void SetMeshesVisibleAndComponentsDestroy();
-
-	// FuncType-LocallyControlleds
-	void SetSpringMode(/* TODO: 3P视角 */);
+	// LocallyControlled
+	void SetMeshesVisibility();
 	void UpdateSpringLocation(float DeltaSeconds);
+	void UpdateWhetherSeparateFOV();
+	void SetFPS_SeparateFOV(bool bEnable, bool bSeparate /* =false */);
 	
 	// Inputs
 	void OnMoveInput(const FInputActionValue& Value);
 	void OnLookInput(const FInputActionValue& Value);
+
+	// Temp TODO:换成背包组件
+	UFUNCTION()
+	void OnRep_EquippedWeapon(ANRWeapon* OldEquippedWeapon);
 };

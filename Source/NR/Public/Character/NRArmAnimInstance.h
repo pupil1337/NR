@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -15,6 +15,12 @@ struct FNRArmAnimInstanceProxy : public FAnimInstanceProxy
 		MoveDir(FVector2D::ZeroVector)
 	{}
 	FNRArmAnimInstanceProxy(UAnimInstance* Instance): FAnimInstanceProxy(Instance) {}
+
+	//~Begin FAnimInstanceProxy
+	virtual void Initialize(UAnimInstance* InAnimInstance) override;
+	virtual void PreUpdate(UAnimInstance* InAnimInstance, float DeltaSeconds) override;
+	virtual void Update(float DeltaSeconds) override;
+	//~End   FAnimInstanceProxy
 
 private:
 	UPROPERTY(Transient, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))

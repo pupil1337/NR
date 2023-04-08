@@ -3,31 +3,33 @@
 
 #include "Actor/Weapon/NRWeapon.h"
 
-#include "Character/NRCharacter.h"
-
 const FName NAME_Separate_FOV_Alpha(TEXT("Separate_FOV Alpha"));
+const FName NAME_Separate_Alpha(TEXT("Separate Alpha"));
 
 ANRWeapon::ANRWeapon()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
 
+	bReplicates = true;
+
 	// Mesh
 	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("骨骼网格体"));
-	Mesh->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
-	Mesh->CastShadow = false;
+	SetRootComponent(Mesh);
 }
 
 void ANRWeapon::BeginPlay()
 {
 	Super::BeginPlay();
+}
 
-	if (ANRCharacter* NRCharacter = Cast<ANRCharacter>(GetOwner()))
-	{
-		if (NRCharacter->IsLocallyControlled())
-		{
-			Mesh->SetScalarParameterValueOnMaterials(NAME_Separate_FOV_Alpha, 1.0f);
-		}
-	}
+void ANRWeapon::SetFPS_SeparateFOV(bool bEnable, bool bSeparate /* =false */)
+{
+	float SeparateFOVAlpha = bEnable ? 1.0f : 0.0f;
+	float SeparateAlpha = bSeparate ? 0.1f : 1.0f;
+
+	Mesh->SetScalarParameterValueOnMaterials(NAME_Separate_FOV_Alpha, SeparateFOVAlpha);
+	Mesh->SetScalarParameterValueOnMaterials(NAME_Separate_Alpha, SeparateAlpha);
+	Mesh->SetCastShadow(!bSeparate);
 }
 
