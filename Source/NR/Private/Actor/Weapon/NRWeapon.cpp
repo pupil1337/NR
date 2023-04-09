@@ -30,6 +30,6 @@ void ANRWeapon::SetFPS_SeparateFOV(bool bEnable, bool bSeparate /* =false */)
 
 	Mesh->SetScalarParameterValueOnMaterials(NAME_Separate_FOV_Alpha, SeparateFOVAlpha);
 	Mesh->SetScalarParameterValueOnMaterials(NAME_Separate_Alpha, SeparateAlpha);
-	Mesh->SetCastShadow(!bSeparate);
+	// Mesh->SetCastShadow(!bSeparate); TODO:引擎有bug bSelfShadowOnly咱不可用
 }
 
