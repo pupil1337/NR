@@ -6,6 +6,7 @@
 
 # Project
 Binaries/
+Build/
 Content/Collections/
 Content/Developers/
 DerivedDataCache/
