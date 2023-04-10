@@ -27,11 +27,11 @@ struct FNRArmAnimInstanceProxy : public FAnimInstanceProxy
 
 private:
 	UPROPERTY(Transient, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
-	float VelocityAlpha; // 与设定动画最大移动速度比率 (clamp 0 1)
+	float VelocityAlpha; // 与设定动画最大移动速度比率 (clamp 0 1) 0:idle不混合移动 1:idle混合移动
 	UPROPERTY(Transient, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	FVector VelocityNormalized; // 速度归一化后
 	UPROPERTY(Transient, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
-	float VelocityPlayRate; // 动画播放速率 (>=1.0f 默认1.0f)
+	float VelocityPlayRate;
 	UPROPERTY(Transient, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	float BreathingAlpha; // 呼吸 (clamp 0 1)
 };

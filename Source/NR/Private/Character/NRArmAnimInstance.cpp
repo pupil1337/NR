@@ -28,7 +28,7 @@ void FNRArmAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float Del
 			// 2. VelocityNormalized
 			VelocityNormalized = VelocityXY.GetSafeNormal() * VelocityAlpha;
 			// 3. VelocityPlayRate
-			VelocityPlayRate = FMath::Max<float>(VelocityXY.Size() / MaxSpeed, 1.0f);
+			VelocityPlayRate = VelocityXY.Size() / MaxSpeed;
 			// 4. BreathingAlpha
 			BreathingAlpha = 1.0f - VelocityAlpha;
 		}
