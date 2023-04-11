@@ -7,6 +7,8 @@
 //#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
+const FName NAME_Curve_Feet_Crossing(TEXT("Feet_Crossing"));
+
 void FNRBodyAnimInstanceProxy::Initialize(UAnimInstance* InAnimInstance)
 {
 	FAnimInstanceProxy::Initialize(InAnimInstance);
@@ -29,6 +31,9 @@ void FNRBodyAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float De
 		// 3. bMoving
 		bMoving = VelocityXY.X != 0.0f && VelocityXY.Y != 0.0f;
 	}
+
+	// Update Curves
+	UpdateCurvesValue(InAnimInstance);
 }
 
 void FNRBodyAnimInstanceProxy::Update(float DeltaSeconds)
@@ -47,20 +52,13 @@ void FNRBodyAnimInstanceProxy::CalculateMoveDirAndAlpha(const FVector& V, float 
 
 	// 2. MoveDir
 	float Angle = UKismetMathLibrary::NormalizedDeltaRotator(V.Rotation(), FRotator::ZeroRotator).Yaw;
-	if (-70.0f <= Angle && Angle <= 70.0f)
-	{
-		MoveDir = ENRMoveDir::EMD_Forward;
-	}
-	else if (70.0f < Angle && Angle < 110.0f)
-	{
-		MoveDir = ENRMoveDir::EMD_Right;
-	}
-	else if (Angle <= -110.0f || Angle >= 110.0f)
-	{
-		MoveDir = ENRMoveDir::EMD_Backward;
-	}
-	else
-	{
-		MoveDir = ENRMoveDir::EMD_Left;
-	}
+	if (-70.0f <= Angle && Angle <= 70.0f) MoveDir.SetMoveF();
+	else if (70.0f < Angle && Angle < 110.0f) MoveDir.SetMoveR();
+	else if (Angle <= -110.0f || Angle >= 110.0f) MoveDir.SetMoveB();
+	else MoveDir.SetMoveL();
+}
+
+void FNRBodyAnimInstanceProxy::UpdateCurvesValue(UAnimInstance* InAnimInstance)
+{
+	Curves.bFeetCrossing = InAnimInstance->GetCurveValue(NAME_Curve_Feet_Crossing) == 1.0f ? true : false;
 }
