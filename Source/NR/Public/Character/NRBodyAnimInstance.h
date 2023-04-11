@@ -61,10 +61,14 @@ struct FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 	GENERATED_BODY()
 
 	FNRBodyAnimInstanceProxy():
-		bMoving(false)
+		bMoving(false),
+		bJumping(false),
+		bCrouching(false)
 	{}
 	FNRBodyAnimInstanceProxy(UAnimInstance* Instance): FAnimInstanceProxy(Instance),
-		bMoving(false)
+		bMoving(false),
+		bJumping(false),
+		bCrouching(false)
 	{}
 
 	//~Begin FAnimInstanceProxy
@@ -83,6 +87,10 @@ struct FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 	FNRMoveDir MoveDir; // 移动方向
 	UPROPERTY(Transient, BlueprintReadOnly)
 	uint8 bMoving: 1;
+	UPROPERTY(Transient, BlueprintReadOnly)
+	uint8 bJumping: 1;
+	UPROPERTY(Transient, BlueprintReadOnly)
+	uint8 bCrouching: 1;
 
 	UPROPERTY(Transient, BlueprintReadOnly)
 	FNRAnimCurves Curves;

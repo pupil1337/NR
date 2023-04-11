@@ -4,7 +4,7 @@
 #include "Character/NRBodyAnimInstance.h"
 
 #include "Character/NRCharacter.h"
-//#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
 const FName NAME_Curve_Feet_Crossing(TEXT("Feet_Crossing"));
@@ -18,7 +18,7 @@ void FNRBodyAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float De
 {
 	FAnimInstanceProxy::PreUpdate(InAnimInstance, DeltaSeconds);
 
-	if (ANRCharacter* NRCharacter = Cast<ANRCharacter>(InAnimInstance->TryGetPawnOwner()))
+	if (const ANRCharacter* NRCharacter = Cast<ANRCharacter>(InAnimInstance->TryGetPawnOwner()))
 	{
 		FVector Velocity = UKismetMathLibrary::InverseTransformDirection(NRCharacter->GetActorTransform(), NRCharacter->GetVelocity());
 		FVector VelocityXY = FVector(Velocity.X, Velocity.Y, 0.0f);
@@ -30,6 +30,15 @@ void FNRBodyAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float De
 		
 		// 3. bMoving
 		bMoving = VelocityXY.X != 0.0f && VelocityXY.Y != 0.0f;
+
+		if (const UCharacterMovementComponent* CharacterMovementComponent = NRCharacter->GetCharacterMovement())
+		{
+			// 4. bJumping
+			bJumping = CharacterMovementComponent->IsFalling();
+            
+			// 5. bCrouching
+			bCrouching = CharacterMovementComponent->IsCrouching();
+		}
 	}
 
 	// Update Curves
