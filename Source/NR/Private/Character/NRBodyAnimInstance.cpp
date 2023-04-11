@@ -22,11 +22,13 @@ void FNRBodyAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float De
 	{
 		FVector Velocity = UKismetMathLibrary::InverseTransformDirection(NRCharacter->GetActorTransform(), NRCharacter->GetVelocity());
 		FVector VelocityXY = FVector(Velocity.X, Velocity.Y, 0.0f);
+		FVector VelocityXY_Normalized = VelocityXY.GetSafeNormal();
 		// float MaxSpeed = Cast<ANRCharacter>(NRCharacter->GetClass()->GetDefaultObject())->GetCharacterMovement()->MaxWalkSpeed; // TODO:蹲伏等
-
+		float MoveAngle = UKismetMathLibrary::NormalizedDeltaRotator(VelocityXY_Normalized.Rotation(), FRotator::ZeroRotator).Yaw;
+		
 		// 1. MoveDirAlpha
 		// 2. MoveDir
-		CalculateMoveDirAndAlpha(VelocityXY.GetSafeNormal(), DeltaSeconds);
+		CalculateMoveDirAndAlpha(VelocityXY_Normalized, MoveAngle, DeltaSeconds);
 		
 		// 3. bMoving
 		bMoving = VelocityXY.X != 0.0f && VelocityXY.Y != 0.0f;
@@ -39,10 +41,17 @@ void FNRBodyAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float De
 			// 5. bCrouching
 			bCrouching = CharacterMovementComponent->IsCrouching();
 		}
+
+		// 6. AO_Yaw
+		// 7. AO_Pitch
+		UpdateAimOffset(NRCharacter->GetBaseAimRotation(), NRCharacter->IsLocallyControlled(), DeltaSeconds);
 	}
 
 	// Update Curves
 	UpdateCurvesValue(InAnimInstance);
+
+	// Update Other
+	UpdateOtherValues();
 }
 
 void FNRBodyAnimInstanceProxy::Update(float DeltaSeconds)
@@ -51,7 +60,7 @@ void FNRBodyAnimInstanceProxy::Update(float DeltaSeconds)
 }
 
 
-void FNRBodyAnimInstanceProxy::CalculateMoveDirAndAlpha(const FVector& V, float DeltaSeconds)
+void FNRBodyAnimInstanceProxy::CalculateMoveDirAndAlpha(const FVector& V, float MoveAngle, float DeltaSeconds)
 {
 	// 1. MoveDirAlpha
 	MoveDirAlpha.Move_F = FMath::FInterpTo<float>(MoveDirAlpha.Move_F, FMath::Clamp<float>(V.X, 0.0f, 1.0f), DeltaSeconds, 10.0f);
@@ -60,14 +69,69 @@ void FNRBodyAnimInstanceProxy::CalculateMoveDirAndAlpha(const FVector& V, float 
 	MoveDirAlpha.Move_R = FMath::FInterpTo<float>(MoveDirAlpha.Move_R,  FMath::Clamp<float>(V.Y, 0.0f, 1.0f), DeltaSeconds, 10.0f);
 
 	// 2. MoveDir
-	float Angle = UKismetMathLibrary::NormalizedDeltaRotator(V.Rotation(), FRotator::ZeroRotator).Yaw;
-	if (-70.0f <= Angle && Angle <= 70.0f) MoveDir.SetMoveF();
-	else if (70.0f < Angle && Angle < 110.0f) MoveDir.SetMoveR();
-	else if (Angle <= -110.0f || Angle >= 110.0f) MoveDir.SetMoveB();
+	if (-70.0f <= MoveAngle && MoveAngle <= 70.0f) MoveDir.SetMoveF();
+	else if (70.0f < MoveAngle && MoveAngle < 110.0f) MoveDir.SetMoveR();
+	else if (MoveAngle <= -110.0f || MoveAngle >= 110.0f) MoveDir.SetMoveB();
 	else MoveDir.SetMoveL();
+}
+
+void FNRBodyAnimInstanceProxy::UpdateAimOffset(const FRotator& BaseAimRotation, bool bLocallyControlled, float DeltaSeconds)
+{
+	FRotator CurrAimRotation = FRotator(0.0f, BaseAimRotation.Yaw, 0.0f);
+
+	auto InitAimOffset = [this, CurrAimRotation]() -> void
+	{
+		StartAimRotation = CurrAimRotation;
+		AO_Yaw = 0.0f;
+		TurnDir.SetTurnNone();
+	};
+	
+	// 6. AO_Yaw
+	if (!bMoving && !bJumping) // 静止
+	{
+		FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrAimRotation, StartAimRotation);
+		AO_Yaw = DeltaAimRotation.Yaw;
+
+		if (AO_Yaw < -70.0f) TurnDir.SetTurnL();
+		else if (AO_Yaw > 70.0f) TurnDir.SetTurnR();
+
+		if (TurnDir.None == false)
+		{
+			// 在转身
+			AO_Yaw = InterpAO_Yaw = FMath::FInterpTo<float>(InterpAO_Yaw, 0.0f, DeltaSeconds, 15.0f);
+			if (FMath::Abs(AO_Yaw) < 5.0f)
+			{
+				InitAimOffset();
+			}
+		}
+		else
+		{
+			// 不在转身
+			InterpAO_Yaw = AO_Yaw;
+		}
+	}
+	else // 移动
+	{
+		InitAimOffset();
+	}
+
+	// 7. AO_Pitch
+	AO_Pitch = BaseAimRotation.Pitch;
+	if (!bLocallyControlled && AO_Pitch > 90.0f)
+	{
+		FVector2D InRange = {270.0f, 360.0f};
+		FVector2D OutRange = {-90.0f, 0.0f};
+		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
+	}
 }
 
 void FNRBodyAnimInstanceProxy::UpdateCurvesValue(UAnimInstance* InAnimInstance)
 {
 	Curves.bFeetCrossing = InAnimInstance->GetCurveValue(NAME_Curve_Feet_Crossing) == 1.0f ? true : false;
+}
+
+void FNRBodyAnimInstanceProxy::UpdateOtherValues()
+{
+	AO_Yaw_Negate = -AO_Yaw;
+	AO_Yaw_Div4 = AO_Yaw / 4.0f;
 }

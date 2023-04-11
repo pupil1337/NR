@@ -28,8 +28,7 @@ struct FNRMoveDir
 {
 	GENERATED_BODY()
 	FNRMoveDir(): Forward(false), Backward(false), Left(false), Right(false) {}
-
-	void Clear() { Forward = Backward = Left = Right = false; }
+	
 	void SetMoveF() { Clear(); Forward = true; }
 	void SetMoveB() { Clear(); Backward = true; }
 	void SetMoveL() { Clear(); Left = true; }
@@ -43,6 +42,30 @@ struct FNRMoveDir
 	uint8 Left: 1;
 	UPROPERTY(BlueprintReadOnly)
 	uint8 Right: 1;
+
+private:
+	void Clear() { Forward = Backward = Left = Right = false; }
+};
+
+USTRUCT(BlueprintType)
+struct FTurnDir
+{
+	GENERATED_BODY()
+	FTurnDir(): None(true), Left(false), Right(false) {}
+	
+	void SetTurnNone() { Clear(); None = true; }
+	void SetTurnL() { Clear(); Left = true; }
+	void SetTurnR() { Clear(); Right = true; }
+	
+	UPROPERTY(BlueprintReadOnly)
+	uint8 None: 1;
+	UPROPERTY(BlueprintReadOnly)
+	uint8 Left: 1;
+	UPROPERTY(BlueprintReadOnly)
+	uint8 Right: 1;
+
+private:
+	void Clear() { None = Left = Right = false; }
 };
 
 USTRUCT(BlueprintType)
@@ -63,12 +86,21 @@ struct FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 	FNRBodyAnimInstanceProxy():
 		bMoving(false),
 		bJumping(false),
-		bCrouching(false)
+		bCrouching(false),
+		AO_Yaw(0.0f),
+		AO_Yaw_Negate(0.0f),
+		AO_Pitch(0.0f),
+		AO_Yaw_Div4(0.0f)
 	{}
+	
 	FNRBodyAnimInstanceProxy(UAnimInstance* Instance): FAnimInstanceProxy(Instance),
 		bMoving(false),
 		bJumping(false),
-		bCrouching(false)
+		bCrouching(false),
+		AO_Yaw(0.0f),
+		AO_Yaw_Negate(0.0f),
+		AO_Pitch(0.0f),
+		AO_Yaw_Div4(0.0f)
 	{}
 
 	//~Begin FAnimInstanceProxy
@@ -78,22 +110,40 @@ struct FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 	//~End FAnimInstanceProxy
 
 //~ Begin This Class
-	void CalculateMoveDirAndAlpha(const FVector& V, float DeltaSeconds);
+	void CalculateMoveDirAndAlpha(const FVector& V, float MoveAngle, float DeltaSeconds);
+	void UpdateAimOffset(const FRotator& BaseAimRotation, bool bLocallyControlled, float DeltaSeconds);
 	void UpdateCurvesValue(UAnimInstance* InAnimInstance);
+	void UpdateOtherValues();
 	
 	UPROPERTY(Transient, BlueprintReadOnly)
-	FNRMoveDirAlpha MoveDirAlpha; // 四个方向输入的值
+	FNRMoveDirAlpha MoveDirAlpha; // 1. 四个方向输入的值
 	UPROPERTY(Transient, BlueprintReadOnly)
-	FNRMoveDir MoveDir; // 移动方向
+	FNRMoveDir MoveDir;           // 2. 移动方向
+	
 	UPROPERTY(Transient, BlueprintReadOnly)
-	uint8 bMoving: 1;
+	uint8 bMoving: 1;             // 3. 是否在移动
 	UPROPERTY(Transient, BlueprintReadOnly)
-	uint8 bJumping: 1;
+	uint8 bJumping: 1;            // 4. 是否在跳跃
 	UPROPERTY(Transient, BlueprintReadOnly)
-	uint8 bCrouching: 1;
+	uint8 bCrouching: 1;          // 5. 是否在下蹲
 
 	UPROPERTY(Transient, BlueprintReadOnly)
-	FNRAnimCurves Curves;
+	float AO_Yaw;                 // 6. 瞄准偏移 Yaw
+	UPROPERTY(Transient, BlueprintReadOnly)
+	float AO_Yaw_Negate;
+	UPROPERTY(Transient, BlueprintReadOnly)
+	float AO_Yaw_Div4;
+	UPROPERTY(Transient, BlueprintReadOnly)
+	float AO_Pitch;               // 7. 瞄准偏移 Pitch
+	UPROPERTY(Transient, BlueprintReadOnly)
+	FTurnDir TurnDir;
+
+	UPROPERTY(Transient, BlueprintReadOnly)
+	FNRAnimCurves Curves;         // 曲线值
+
+	// 临时值
+	FRotator StartAimRotation = FRotator::ZeroRotator;
+	float InterpAO_Yaw = 0.0f;
 };
 
 /**
