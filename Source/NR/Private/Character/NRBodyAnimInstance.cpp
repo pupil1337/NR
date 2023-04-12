@@ -44,6 +44,7 @@ void FNRBodyAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float De
 
 		// 6. AO_Yaw
 		// 7. AO_Pitch
+		// 8. TurnDir
 		UpdateAimOffset(NRCharacter->GetBaseAimRotation(), NRCharacter->IsLocallyControlled(), DeltaSeconds);
 	}
 
@@ -92,6 +93,7 @@ void FNRBodyAnimInstanceProxy::UpdateAimOffset(const FRotator& BaseAimRotation, 
 		FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrAimRotation, StartAimRotation);
 		AO_Yaw = DeltaAimRotation.Yaw;
 
+		// 8. TurnDir
 		if (AO_Yaw < -70.0f) TurnDir.SetTurnL();
 		else if (AO_Yaw > 70.0f) TurnDir.SetTurnR();
 
@@ -132,6 +134,5 @@ void FNRBodyAnimInstanceProxy::UpdateCurvesValue(UAnimInstance* InAnimInstance)
 
 void FNRBodyAnimInstanceProxy::UpdateOtherValues()
 {
-	AO_Yaw_Negate = -AO_Yaw;
-	AO_Yaw_Div4 = AO_Yaw / 4.0f;
+	AO_Pitch_Negate = -AO_Pitch;
 }
