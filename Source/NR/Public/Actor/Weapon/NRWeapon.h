@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Library/NRWeaponAnimSetting.h"
 #include "NRWeapon.generated.h"
 
 class USkeletalMeshComponent;
@@ -16,6 +17,9 @@ class NR_API ANRWeapon : public AActor
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<USkeletalMeshComponent> Mesh;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
+	FNRWeaponAnimSetting AnimSetting;
 	
 public:
 	ANRWeapon();
@@ -25,4 +29,5 @@ public:
 // This Class Func
 public:
 	void SetFPS_SeparateFOV(bool bEnable, bool bSeparate = false);
+	FORCEINLINE const FNRWeaponAnimSetting& GetAnimSetting() const { return AnimSetting; }
 };

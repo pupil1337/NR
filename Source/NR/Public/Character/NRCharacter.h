@@ -68,6 +68,9 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Tick(float DeltaSeconds) override;
 
+	// Temp TODO:换成背包组件
+	FORCEINLINE ANRWeapon* GetEquippedWeapon() const { return EquippedWeapon; }
+
 //~ This Class Begin
 private:
 	// LocallyControlled

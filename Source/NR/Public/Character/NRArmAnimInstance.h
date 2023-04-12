@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstanceProxy.h"
+#include "Library/NRWeaponAnimSetting.h"
 #include "NRArmAnimInstance.generated.h"
 
 USTRUCT(BlueprintType)
@@ -11,13 +12,18 @@ struct FNRArmAnimInstanceProxy : public FAnimInstanceProxy
 {
 	GENERATED_BODY()
 
-	FNRArmAnimInstanceProxy(): FAnimInstanceProxy(),
+	FNRArmAnimInstanceProxy():
 		VelocityAlpha(0.0f),
 		VelocityNormalized(FVector::ZeroVector),
 		VelocityPlayRate(1.0f),
-		BreathingAlpha(1.0f)
+		bCrouching(false)
 	{}
-	FNRArmAnimInstanceProxy(UAnimInstance* Instance): FAnimInstanceProxy(Instance) {}
+	FNRArmAnimInstanceProxy(UAnimInstance* Instance): FAnimInstanceProxy(Instance),
+		VelocityAlpha(0.0f),
+		VelocityNormalized(FVector::ZeroVector),
+		VelocityPlayRate(1.0f),
+		bCrouching(false)
+	{}
 
 	//~Begin FAnimInstanceProxy
 	virtual void Initialize(UAnimInstance* InAnimInstance) override;
@@ -25,15 +31,18 @@ struct FNRArmAnimInstanceProxy : public FAnimInstanceProxy
 	virtual void Update(float DeltaSeconds) override;
 	//~End   FAnimInstanceProxy
 
-private:
-	UPROPERTY(Transient, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
-	float VelocityAlpha; // 与设定动画最大移动速度比率 (clamp 0 1) 0:idle不混合移动 1:idle混合移动
-	UPROPERTY(Transient, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
-	FVector VelocityNormalized; // 速度归一化后
-	UPROPERTY(Transient, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
-	float VelocityPlayRate;
-	UPROPERTY(Transient, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
-	float BreathingAlpha; // 呼吸 (clamp 0 1)
+//~Begin This Class
+	UPROPERTY(Transient, BlueprintReadOnly)
+	FNRWeaponAnimSetting AnimSetting; // 1. 动画设置
+	UPROPERTY(Transient, BlueprintReadOnly)
+	float VelocityAlpha;              // 2. 与当前最大移动速度比率 (clamp 0 1) 0:idle不混合移动 1:idle混合移动
+	UPROPERTY(Transient, BlueprintReadOnly)
+	FVector VelocityNormalized;       // 3. 速度归一化后
+	UPROPERTY(Transient, BlueprintReadOnly)
+	float VelocityPlayRate;           // 4. 与当前最大移动速度比率
+
+	UPROPERTY(Transient, BlueprintReadOnly)
+	uint8 bCrouching: 1;              // 5. 是否蹲伏
 };
 
 /**
