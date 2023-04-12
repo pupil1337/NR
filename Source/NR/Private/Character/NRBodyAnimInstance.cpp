@@ -23,7 +23,6 @@ void FNRBodyAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float De
 		FVector Velocity = UKismetMathLibrary::InverseTransformDirection(NRCharacter->GetActorTransform(), NRCharacter->GetVelocity());
 		FVector VelocityXY = FVector(Velocity.X, Velocity.Y, 0.0f);
 		FVector VelocityXY_Normalized = VelocityXY.GetSafeNormal();
-		// float MaxSpeed = Cast<ANRCharacter>(NRCharacter->GetClass()->GetDefaultObject())->GetCharacterMovement()->MaxWalkSpeed; // TODO:蹲伏等
 		float MoveAngle = UKismetMathLibrary::NormalizedDeltaRotator(VelocityXY_Normalized.Rotation(), FRotator::ZeroRotator).Yaw;
 		
 		// 1. MoveDirAlpha
@@ -100,7 +99,7 @@ void FNRBodyAnimInstanceProxy::UpdateAimOffset(const FRotator& BaseAimRotation, 
 		if (TurnDir.None == false)
 		{
 			// 在转身
-			AO_Yaw = InterpAO_Yaw = FMath::FInterpTo<float>(InterpAO_Yaw, 0.0f, DeltaSeconds, 15.0f);
+			AO_Yaw = InterpAO_Yaw = FMath::FInterpTo<float>(InterpAO_Yaw, 0.0f, DeltaSeconds, 5.0f);
 			if (FMath::Abs(AO_Yaw) < 5.0f)
 			{
 				InitAimOffset();
@@ -129,10 +128,13 @@ void FNRBodyAnimInstanceProxy::UpdateAimOffset(const FRotator& BaseAimRotation, 
 
 void FNRBodyAnimInstanceProxy::UpdateCurvesValue(UAnimInstance* InAnimInstance)
 {
-	Curves.bFeetCrossing = InAnimInstance->GetCurveValue(NAME_Curve_Feet_Crossing) == 1.0f ? true : false;
+	Curves.bFeetCrossing = InAnimInstance->GetCurveValue(NAME_Curve_Feet_Crossing) == 0.0f ? false : true;
+	// GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Green, FString::Printf(TEXT("FeetCorssing CruveValue %f"), InAnimInstance->GetCurveValue(NAME_Curve_Feet_Crossing)));
 }
 
 void FNRBodyAnimInstanceProxy::UpdateOtherValues()
 {
 	AO_Pitch_Negate = -AO_Pitch;
+	bCrouchingAndMoving = bCrouching && bMoving;
+	bNotCrouchingAndMoving = !bCrouching && bMoving;
 }

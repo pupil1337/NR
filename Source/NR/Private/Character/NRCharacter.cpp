@@ -10,6 +10,7 @@
 #include "EnhancedInputComponent.h"
 #include "Actor/Weapon/NRWeapon.h"
 #include "Components/BoxComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 
 const FName NAME_Socket_Camera(TEXT("SOCKET_Camera"));
@@ -160,30 +161,44 @@ void ANRCharacter::UpdateSpringLocation(float DeltaSeconds)
 
 void ANRCharacter::UpdateWhetherSeparateFOV()
 {
-	FHitResult Res;
-	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(this);
-	if (GetWorld()->SweepSingleByChannel(
-		Res,
-		SeparateFOVCheckBox->GetComponentLocation(),
-		SeparateFOVCheckBox->GetComponentLocation() + SeparateFOVCheckBox->GetComponentRotation().Vector() * 10.0f,
-		FQuat(FRotator(0.0f)),
-		ECC_Camera,
-		SeparateFOVCheckBox->GetCollisionShape(),
-		QueryParams
-		))
+	bool bNeedFixd = false;
+	if (UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement())
 	{
+		bNeedFixd = CharacterMovementComponent->IsCrouching();
 #ifdef WITH_EDITOR
-	GEngine->AddOnScreenDebugMessage(0, 1.0f, FColor::Red, FString::Printf(TEXT("穿模.并修复")));
+		if (bNeedFixd)
+		{
+			GEngine->AddOnScreenDebugMessage(0, 1.0f, FColor::Red, FString::Printf(TEXT("蹲伏.默认修复穿模")));	
+		}
 #endif
-		if (EquippedWeapon) EquippedWeapon->SetFPS_SeparateFOV(true, true);
-		SetFPS_SeparateFOV(true, true);
 	}
-	else
+
+	if (!bNeedFixd)
 	{
-		if (EquippedWeapon) EquippedWeapon->SetFPS_SeparateFOV(true, false);
-		SetFPS_SeparateFOV(true, false);
+		FHitResult Res;
+		FCollisionQueryParams QueryParams;
+		QueryParams.AddIgnoredActor(this);
+		if (GetWorld()->SweepSingleByChannel(
+			Res,
+			SeparateFOVCheckBox->GetComponentLocation(),
+			SeparateFOVCheckBox->GetComponentLocation() + SeparateFOVCheckBox->GetComponentRotation().Vector() * 10.0f,
+			FQuat(FRotator(0.0f)),
+			ECC_Camera,
+			SeparateFOVCheckBox->GetCollisionShape(),
+			QueryParams
+			))
+		{
+#ifdef WITH_EDITOR
+			GEngine->AddOnScreenDebugMessage(0, 1.0f, FColor::Red, FString::Printf(TEXT("穿模.并修复")));
+#endif
+			bNeedFixd = true;
+			if (EquippedWeapon) EquippedWeapon->SetFPS_SeparateFOV(true, true);
+			SetFPS_SeparateFOV(true, true);
+		}
 	}
+
+	if (EquippedWeapon) EquippedWeapon->SetFPS_SeparateFOV(true, bNeedFixd);
+	SetFPS_SeparateFOV(true, bNeedFixd);
 }
 
 void ANRCharacter::SetFPS_SeparateFOV(bool bEnable, bool bSeparate)

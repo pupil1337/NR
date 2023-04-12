@@ -87,6 +87,8 @@ struct FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 		bMoving(false),
 		bJumping(false),
 		bCrouching(false),
+		bCrouchingAndMoving(false),
+		bNotCrouchingAndMoving(false),
 		AO_Yaw(0.0f),
 		AO_Pitch(0.0f),
 		AO_Pitch_Negate(0.0f)
@@ -96,6 +98,8 @@ struct FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 		bMoving(false),
 		bJumping(false),
 		bCrouching(false),
+		bCrouchingAndMoving(false),
+		bNotCrouchingAndMoving(false),
 		AO_Yaw(0.0f),
 		AO_Pitch(0.0f),
 		AO_Pitch_Negate(0.0f)
@@ -124,6 +128,10 @@ struct FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 	uint8 bJumping: 1;            // 4. 是否在跳跃
 	UPROPERTY(Transient, BlueprintReadOnly)
 	uint8 bCrouching: 1;          // 5. 是否在下蹲
+	UPROPERTY(Transient, BlueprintReadOnly)
+	uint8 bCrouchingAndMoving: 1;
+	UPROPERTY(Transient, BlueprintReadOnly)
+	uint8 bNotCrouchingAndMoving: 1;
 
 	UPROPERTY(Transient, BlueprintReadOnly)
 	float AO_Yaw;                 // 6. 瞄准偏移 Yaw
