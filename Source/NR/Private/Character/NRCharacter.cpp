@@ -129,6 +129,11 @@ void ANRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 							EnhancedInputComponent->BindAction(IA_Crouch, ETriggerEvent::Started, this, &ThisClass::Crouch, false);
 							EnhancedInputComponent->BindAction(IA_Crouch, ETriggerEvent::Completed, this, &ThisClass::UnCrouch, false);
 						}
+						if (IA_Run)
+						{
+							EnhancedInputComponent->BindAction(IA_Run, ETriggerEvent::Started, this, &ThisClass::OnRunInput);
+							EnhancedInputComponent->BindAction(IA_Run, ETriggerEvent::Completed, this, &ThisClass::OnRunInput);
+						}
 					}
 				}
 			}		
@@ -235,6 +240,13 @@ void ANRCharacter::OnLookInput(const FInputActionValue& Value)
 			PlayerController->RotationInput.Pitch = 0.0f;
 		}
 	}
+}
+
+void ANRCharacter::OnRunInput(const FInputActionValue& Value)
+{
+	float Op = Value.Get<FInputActionValue::Axis1D>();
+
+	
 }
 
 // Temp

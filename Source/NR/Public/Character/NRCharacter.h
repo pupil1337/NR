@@ -51,6 +51,8 @@ class NR_API ANRCharacter : public ACharacter
 	TObjectPtr<UInputAction> IA_Jump;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="配置|输入")
 	TObjectPtr<UInputAction> IA_Crouch;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="配置|输入")
+	TObjectPtr<UInputAction> IA_Run;
 	
 	// Temp TODO:换成背包组件
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="配置|临时")
@@ -82,6 +84,7 @@ private:
 	// Inputs
 	void OnMoveInput(const FInputActionValue& Value);
 	void OnLookInput(const FInputActionValue& Value);
+	void OnRunInput(const FInputActionValue& Value);
 
 	// Temp TODO:换成背包组件
 	UFUNCTION()
