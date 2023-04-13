@@ -30,6 +30,15 @@ void ANRWeapon::SetFPS_SeparateFOV(bool bEnable, bool bSeparate /* =false */)
 
 	Mesh->SetScalarParameterValueOnMaterials(NAME_Separate_FOV_Alpha, SeparateFOVAlpha);
 	Mesh->SetScalarParameterValueOnMaterials(NAME_Separate_Alpha, SeparateAlpha);
-	// Mesh->SetCastShadow(!bSeparate); TODO:引擎有bug bSelfShadowOnly咱不可用
+	// Mesh->SetCastShadow(!bSeparate); TODO:引擎有bug bSelfShadowOnly暂不可用
+}
+
+FNRWeaponInformationRow* ANRWeapon::GetWeaponInformation()
+{
+	if (!WeaponInformation.IsNull())
+	{
+		return WeaponInformation.GetRow<FNRWeaponInformationRow>(TEXT("ANRWeapon::GetWeaponInformation()"));	
+	}
+	return nullptr;
 }
 

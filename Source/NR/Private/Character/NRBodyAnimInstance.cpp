@@ -3,15 +3,23 @@
 
 #include "Character/NRBodyAnimInstance.h"
 
+#include "Actor/Weapon/NRWeapon.h"
 #include "Character/NRCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Table/Weapon/NRWeaponInformation.h"
 
 const FName NAME_Curve_Feet_Crossing(TEXT("Feet_Crossing"));
 
 void FNRBodyAnimInstanceProxy::Initialize(UAnimInstance* InAnimInstance)
 {
 	FAnimInstanceProxy::Initialize(InAnimInstance);
+
+	// PreView Only
+	if (const UNRBodyAnimInstance* ArmAnimInstance = Cast<UNRBodyAnimInstance>(InAnimInstance))
+	{
+		AnimSetting = ArmAnimInstance->PreView_AnimSetting;
+	}
 }
 
 void FNRBodyAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float DeltaSeconds)
@@ -20,6 +28,15 @@ void FNRBodyAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float De
 
 	if (const ANRCharacter* NRCharacter = Cast<ANRCharacter>(InAnimInstance->TryGetPawnOwner()))
 	{
+		// AnimSetting
+		if (ANRWeapon* Weapon = NRCharacter->GetEquippedWeapon())
+		{
+			if (FNRWeaponInformationRow* WeaponInfo = Weapon->GetWeaponInformation())
+			{
+				AnimSetting = *WeaponInfo->GetAnimSetting();
+			}
+		}
+		
 		FVector Velocity = UKismetMathLibrary::InverseTransformDirection(NRCharacter->GetActorTransform(), NRCharacter->GetVelocity());
 		FVector VelocityXY = FVector(Velocity.X, Velocity.Y, 0.0f);
 		FVector VelocityXY_Normalized = VelocityXY.GetSafeNormal();

@@ -207,7 +207,7 @@ void ANRCharacter::SetFPS_SeparateFOV(bool bEnable, bool bSeparate)
 	float SeparateAlpha = bSeparate ? 0.1f : 1.0f;
 	MeshArm->SetScalarParameterValueOnMaterials(NAME_Separate_FOV_Alpha, SeparateFOVAlpha);
 	MeshArm->SetScalarParameterValueOnMaterials(NAME_Separate_Alpha, SeparateAlpha);
-	// MeshArm->SetCastShadow(!bSeparate); TODO:引擎有bug bSelfShadowOnly咱不可用
+	// MeshArm->SetCastShadow(!bSeparate); TODO:引擎有bug bSelfShadowOnly暂不可用
 }
 
 // Inputs ===================================================================================

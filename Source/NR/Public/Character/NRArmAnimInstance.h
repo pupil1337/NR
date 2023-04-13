@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstanceProxy.h"
-#include "Library/NRWeaponAnimSetting.h"
+#include "Table/Weapon/NRAnimSetting.h"
 #include "NRArmAnimInstance.generated.h"
 
 USTRUCT(BlueprintType)
-struct FNRArmAnimInstanceProxy : public FAnimInstanceProxy
+struct NR_API FNRArmAnimInstanceProxy : public FAnimInstanceProxy
 {
 	GENERATED_BODY()
 
@@ -33,16 +33,16 @@ struct FNRArmAnimInstanceProxy : public FAnimInstanceProxy
 
 //~Begin This Class
 	UPROPERTY(Transient, BlueprintReadOnly)
-	FNRWeaponAnimSetting AnimSetting; // 1. 动画设置
+	FNRAnimSettingRow AnimSetting; // 动画设置
 	UPROPERTY(Transient, BlueprintReadOnly)
-	float VelocityAlpha;              // 2. 与当前最大移动速度比率 (clamp 0 1) 0:idle不混合移动 1:idle混合移动
+	float VelocityAlpha;           // 1. 与当前最大移动速度比率 (clamp 0 1) 0:idle不混合移动 1:idle混合移动
 	UPROPERTY(Transient, BlueprintReadOnly)
-	FVector VelocityNormalized;       // 3. 速度归一化后
+	FVector VelocityNormalized;    // 2. 速度归一化后
 	UPROPERTY(Transient, BlueprintReadOnly)
-	float VelocityPlayRate;           // 4. 与当前最大移动速度比率
+	float VelocityPlayRate;        // 3. 与当前最大移动速度比率
 
 	UPROPERTY(Transient, BlueprintReadOnly)
-	uint8 bCrouching: 1;              // 5. 是否蹲伏
+	uint8 bCrouching: 1;           // 4. 是否蹲伏
 };
 
 /**
@@ -61,4 +61,9 @@ protected:
 	virtual FAnimInstanceProxy* CreateAnimInstanceProxy() override { return &mProxy; }
 	virtual void DestroyAnimInstanceProxy(FAnimInstanceProxy* InProxy) override {}
 	//~End   UAnimInstance
+
+	//~PreView Only
+public:
+	UPROPERTY(EditDefaultsOnly)
+	FNRAnimSettingRow PreView_AnimSetting;
 };

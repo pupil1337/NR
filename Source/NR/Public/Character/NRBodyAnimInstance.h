@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstanceProxy.h"
+#include "Table/Weapon/NRAnimSetting.h"
 #include "NRBodyAnimInstance.generated.h"
 
 USTRUCT(BlueprintType)
-struct FNRMoveDirAlpha
+struct NR_API FNRMoveDirAlpha
 {
 	GENERATED_BODY()
 	FNRMoveDirAlpha(): Move_F(0.0f), Move_B(0.0f), Move_L(0.0f), Move_R(0.0f) {}
@@ -24,7 +25,7 @@ struct FNRMoveDirAlpha
 };
 
 USTRUCT(BlueprintType)
-struct FNRMoveDir
+struct NR_API FNRMoveDir
 {
 	GENERATED_BODY()
 	FNRMoveDir(): Forward(false), Backward(false), Left(false), Right(false) {}
@@ -48,7 +49,7 @@ private:
 };
 
 USTRUCT(BlueprintType)
-struct FTurnDir
+struct NR_API FTurnDir
 {
 	GENERATED_BODY()
 	FTurnDir(): None(true), Left(false), Right(false) {}
@@ -69,7 +70,7 @@ private:
 };
 
 USTRUCT(BlueprintType)
-struct FNRAnimCurves
+struct NR_API FNRAnimCurves
 {
 	GENERATED_BODY()
 	FNRAnimCurves(): bFeetCrossing(false) {}
@@ -79,7 +80,7 @@ struct FNRAnimCurves
 };
 
 USTRUCT(BlueprintType)
-struct FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
+struct NR_API FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 {
 	GENERATED_BODY()
 
@@ -116,7 +117,9 @@ struct FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 	void UpdateAimOffset(const FRotator& BaseAimRotation, bool bLocallyControlled, float DeltaSeconds);
 	void UpdateCurvesValue(UAnimInstance* InAnimInstance);
 	void UpdateOtherValues();
-	
+
+	UPROPERTY(Transient, BlueprintReadOnly)
+	FNRAnimSettingRow AnimSetting;
 	UPROPERTY(Transient, BlueprintReadOnly)
 	FNRMoveDirAlpha MoveDirAlpha; // 1. 四个方向输入的值
 	UPROPERTY(Transient, BlueprintReadOnly)
@@ -166,4 +169,9 @@ protected:
 	virtual FAnimInstanceProxy* CreateAnimInstanceProxy() override { return &mProxy; }
 	virtual void DestroyAnimInstanceProxy(FAnimInstanceProxy* InProxy) override {}
 	//~End   UAnimInstance
+
+	//~PreView Only
+public:
+	UPROPERTY(EditDefaultsOnly)
+	FNRAnimSettingRow PreView_AnimSetting;
 };

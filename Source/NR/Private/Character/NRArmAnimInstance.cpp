@@ -11,6 +11,12 @@
 void FNRArmAnimInstanceProxy::Initialize(UAnimInstance* InAnimInstance)
 {
 	FAnimInstanceProxy::Initialize(InAnimInstance);
+
+	// PreView Only
+	if (const UNRArmAnimInstance* ArmAnimInstance = Cast<UNRArmAnimInstance>(InAnimInstance))
+	{
+		AnimSetting = ArmAnimInstance->PreView_AnimSetting;
+	}
 }
 
 void FNRArmAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float DeltaSeconds)
@@ -21,25 +27,28 @@ void FNRArmAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float Del
 	{
 		if (NRCharacter->IsLocallyControlled())
 		{
-			// 1. AnimSetting
+			// AnimSetting
 			if (ANRWeapon* Weapon = NRCharacter->GetEquippedWeapon())
 			{
-				AnimSetting = Weapon->GetAnimSetting();
+				if (FNRWeaponInformationRow* WeaponInfo = Weapon->GetWeaponInformation())
+				{
+					AnimSetting = *WeaponInfo->GetAnimSetting();
+				}
 			}
 			
 			FVector Velocity = UKismetMathLibrary::InverseTransformDirection(NRCharacter->GetActorTransform(), NRCharacter->GetVelocity());
 			FVector VelocityXY = FVector(Velocity.X, Velocity.Y, 0.0f);
 			float MaxSpeed = Cast<ANRCharacter>(NRCharacter->GetClass()->GetDefaultObject())->GetCharacterMovement()->MaxWalkSpeed;
-			// 2. VelocityAlpha
+			// 1. VelocityAlpha
 			VelocityAlpha = FMath::Clamp<float>(VelocityXY.Size() / MaxSpeed, 0.0f, 1.0f);
-			// 3. VelocityNormalized
+			// 2. VelocityNormalized
 			VelocityNormalized = VelocityXY.GetSafeNormal() * VelocityAlpha;
-			// 4. VelocityPlayRate
+			// 3. VelocityPlayRate
 			VelocityPlayRate = VelocityXY.Size() / MaxSpeed;
 
 			if (const UCharacterMovementComponent* CharacterMovementComponent = NRCharacter->GetCharacterMovement())
 			{
-				// 5. bCrouching
+				// 4. bCrouching
 				bCrouching = CharacterMovementComponent->IsCrouching();
 			}
 		}

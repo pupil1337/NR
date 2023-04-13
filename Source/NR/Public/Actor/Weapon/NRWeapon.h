@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Library/NRWeaponAnimSetting.h"
+#include "Table/Weapon/NRWeaponInformation.h"
 #include "NRWeapon.generated.h"
 
 class USkeletalMeshComponent;
@@ -19,7 +19,7 @@ class NR_API ANRWeapon : public AActor
 	TObjectPtr<USkeletalMeshComponent> Mesh;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
-	FNRWeaponAnimSetting AnimSetting;
+	FDataTableRowHandle WeaponInformation;
 	
 public:
 	ANRWeapon();
@@ -27,7 +27,6 @@ public:
 	virtual void BeginPlay() override;
 
 // This Class Func
-public:
 	void SetFPS_SeparateFOV(bool bEnable, bool bSeparate = false);
-	FORCEINLINE const FNRWeaponAnimSetting& GetAnimSetting() const { return AnimSetting; }
+	FNRWeaponInformationRow* GetWeaponInformation();
 };
