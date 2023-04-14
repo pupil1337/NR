@@ -13,16 +13,18 @@ struct NR_API FNRArmAnimInstanceProxy : public FAnimInstanceProxy
 	GENERATED_BODY()
 
 	FNRArmAnimInstanceProxy():
+		bCrouching(false),
+		bRunning(false),
 		VelocityAlpha(0.0f),
 		VelocityNormalized(FVector::ZeroVector),
-		VelocityPlayRate(1.0f),
-		bCrouching(false)
+		VelocityPlayRate(1.0f)
 	{}
 	FNRArmAnimInstanceProxy(UAnimInstance* Instance): FAnimInstanceProxy(Instance),
+		bCrouching(false),
+		bRunning(false),
 		VelocityAlpha(0.0f),
 		VelocityNormalized(FVector::ZeroVector),
-		VelocityPlayRate(1.0f),
-		bCrouching(false)
+		VelocityPlayRate(1.0f)
 	{}
 
 	//~Begin FAnimInstanceProxy
@@ -32,17 +34,26 @@ struct NR_API FNRArmAnimInstanceProxy : public FAnimInstanceProxy
 	//~End   FAnimInstanceProxy
 
 //~Begin This Class
+	float GetCurrMoveModeMaxSpeed() const;
+	// Temp
+	float TempMaxWalkSpeed = 0.0f;
+	float TempMaxCrouchSpeed = 0.0f;
+	float TempMaxRunSpeed = 0.0f;
+	
 	UPROPERTY(Transient, BlueprintReadOnly)
 	FNRAnimSettingRow AnimSetting; // 动画设置
+	
 	UPROPERTY(Transient, BlueprintReadOnly)
-	float VelocityAlpha;           // 1. 与当前最大移动速度比率 (clamp 0 1) 0:idle不混合移动 1:idle混合移动
+	uint8 bCrouching: 1;           // 1. 是否蹲伏
 	UPROPERTY(Transient, BlueprintReadOnly)
-	FVector VelocityNormalized;    // 2. 速度归一化后
+	uint8 bRunning: 1;             // 2. 是否奔跑
+	
 	UPROPERTY(Transient, BlueprintReadOnly)
-	float VelocityPlayRate;        // 3. 与当前最大移动速度比率
-
+	float VelocityAlpha;           // 3. 与当前最大移动速度比率 (clamp 0 1) 0:idle不混合移动 1:idle混合移动
 	UPROPERTY(Transient, BlueprintReadOnly)
-	uint8 bCrouching: 1;           // 4. 是否蹲伏
+	FVector VelocityNormalized;    // 4. 速度归一化后
+	UPROPERTY(Transient, BlueprintReadOnly)
+	float VelocityPlayRate;        // 5. 与当前最大移动速度比率
 };
 
 /**

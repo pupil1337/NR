@@ -89,6 +89,9 @@ public:
 	FOnMoveInput   OnInputEvent_Move;
 	FOnCrouchInput OnInputEvent_Crouch;
 	FOnRunInput    OnInputEvent_Run;
+
+	// Getter
+	FORCEINLINE const TArray<TSubclassOf<UNRComponentBase> >& GetAllNRComponentClasses() const { return NRComponentClasses; }
 	
 private:
 	// LocallyControlled

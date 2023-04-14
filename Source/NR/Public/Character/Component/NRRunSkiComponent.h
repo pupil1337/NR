@@ -25,8 +25,14 @@ public:
 //~Begin This Class
 protected:
 	virtual void InitLocallyControlledInputEvent() override;
+
+public:
+	// Gitter
+	FORCEINLINE float GetMaxRunSpeed() const { return MaxRunSpeed; }
+	FORCEINLINE bool IsRunning() const { return bRunning; }
 	
 private:
+	// Input
 	UFUNCTION()
 	void OnMoveInput(const FInputActionValue& Value);
 	UFUNCTION()
@@ -34,6 +40,7 @@ private:
 	UFUNCTION()
 	void OnCrouchInput();
 
+	// Check
 	bool CheckCanRun() const;
 	
 	void Run(bool NewRun);

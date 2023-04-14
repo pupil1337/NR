@@ -5,6 +5,7 @@
 
 #include "Actor/Weapon/NRWeapon.h"
 #include "Character/NRCharacter.h"
+#include "Character/Component/NRRunSkiComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -17,13 +18,28 @@ void FNRArmAnimInstanceProxy::Initialize(UAnimInstance* InAnimInstance)
 	{
 		AnimSetting = ArmAnimInstance->PreView_AnimSetting;
 	}
+	
+	// Temp
+	if (const ANRCharacter* NRCharacter = Cast<ANRCharacter>(InAnimInstance->TryGetPawnOwner()))
+	{
+		const ANRCharacter* NRCharacterCDO = Cast<ANRCharacter>((NRCharacter->GetClass()->GetDefaultObject()));
+		TempMaxWalkSpeed = NRCharacterCDO->GetCharacterMovement()->MaxWalkSpeed;
+		TempMaxCrouchSpeed = NRCharacterCDO->GetCharacterMovement()->MaxWalkSpeedCrouched;
+		for (const TSubclassOf<UNRComponentBase>& it: NRCharacterCDO->GetAllNRComponentClasses())
+		{
+			if (const UNRRunSkiComponent* NRRunSkiComponent = Cast<UNRRunSkiComponent>(it->GetDefaultObject()))
+			{
+				TempMaxRunSpeed = NRRunSkiComponent->GetMaxRunSpeed();
+			}
+		}
+	}
 }
 
 void FNRArmAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float DeltaSeconds)
 {
 	FAnimInstanceProxy::PreUpdate(InAnimInstance, DeltaSeconds);
 
-	if (ANRCharacter* NRCharacter = Cast<ANRCharacter>(InAnimInstance->TryGetPawnOwner()))
+	if (const ANRCharacter* NRCharacter = Cast<ANRCharacter>(InAnimInstance->TryGetPawnOwner()))
 	{
 		if (NRCharacter->IsLocallyControlled())
 		{
@@ -35,22 +51,29 @@ void FNRArmAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float Del
 					AnimSetting = *WeaponInfo->GetAnimSetting();
 				}
 			}
-			
-			FVector Velocity = UKismetMathLibrary::InverseTransformDirection(NRCharacter->GetActorTransform(), NRCharacter->GetVelocity());
-			FVector VelocityXY = FVector(Velocity.X, Velocity.Y, 0.0f);
-			float MaxSpeed = Cast<ANRCharacter>(NRCharacter->GetClass()->GetDefaultObject())->GetCharacterMovement()->MaxWalkSpeed;
-			// 1. VelocityAlpha
-			VelocityAlpha = FMath::Clamp<float>(VelocityXY.Size() / MaxSpeed, 0.0f, 1.0f);
-			// 2. VelocityNormalized
-			VelocityNormalized = VelocityXY.GetSafeNormal() * VelocityAlpha;
-			// 3. VelocityPlayRate
-			VelocityPlayRate = VelocityXY.Size() / MaxSpeed;
 
 			if (const UCharacterMovementComponent* CharacterMovementComponent = NRCharacter->GetCharacterMovement())
 			{
-				// 4. bCrouching
+				// 1. bCrouching
 				bCrouching = CharacterMovementComponent->IsCrouching();
 			}
+
+			if (const UNRRunSkiComponent* RunSkiComponent = Cast<UNRRunSkiComponent>(NRCharacter->GetComponentByClass(UNRRunSkiComponent::StaticClass())))
+			{
+				// 2. bRunning
+				bRunning = RunSkiComponent->IsRunning();
+			}
+			
+			const FVector Velocity = UKismetMathLibrary::InverseTransformDirection(NRCharacter->GetActorTransform(), NRCharacter->GetVelocity());
+			const FVector VelocityXY = FVector(Velocity.X, Velocity.Y, 0.0f);
+			
+			const float MaxSpeed = GetCurrMoveModeMaxSpeed();
+			// 3. VelocityAlpha
+			VelocityAlpha = FMath::Clamp<float>(VelocityXY.Size() / MaxSpeed, 0.0f, 1.0f);
+			// 4. VelocityNormalized
+			VelocityNormalized = VelocityXY.GetSafeNormal() * VelocityAlpha;
+			// 5. VelocityPlayRate
+			VelocityPlayRate = VelocityXY.Size() / MaxSpeed;
 		}
 	}
 }
@@ -58,4 +81,18 @@ void FNRArmAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float Del
 void FNRArmAnimInstanceProxy::Update(float DeltaSeconds)
 {
 	FAnimInstanceProxy::Update(DeltaSeconds);
+}
+
+float FNRArmAnimInstanceProxy::GetCurrMoveModeMaxSpeed() const
+{
+	if (bCrouching)
+	{
+		return TempMaxCrouchSpeed;
+	}
+	if (bRunning)
+	{
+		return TempMaxRunSpeed;
+	}
+
+	return TempMaxWalkSpeed;
 }

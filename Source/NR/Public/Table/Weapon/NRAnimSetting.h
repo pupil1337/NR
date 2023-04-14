@@ -16,6 +16,9 @@ struct NR_API FNRArmAnimSequence
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="呼吸-站立")
 	TObjectPtr<UAnimSequenceBase> BreathingStandPose;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="奔跑")
+	TObjectPtr<UAnimSequenceBase> RunPose;
 };
 
 USTRUCT(BlueprintType)
