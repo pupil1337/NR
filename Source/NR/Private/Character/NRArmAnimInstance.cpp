@@ -56,11 +56,13 @@ void FNRArmAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float Del
 			{
 				// 1. bCrouching
 				bCrouching = CharacterMovementComponent->IsCrouching();
+				// 2. bJumping
+				bJumping = CharacterMovementComponent->IsFalling();
 			}
 
 			if (const UNRRunSkiComponent* RunSkiComponent = Cast<UNRRunSkiComponent>(NRCharacter->GetComponentByClass(UNRRunSkiComponent::StaticClass())))
 			{
-				// 2. bRunning
+				// 3. bRunning
 				bRunning = RunSkiComponent->IsRunning();
 			}
 			
@@ -68,12 +70,12 @@ void FNRArmAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float Del
 			const FVector VelocityXY = FVector(Velocity.X, Velocity.Y, 0.0f);
 			
 			const float MaxSpeed = GetCurrMoveModeMaxSpeed();
-			// 3. VelocityAlpha
+			// 4. VelocityAlpha
 			VelocityAlpha = FMath::Clamp<float>(VelocityXY.Size() / MaxSpeed, 0.0f, 1.0f);
-			// 4. VelocityNormalized
+			// 5. VelocityNormalized
 			VelocityNormalized = VelocityXY.GetSafeNormal() * VelocityAlpha;
-			// 5. VelocityPlayRate
-			VelocityPlayRate = VelocityXY.Size() / MaxSpeed;
+			// 6. VelocityPlayRate
+			VelocityPlayRate = bJumping ? 0.0f : VelocityXY.Size() / MaxSpeed;
 		}
 	}
 }

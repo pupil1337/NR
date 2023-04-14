@@ -46,14 +46,16 @@ struct NR_API FNRArmAnimInstanceProxy : public FAnimInstanceProxy
 	UPROPERTY(Transient, BlueprintReadOnly)
 	uint8 bCrouching: 1;           // 1. 是否蹲伏
 	UPROPERTY(Transient, BlueprintReadOnly)
-	uint8 bRunning: 1;             // 2. 是否奔跑
+	uint8 bJumping: 1;             // 2. 是否跳跃
+	UPROPERTY(Transient, BlueprintReadOnly)
+	uint8 bRunning: 1;             // 3. 是否奔跑
 	
 	UPROPERTY(Transient, BlueprintReadOnly)
-	float VelocityAlpha;           // 3. 与当前最大移动速度比率 (clamp 0 1) 0:idle不混合移动 1:idle混合移动
+	float VelocityAlpha;           // 4. 与当前最大移动速度比率 (clamp 0 1) 0:idle不混合移动 1:idle混合移动
 	UPROPERTY(Transient, BlueprintReadOnly)
-	FVector VelocityNormalized;    // 4. 速度归一化后
+	FVector VelocityNormalized;    // 5. 速度归一化后
 	UPROPERTY(Transient, BlueprintReadOnly)
-	float VelocityPlayRate;        // 5. 与当前最大移动速度比率
+	float VelocityPlayRate;        // 6. 与当前最大移动速度比率
 };
 
 /**
