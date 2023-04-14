@@ -9,6 +9,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Actor/Weapon/NRWeapon.h"
+#include "Character/Component/NRComponentBase.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
@@ -54,6 +55,18 @@ void ANRCharacter::OnConstruction(const FTransform& Transform)
 
 	// Only For Preview
 	Spring->SetRelativeLocation(FVector(0.0f, 0.0f, BaseEyeHeight) + SpringOffsetFPS);
+}
+
+void ANRCharacter::PreInitializeComponents()
+{
+	// Components
+	for (TSubclassOf<UNRComponentBase> tClass: NRComponentClasses)
+	{
+		UNRComponentBase* tComp = NewObject<UNRComponentBase>(this, tClass);
+		tComp->RegisterComponent();
+	}
+	
+	Super::PreInitializeComponents();
 }
 
 void ANRCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -115,6 +128,7 @@ void ANRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 						if (IA_Move)
 						{
 							EnhancedInputComponent->BindAction(IA_Move, ETriggerEvent::Triggered, this, &ThisClass::OnMoveInput);
+							EnhancedInputComponent->BindAction(IA_Move, ETriggerEvent::Completed, this, &ThisClass::OnMoveInput);
 						}
 						if (IA_Look)
 						{
@@ -126,13 +140,20 @@ void ANRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 						}
 						if (IA_Crouch)
 						{
-							EnhancedInputComponent->BindAction(IA_Crouch, ETriggerEvent::Started, this, &ThisClass::Crouch, false);
-							EnhancedInputComponent->BindAction(IA_Crouch, ETriggerEvent::Completed, this, &ThisClass::UnCrouch, false);
+							EnhancedInputComponent->BindAction(IA_Crouch, ETriggerEvent::Started, this, &ThisClass::OnCrouchInput);
 						}
 						if (IA_Run)
 						{
 							EnhancedInputComponent->BindAction(IA_Run, ETriggerEvent::Started, this, &ThisClass::OnRunInput);
-							EnhancedInputComponent->BindAction(IA_Run, ETriggerEvent::Completed, this, &ThisClass::OnRunInput);
+						}
+					}
+
+					// Components注册输入事件
+					for (UActorComponent* it: GetComponents())
+					{
+						if (UNRComponentBase* tNRComp = Cast<UNRComponentBase>(it))
+						{
+							tNRComp->InitLocallyControlledInputEvent();
 						}
 					}
 				}
@@ -224,6 +245,7 @@ void ANRCharacter::OnMoveInput(const FInputActionValue& Value)
 		AddMovementInput(FRotationMatrix(FRotator(0.0f, Controller->GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::Type::X), Value2D.Y);
 		AddMovementInput(FRotationMatrix(FRotator(0.0f, Controller->GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::Type::Y), Value2D.X);
 	}
+	OnInputEvent_Move.Broadcast(Value);
 }
 
 void ANRCharacter::OnLookInput(const FInputActionValue& Value)
@@ -242,11 +264,14 @@ void ANRCharacter::OnLookInput(const FInputActionValue& Value)
 	}
 }
 
+void ANRCharacter::OnCrouchInput(const FInputActionValue& Value)
+{
+	OnInputEvent_Crouch.Broadcast();
+}
+
 void ANRCharacter::OnRunInput(const FInputActionValue& Value)
 {
-	float Op = Value.Get<FInputActionValue::Axis1D>();
-
-	
+	OnInputEvent_Run.Broadcast();
 }
 
 // Temp

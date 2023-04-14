@@ -14,6 +14,11 @@ class UInputMappingContext;
 class UInputAction;
 class ANRWeapon;
 class UBoxComponent;
+class UNRComponentBase;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCrouchInput);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnRunInput);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMoveInput, const FInputActionValue&, Value);
 
 UCLASS()
 class NR_API ANRCharacter : public ACharacter
@@ -53,6 +58,10 @@ class NR_API ANRCharacter : public ACharacter
 	TObjectPtr<UInputAction> IA_Crouch;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="配置|输入")
 	TObjectPtr<UInputAction> IA_Run;
+
+	// Components
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="配置|角色", DisplayName="需要创建的组件")
+	TArray<TSubclassOf<UNRComponentBase>> NRComponentClasses;
 	
 	// Temp TODO:换成背包组件
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="配置|临时")
@@ -63,6 +72,7 @@ class NR_API ANRCharacter : public ACharacter
 public:
 	ANRCharacter();
 	virtual void OnConstruction(const FTransform& Transform) override;
+	virtual void PreInitializeComponents() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	virtual void BeginPlay() override;
@@ -74,6 +84,12 @@ public:
 	FORCEINLINE ANRWeapon* GetEquippedWeapon() const { return EquippedWeapon; }
 
 //~ This Class Begin
+
+	// Input Event Delegate
+	FOnMoveInput   OnInputEvent_Move;
+	FOnCrouchInput OnInputEvent_Crouch;
+	FOnRunInput    OnInputEvent_Run;
+	
 private:
 	// LocallyControlled
 	void SetMeshesVisibility();
@@ -84,6 +100,7 @@ private:
 	// Inputs
 	void OnMoveInput(const FInputActionValue& Value);
 	void OnLookInput(const FInputActionValue& Value);
+	void OnCrouchInput(const FInputActionValue& Value);
 	void OnRunInput(const FInputActionValue& Value);
 
 	// Temp TODO:换成背包组件
