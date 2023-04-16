@@ -20,7 +20,7 @@ struct NR_API FNRWeaponInformationRow : public FTableRowBase
 	FDataTableRowHandle RowHandle_AnimSetting; // FNRAnimSettingRow
 
 	// Getter
-	FNRAnimSettingRow* GetAnimSetting()
+	FNRAnimSettingRow* GetAnimSetting() const
 	{
 		if (!RowHandle_AnimSetting.IsNull())
 		{

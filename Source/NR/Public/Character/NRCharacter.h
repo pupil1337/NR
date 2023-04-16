@@ -19,6 +19,7 @@ class UNRComponentBase;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCrouchInput);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnRunInput);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMoveInput, const FInputActionValue&, Value);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnJumped);
 
 UCLASS()
 class NR_API ANRCharacter : public ACharacter
@@ -80,6 +81,8 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Tick(float DeltaSeconds) override;
 
+	virtual void OnJumped_Implementation() override;
+
 	// Temp TODO:换成背包组件
 	FORCEINLINE ANRWeapon* GetEquippedWeapon() const { return EquippedWeapon; }
 
@@ -89,6 +92,7 @@ public:
 	FOnMoveInput   OnInputEvent_Move;
 	FOnCrouchInput OnInputEvent_Crouch;
 	FOnRunInput    OnInputEvent_Run;
+	FOnJumped      OnJumpedEvent;
 
 	// Getter
 	FORCEINLINE const TArray<TSubclassOf<UNRComponentBase> >& GetAllNRComponentClasses() const { return NRComponentClasses; }

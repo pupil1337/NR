@@ -9,27 +9,32 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
+const FName NAME_Track_Location(TEXT("Location"));
+const FName NAME_Track_Rotation(TEXT("Rotation"));
+
 void FNRArmAnimInstanceProxy::Initialize(UAnimInstance* InAnimInstance)
 {
 	FAnimInstanceProxy::Initialize(InAnimInstance);
 
+#if WITH_EDITORONLY_DATA
 	// PreView Only
 	if (const UNRArmAnimInstance* ArmAnimInstance = Cast<UNRArmAnimInstance>(InAnimInstance))
 	{
 		AnimSetting = ArmAnimInstance->PreView_AnimSetting;
 	}
+#endif
 	
 	// Temp
 	if (const ANRCharacter* NRCharacter = Cast<ANRCharacter>(InAnimInstance->TryGetPawnOwner()))
 	{
 		const ANRCharacter* NRCharacterCDO = Cast<ANRCharacter>((NRCharacter->GetClass()->GetDefaultObject()));
-		TempMaxWalkSpeed = NRCharacterCDO->GetCharacterMovement()->MaxWalkSpeed;
-		TempMaxCrouchSpeed = NRCharacterCDO->GetCharacterMovement()->MaxWalkSpeedCrouched;
+		MaxWalkSpeed = NRCharacterCDO->GetCharacterMovement()->MaxWalkSpeed;
+		MaxCrouchSpeed = NRCharacterCDO->GetCharacterMovement()->MaxWalkSpeedCrouched;
 		for (const TSubclassOf<UNRComponentBase>& it: NRCharacterCDO->GetAllNRComponentClasses())
 		{
 			if (const UNRRunSkiComponent* NRRunSkiComponent = Cast<UNRRunSkiComponent>(it->GetDefaultObject()))
 			{
-				TempMaxRunSpeed = NRRunSkiComponent->GetMaxRunSpeed();
+				MaxRunSpeed = NRRunSkiComponent->GetMaxRunSpeed();
 			}
 		}
 	}
@@ -46,7 +51,7 @@ void FNRArmAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float Del
 			// AnimSetting
 			if (ANRWeapon* Weapon = NRCharacter->GetEquippedWeapon())
 			{
-				if (FNRWeaponInformationRow* WeaponInfo = Weapon->GetWeaponInformation())
+				if (const FNRWeaponInformationRow* WeaponInfo = Weapon->GetWeaponInformation())
 				{
 					AnimSetting = *WeaponInfo->GetAnimSetting();
 				}
@@ -76,6 +81,27 @@ void FNRArmAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float Del
 			VelocityNormalized = VelocityXY.GetSafeNormal() * VelocityAlpha;
 			// 6. VelocityPlayRate
 			VelocityPlayRate = bJumping ? 0.0f : VelocityXY.Size() / MaxSpeed;
+
+			// Jump Offset
+			if (const UNRArmAnimInstance* NRArmAnimInstance = Cast<UNRArmAnimInstance>(InAnimInstance))
+			{
+				if (LandStamp != NRArmAnimInstance->LandStamp)
+				{
+					LandStamp = NRArmAnimInstance->LandStamp;
+					LandSeconds = 0.0f;
+					bPlayLand = true;
+					bPlayJump = false;
+					JumpOffset_Location = FVector::ZeroVector;
+				}
+				else if (JumpStamp != NRArmAnimInstance->JumpStamp)
+				{
+					JumpStamp = NRArmAnimInstance->JumpStamp;
+					JumpSeconds = 0.0f;
+					bPlayJump = true;
+					bPlayLand = false;
+					JumpOffset_Location = FVector::ZeroVector;
+				}
+			}
 		}
 	}
 }
@@ -83,18 +109,60 @@ void FNRArmAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float Del
 void FNRArmAnimInstanceProxy::Update(float DeltaSeconds)
 {
 	FAnimInstanceProxy::Update(DeltaSeconds);
+
+	// Jump Offset
+	if (bPlayJump)
+	{
+		JumpSeconds += DeltaSeconds;
+		FVectorSpringState VectorSpringState;
+		JumpOffset_Location = UKismetMathLibrary::VectorSpringInterp(
+			JumpOffset_Location,
+			AnimSetting.JumpOffsetCurveLocation->GetVectorValue(JumpSeconds),
+			VectorSpringState,
+			0.75f,
+			0.5f,
+			DeltaSeconds,
+			0.006f);
+		GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Blue, FString::Printf(TEXT("%f"), AnimSetting.JumpOffsetCurveLocation->GetVectorValue(JumpSeconds).Z));
+	}
+	if (bPlayLand)
+	{
+		
+	}
 }
 
 float FNRArmAnimInstanceProxy::GetCurrMoveModeMaxSpeed() const
 {
 	if (bCrouching)
 	{
-		return TempMaxCrouchSpeed;
+		return MaxCrouchSpeed;
 	}
 	if (bRunning)
 	{
-		return TempMaxRunSpeed;
+		return MaxRunSpeed;
 	}
 
-	return TempMaxWalkSpeed;
+	return MaxWalkSpeed;
+}
+
+// UNRArmAnimInstance===================================================================================================
+void UNRArmAnimInstance::NativeInitializeAnimation()
+{
+	Super::NativeInitializeAnimation();
+
+	if (ANRCharacter* NRCharacter = Cast<ANRCharacter>(TryGetPawnOwner()))
+	{
+		NRCharacter->OnJumpedEvent.AddUniqueDynamic(this, &ThisClass::OnJumped);
+		NRCharacter->LandedDelegate.AddUniqueDynamic(this, &ThisClass::OnLanded);
+	}
+}
+
+void UNRArmAnimInstance::OnJumped()
+{
+	JumpStamp += 1;
+}
+
+void UNRArmAnimInstance::OnLanded(const FHitResult& Hit)
+{
+	LandStamp += 1;
 }

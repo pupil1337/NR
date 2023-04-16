@@ -173,6 +173,13 @@ void ANRCharacter::Tick(float DeltaSeconds)
 	}
 }
 
+void ANRCharacter::OnJumped_Implementation()
+{
+	Super::OnJumped_Implementation();
+
+	OnJumpedEvent.Broadcast();
+}
+
 // FuncType-LocallyControlleds ===================================================================================
 void ANRCharacter::SetMeshesVisibility()
 {

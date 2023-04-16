@@ -43,7 +43,7 @@ void UNRRunSkiComponent::OnMoveInput(const FInputActionValue& Value)
 
 void UNRRunSkiComponent::OnRunInput()
 {
-	if (!bRunning && MoveInputValue.Y == 1.0f)
+	if (MoveInputValue.Y == 1.0f)
 	{
 		Run(true);
 	}
@@ -51,19 +51,25 @@ void UNRRunSkiComponent::OnRunInput()
 
 void UNRRunSkiComponent::OnCrouchInput()
 {
-	// TODO: 如果是bRunning 则滑行
-	if (!bRunning && NRCharacter)
+	if (NRCharacter)
 	{
-		if (UCharacterMovementComponent* CharacterMovementComponent = NRCharacter->GetCharacterMovement())
+		if (!bRunning)
 		{
-			if (CharacterMovementComponent->IsCrouching())
+			if (const UCharacterMovementComponent* CharacterMovementComponent = NRCharacter->GetCharacterMovement())
 			{
-				NRCharacter->UnCrouch(false);
+				if (CharacterMovementComponent->IsCrouching())
+				{
+					NRCharacter->UnCrouch(false);
+				}
+				else
+				{
+					NRCharacter->Crouch(false);
+				}
 			}
-			else
-			{
-				NRCharacter->Crouch(false);
-			}
+		}
+		else
+		{
+			// TODO: 如果是bRunning 则滑行
 		}
 	}
 }
@@ -72,9 +78,9 @@ bool UNRRunSkiComponent::CheckCanRun() const
 {
 	if (NRCharacter && !bRunning)
 	{
-		if (UCharacterMovementComponent* CharacterMovementComponent = NRCharacter->GetCharacterMovement())
+		if (const UCharacterMovementComponent* CharacterMovementComponent = NRCharacter->GetCharacterMovement())
 		{
-			return CharacterMovementComponent->GetGroundMovementMode() == MOVE_Walking;
+			return !CharacterMovementComponent->IsFalling() && !CharacterMovementComponent->IsCrouching();
 		}	
 	}
 	return false;
@@ -84,7 +90,7 @@ bool UNRRunSkiComponent::CheckCanRun() const
 void UNRRunSkiComponent::Run(bool NewRun)
 {
 	// 检查是否可奔跑
-	if (NewRun && !CheckCanRun())
+	if (bRunning == NewRun || NewRun && !CheckCanRun())
 	{
 		return;
 	}

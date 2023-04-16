@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstanceProxy.h"
+#include "Components/TimelineComponent.h"
 #include "Table/Weapon/NRAnimSetting.h"
 #include "NRArmAnimInstance.generated.h"
 
@@ -11,22 +12,27 @@ USTRUCT(BlueprintType)
 struct NR_API FNRArmAnimInstanceProxy : public FAnimInstanceProxy
 {
 	GENERATED_BODY()
-
+	
 	FNRArmAnimInstanceProxy():
 		bCrouching(false),
+		bJumping(false),
 		bRunning(false),
 		VelocityAlpha(0.0f),
 		VelocityNormalized(FVector::ZeroVector),
-		VelocityPlayRate(1.0f)
+		VelocityPlayRate(1.0f),
+		JumpOffset_Location(FVector::ZeroVector)
 	{}
 	FNRArmAnimInstanceProxy(UAnimInstance* Instance): FAnimInstanceProxy(Instance),
 		bCrouching(false),
+		bJumping(false),
 		bRunning(false),
 		VelocityAlpha(0.0f),
 		VelocityNormalized(FVector::ZeroVector),
-		VelocityPlayRate(1.0f)
+		VelocityPlayRate(1.0f),
+		JumpOffset_Location(FVector::ZeroVector)
 	{}
-
+	
+protected:
 	//~Begin FAnimInstanceProxy
 	virtual void Initialize(UAnimInstance* InAnimInstance) override;
 	virtual void PreUpdate(UAnimInstance* InAnimInstance, float DeltaSeconds) override;
@@ -36,9 +42,16 @@ struct NR_API FNRArmAnimInstanceProxy : public FAnimInstanceProxy
 //~Begin This Class
 	float GetCurrMoveModeMaxSpeed() const;
 	// Temp
-	float TempMaxWalkSpeed = 0.0f;
-	float TempMaxCrouchSpeed = 0.0f;
-	float TempMaxRunSpeed = 0.0f;
+	float MaxWalkSpeed = 0.0f;
+	float MaxCrouchSpeed = 0.0f;
+	float MaxRunSpeed = 0.0f;
+	// Jump Offset
+	uint8 JumpStamp = 0;
+	float JumpSeconds = 0.0f;
+	bool bPlayJump = false;
+	uint8 LandStamp = 0;
+	float LandSeconds = 0.0f;
+	bool bPlayLand = false;
 	
 	UPROPERTY(Transient, BlueprintReadOnly)
 	FNRAnimSettingRow AnimSetting; // 动画设置
@@ -56,6 +69,9 @@ struct NR_API FNRArmAnimInstanceProxy : public FAnimInstanceProxy
 	FVector VelocityNormalized;    // 5. 速度归一化后
 	UPROPERTY(Transient, BlueprintReadOnly)
 	float VelocityPlayRate;        // 6. 与当前最大移动速度比率
+
+	UPROPERTY(Transient, BlueprintReadOnly)
+	FVector JumpOffset_Location;   // 7. 跳跃时应用曲线值来修改ik_hand_gun位置
 };
 
 /**
@@ -65,18 +81,30 @@ UCLASS()
 class NR_API UNRArmAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
-
+	
 	UPROPERTY(Transient, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	FNRArmAnimInstanceProxy mProxy;
 
 protected:
 	//~Begin UAnimInstance
+	virtual void NativeInitializeAnimation() override;
 	virtual FAnimInstanceProxy* CreateAnimInstanceProxy() override { return &mProxy; }
 	virtual void DestroyAnimInstanceProxy(FAnimInstanceProxy* InProxy) override {}
 	//~End   UAnimInstance
 
+//~Begin This Class
+public:
+	uint8 JumpStamp = 0;
+	uint8 LandStamp = 0;
+	UFUNCTION()
+	void OnJumped();
+	UFUNCTION()
+	void OnLanded(const FHitResult& Hit);
+
 	//~PreView Only
+#if WITH_EDITORONLY_DATA
 public:
 	UPROPERTY(EditDefaultsOnly)
 	FNRAnimSettingRow PreView_AnimSetting;
+#endif
 };
