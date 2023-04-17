@@ -114,9 +114,9 @@ void ANRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	if (APlayerController* PlayerController = GetController<APlayerController>())
+	if (const APlayerController* PlayerController = GetController<APlayerController>())
 	{
-		if (ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer())
+		if (const ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer())
 		{
 			if (UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
 			{
@@ -180,38 +180,37 @@ void ANRCharacter::OnJumped_Implementation()
 	OnJumpedEvent.Broadcast();
 }
 
-// FuncType-LocallyControlleds ===================================================================================
-void ANRCharacter::SetMeshesVisibility()
+// FuncType-LocallyControlled ===================================================================================
+void ANRCharacter::SetMeshesVisibility() const
 {
 	GetMesh()->SetRenderInMainPass(false);
 	MeshLeg->HideBoneByName(NAME_Bone_Spine_01, PBO_None);
 }
 
-void ANRCharacter::UpdateSpringLocation(float DeltaSeconds)
+void ANRCharacter::UpdateSpringLocation(float DeltaSeconds) const
 {
 	Spring->SetRelativeLocation(FMath::VInterpTo(Spring->GetRelativeLocation(), FVector(0.0f, 0.0f, BaseEyeHeight) + SpringOffsetFPS, DeltaSeconds, 10));
 }
 
-void ANRCharacter::UpdateWhetherSeparateFOV()
+void ANRCharacter::UpdateWhetherSeparateFOV() const
 {
-	bool bNeedFixd = false;
+	bool bNeedFixed = false;
 	if (UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement())
 	{
-		bNeedFixd = CharacterMovementComponent->IsCrouching();
+		bNeedFixed = CharacterMovementComponent->IsCrouching();
 #ifdef WITH_EDITOR
-		if (bNeedFixd)
+		if (bNeedFixed)
 		{
 			GEngine->AddOnScreenDebugMessage(0, 1.0f, FColor::Red, FString::Printf(TEXT("蹲伏.默认修复穿模")));	
 		}
 #endif
 	}
 
-	if (!bNeedFixd)
+	if (!bNeedFixed)
 	{
-		FHitResult Res;
 		FCollisionQueryParams QueryParams;
 		QueryParams.AddIgnoredActor(this);
-		if (GetWorld()->SweepSingleByChannel(
+		if (FHitResult Res; GetWorld()->SweepSingleByChannel(
 			Res,
 			SeparateFOVCheckBox->GetComponentLocation(),
 			SeparateFOVCheckBox->GetComponentLocation() + SeparateFOVCheckBox->GetComponentRotation().Vector() * 10.0f,
@@ -224,20 +223,20 @@ void ANRCharacter::UpdateWhetherSeparateFOV()
 #ifdef WITH_EDITOR
 			GEngine->AddOnScreenDebugMessage(0, 1.0f, FColor::Red, FString::Printf(TEXT("穿模.并修复")));
 #endif
-			bNeedFixd = true;
+			bNeedFixed = true;
 			if (EquippedWeapon) EquippedWeapon->SetFPS_SeparateFOV(true, true);
 			SetFPS_SeparateFOV(true, true);
 		}
 	}
 
-	if (EquippedWeapon) EquippedWeapon->SetFPS_SeparateFOV(true, bNeedFixd);
-	SetFPS_SeparateFOV(true, bNeedFixd);
+	if (EquippedWeapon) EquippedWeapon->SetFPS_SeparateFOV(true, bNeedFixed);
+	SetFPS_SeparateFOV(true, bNeedFixed);
 }
 
-void ANRCharacter::SetFPS_SeparateFOV(bool bEnable, bool bSeparate)
+void ANRCharacter::SetFPS_SeparateFOV(bool bEnable, bool bSeparate /** =false */) const
 {
-	float SeparateFOVAlpha = bEnable ? 1.0f : 0.0f;
-	float SeparateAlpha = bSeparate ? 0.1f : 1.0f;
+	const float SeparateFOVAlpha = bEnable ? 1.0f : 0.0f;
+	const float SeparateAlpha = bSeparate ? 0.1f : 1.0f;
 	MeshArm->SetScalarParameterValueOnMaterials(NAME_Separate_FOV_Alpha, SeparateFOVAlpha);
 	MeshArm->SetScalarParameterValueOnMaterials(NAME_Separate_Alpha, SeparateAlpha);
 	// MeshArm->SetCastShadow(!bSeparate); TODO:引擎有bug bSelfShadowOnly暂不可用
@@ -263,8 +262,8 @@ void ANRCharacter::OnLookInput(const FInputActionValue& Value)
 	// 限制角色俯仰角 上下80°
 	if (APlayerController* PlayerController = GetController<APlayerController>())
 	{
-		float NewRotationPitch = PlayerController->RotationInput.Pitch + PlayerController->GetControlRotation().Pitch;
-		if (NewRotationPitch > 80.0f && NewRotationPitch < 360.0f - 80.0f)
+		if (const float NewRotationPitch = PlayerController->RotationInput.Pitch + PlayerController->GetControlRotation().Pitch;
+			NewRotationPitch > 80.0f && NewRotationPitch < 360.0f - 80.0f)
 		{
 			PlayerController->RotationInput.Pitch = 0.0f;
 		}
@@ -282,7 +281,7 @@ void ANRCharacter::OnRunInput(const FInputActionValue& Value)
 }
 
 // Temp
-void ANRCharacter::OnRep_EquippedWeapon(ANRWeapon* OldEquippedWeapon)
+void ANRCharacter::OnRep_EquippedWeapon(const ANRWeapon* OldEquippedWeapon) const
 {
 	if (OldEquippedWeapon)
 	{

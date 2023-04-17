@@ -99,10 +99,10 @@ public:
 	
 private:
 	// LocallyControlled
-	void SetMeshesVisibility();
-	void UpdateSpringLocation(float DeltaSeconds);
-	void UpdateWhetherSeparateFOV();
-	void SetFPS_SeparateFOV(bool bEnable, bool bSeparate /* =false */);
+	void SetMeshesVisibility() const;
+	void UpdateSpringLocation(float DeltaSeconds) const;
+	void UpdateWhetherSeparateFOV() const;
+	void SetFPS_SeparateFOV(bool bEnable, bool bSeparate = false) const;
 	
 	// Inputs
 	void OnMoveInput(const FInputActionValue& Value);
@@ -112,5 +112,5 @@ private:
 
 	// Temp TODO:换成背包组件
 	UFUNCTION()
-	void OnRep_EquippedWeapon(ANRWeapon* OldEquippedWeapon);
+	void OnRep_EquippedWeapon(const ANRWeapon* OldEquippedWeapon) const;
 };

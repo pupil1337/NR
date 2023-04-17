@@ -49,7 +49,7 @@ void FNRArmAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float Del
 		if (NRCharacter->IsLocallyControlled())
 		{
 			// AnimSetting
-			if (ANRWeapon* Weapon = NRCharacter->GetEquippedWeapon())
+			if (const ANRWeapon* Weapon = NRCharacter->GetEquippedWeapon())
 			{
 				if (const FNRWeaponInformationRow* WeaponInfo = Weapon->GetWeaponInformation())
 				{

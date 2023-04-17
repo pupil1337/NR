@@ -187,7 +187,7 @@ float FNRBodyAnimInstanceProxy::GetCurrMoveModeMaxSpeed() const
 void FNRBodyAnimInstanceProxy::UpdateCurvesValue(const UAnimInstance* InAnimInstance)
 {
 	Curves.bFeetCrossing = InAnimInstance->GetCurveValue(NAME_Curve_Feet_Crossing) == 0.0f ? false : true;
-	// GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Green, FString::Printf(TEXT("FeetCorssing CruveValue %f"), InAnimInstance->GetCurveValue(NAME_Curve_Feet_Crossing)));
+	// GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Green, FString::Printf(TEXT("FeetCrossing CurveValue %f"), InAnimInstance->GetCurveValue(NAME_Curve_Feet_Crossing)));
 }
 
 void FNRBodyAnimInstanceProxy::UpdateOtherValues()
