@@ -29,6 +29,9 @@ struct NR_API FNRBodyAnimSequence
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="静止")
 	TObjectPtr<UAnimSequenceBase> IdlePose;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="奔跑")
+	TObjectPtr<UAnimSequenceBase> RunPose;
 };
 
 USTRUCT(BlueprintType)
@@ -46,4 +49,8 @@ struct NR_API FNRAnimSettingRow : public FTableRowBase
 	TObjectPtr<UCurveVector> JumpOffsetCurveLocation;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="曲线", DisplayName="跳跃Offset Rotation ")
 	TObjectPtr<UCurveVector> JumpOffsetCurveRotation;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="曲线", DisplayName="着陆Offset Location ")
+	TObjectPtr<UCurveVector> LandOffsetCurveLocation;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="曲线", DisplayName="着陆Offset Rotation ")
+	TObjectPtr<UCurveVector> LandOffsetCurveRotation;
 };

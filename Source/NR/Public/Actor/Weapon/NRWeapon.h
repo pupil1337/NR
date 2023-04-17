@@ -27,6 +27,6 @@ public:
 	virtual void BeginPlay() override;
 
 // This Class Func
-	void SetFPS_SeparateFOV(bool bEnable, bool bSeparate = false);
-	FNRWeaponInformationRow* GetWeaponInformation();
+	void SetFPS_SeparateFOV(bool bEnable, bool bSeparate = false) const;
+	FNRWeaponInformationRow* GetWeaponInformation() const;
 };

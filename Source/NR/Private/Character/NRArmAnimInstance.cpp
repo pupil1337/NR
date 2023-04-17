@@ -91,7 +91,6 @@ void FNRArmAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float Del
 					LandSeconds = 0.0f;
 					bPlayLand = true;
 					bPlayJump = false;
-					JumpOffset_Location = FVector::ZeroVector;
 				}
 				else if (JumpStamp != NRArmAnimInstance->JumpStamp)
 				{
@@ -99,7 +98,6 @@ void FNRArmAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float Del
 					JumpSeconds = 0.0f;
 					bPlayJump = true;
 					bPlayLand = false;
-					JumpOffset_Location = FVector::ZeroVector;
 				}
 			}
 		}
@@ -111,23 +109,31 @@ void FNRArmAnimInstanceProxy::Update(float DeltaSeconds)
 	FAnimInstanceProxy::Update(DeltaSeconds);
 
 	// Jump Offset
+	JumpOffset_Location = FVector::ZeroVector;
+	JumpOffset_Rotation = FRotator::ZeroRotator;
+	auto ApplyJumpOffset = [this](const UCurveVector* CurveLocation, const UCurveVector* CurveRotation, float InTime)-> void
+	{
+		if (CurveLocation)
+		{
+			// 7. JumpOffset_Location
+			JumpOffset_Location += CurveLocation->GetVectorValue(InTime);
+		}
+		if (CurveRotation)
+		{
+			// 8. JumpOffset_Rotation
+			const FVector RotationV = CurveRotation->GetVectorValue(InTime);
+			JumpOffset_Rotation += FRotator(RotationV.Y, RotationV.Z, RotationV.X);
+		}
+	};
 	if (bPlayJump)
 	{
 		JumpSeconds += DeltaSeconds;
-		FVectorSpringState VectorSpringState;
-		JumpOffset_Location = UKismetMathLibrary::VectorSpringInterp(
-			JumpOffset_Location,
-			AnimSetting.JumpOffsetCurveLocation->GetVectorValue(JumpSeconds),
-			VectorSpringState,
-			0.75f,
-			0.5f,
-			DeltaSeconds,
-			0.006f);
-		GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Blue, FString::Printf(TEXT("%f"), AnimSetting.JumpOffsetCurveLocation->GetVectorValue(JumpSeconds).Z));
+		ApplyJumpOffset(AnimSetting.JumpOffsetCurveLocation, AnimSetting.JumpOffsetCurveRotation, JumpSeconds);
 	}
 	if (bPlayLand)
 	{
-		
+		LandSeconds += DeltaSeconds;
+		ApplyJumpOffset(AnimSetting.LandOffsetCurveLocation, AnimSetting.LandOffsetCurveRotation, LandSeconds);
 	}
 }
 

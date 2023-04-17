@@ -20,7 +20,8 @@ struct NR_API FNRArmAnimInstanceProxy : public FAnimInstanceProxy
 		VelocityAlpha(0.0f),
 		VelocityNormalized(FVector::ZeroVector),
 		VelocityPlayRate(1.0f),
-		JumpOffset_Location(FVector::ZeroVector)
+		JumpOffset_Location(FVector::ZeroVector),
+		JumpOffset_Rotation(FRotator::ZeroRotator)
 	{}
 	FNRArmAnimInstanceProxy(UAnimInstance* Instance): FAnimInstanceProxy(Instance),
 		bCrouching(false),
@@ -29,7 +30,8 @@ struct NR_API FNRArmAnimInstanceProxy : public FAnimInstanceProxy
 		VelocityAlpha(0.0f),
 		VelocityNormalized(FVector::ZeroVector),
 		VelocityPlayRate(1.0f),
-		JumpOffset_Location(FVector::ZeroVector)
+		JumpOffset_Location(FVector::ZeroVector),
+		JumpOffset_Rotation(FRotator::ZeroRotator)
 	{}
 	
 protected:
@@ -57,21 +59,27 @@ protected:
 	FNRAnimSettingRow AnimSetting; // 动画设置
 	
 	UPROPERTY(Transient, BlueprintReadOnly)
-	uint8 bCrouching: 1;           // 1. 是否蹲伏
+	uint8 bCrouching: 1;           // 1.  是否蹲伏
 	UPROPERTY(Transient, BlueprintReadOnly)
-	uint8 bJumping: 1;             // 2. 是否跳跃
+	uint8 bJumping: 1;             // 2.  是否跳跃
 	UPROPERTY(Transient, BlueprintReadOnly)
-	uint8 bRunning: 1;             // 3. 是否奔跑
+	uint8 bRunning: 1;             // 3.  是否奔跑
 	
 	UPROPERTY(Transient, BlueprintReadOnly)
-	float VelocityAlpha;           // 4. 与当前最大移动速度比率 (clamp 0 1) 0:idle不混合移动 1:idle混合移动
+	float VelocityAlpha;           // 4.  与当前最大移动速度比率 (clamp 0 1) 0:idle不混合移动 1:idle混合移动
 	UPROPERTY(Transient, BlueprintReadOnly)
-	FVector VelocityNormalized;    // 5. 速度归一化后
+	FVector VelocityNormalized;    // 5.  速度归一化后
 	UPROPERTY(Transient, BlueprintReadOnly)
-	float VelocityPlayRate;        // 6. 与当前最大移动速度比率
+	float VelocityPlayRate;        // 6.  与当前最大移动速度比率
 
 	UPROPERTY(Transient, BlueprintReadOnly)
-	FVector JumpOffset_Location;   // 7. 跳跃时应用曲线值来修改ik_hand_gun位置
+	FVector JumpOffset_Location;   // 7.  跳跃时应用曲线值来修改ik_hand_gun位置
+	UPROPERTY(Transient, BlueprintReadOnly)
+	FRotator JumpOffset_Rotation;  // 8.  跳跃时应用曲线值来修改ik_hand_gun旋转
+	UPROPERTY(Transient, BlueprintReadOnly)
+	FVector LandOffset_Location;   // 9.  着陆时应用曲线值来修改ik_hand_gun位置
+	UPROPERTY(Transient, BlueprintReadOnly)
+	FRotator LandOffset_Rotation;  // 10. 着陆时应用曲线值来修改ik_hand_gun旋转
 };
 
 /**

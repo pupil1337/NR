@@ -23,17 +23,17 @@ void ANRWeapon::BeginPlay()
 	Super::BeginPlay();
 }
 
-void ANRWeapon::SetFPS_SeparateFOV(bool bEnable, bool bSeparate /* =false */)
+void ANRWeapon::SetFPS_SeparateFOV(bool bEnable, bool bSeparate /* =false */) const
 {
-	float SeparateFOVAlpha = bEnable ? 1.0f : 0.0f;
-	float SeparateAlpha = bSeparate ? 0.1f : 1.0f;
+	const float SeparateFOVAlpha = bEnable ? 1.0f : 0.0f;
+	const float SeparateAlpha = bSeparate ? 0.1f : 1.0f;
 
 	Mesh->SetScalarParameterValueOnMaterials(NAME_Separate_FOV_Alpha, SeparateFOVAlpha);
 	Mesh->SetScalarParameterValueOnMaterials(NAME_Separate_Alpha, SeparateAlpha);
 	// Mesh->SetCastShadow(!bSeparate); TODO:引擎有bug bSelfShadowOnly暂不可用
 }
 
-FNRWeaponInformationRow* ANRWeapon::GetWeaponInformation()
+FNRWeaponInformationRow* ANRWeapon::GetWeaponInformation() const
 {
 	if (!WeaponInformation.IsNull())
 	{

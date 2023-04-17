@@ -5,6 +5,7 @@
 
 #include "Actor/Weapon/NRWeapon.h"
 #include "Character/NRCharacter.h"
+#include "Character/Component/NRRunSkiComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Table/Weapon/NRWeaponInformation.h"
@@ -29,18 +30,18 @@ void FNRBodyAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float De
 	if (const ANRCharacter* NRCharacter = Cast<ANRCharacter>(InAnimInstance->TryGetPawnOwner()))
 	{
 		// AnimSetting
-		if (ANRWeapon* Weapon = NRCharacter->GetEquippedWeapon())
+		if (const ANRWeapon* Weapon = NRCharacter->GetEquippedWeapon())
 		{
-			if (FNRWeaponInformationRow* WeaponInfo = Weapon->GetWeaponInformation())
+			if (const FNRWeaponInformationRow* WeaponInfo = Weapon->GetWeaponInformation())
 			{
 				AnimSetting = *WeaponInfo->GetAnimSetting();
 			}
 		}
 		
-		FVector Velocity = UKismetMathLibrary::InverseTransformDirection(NRCharacter->GetActorTransform(), NRCharacter->GetVelocity());
-		FVector VelocityXY = FVector(Velocity.X, Velocity.Y, 0.0f);
-		FVector VelocityXY_Normalized = VelocityXY.GetSafeNormal();
-		float MoveAngle = UKismetMathLibrary::NormalizedDeltaRotator(VelocityXY_Normalized.Rotation(), FRotator::ZeroRotator).Yaw;
+		const FVector Velocity = UKismetMathLibrary::InverseTransformDirection(NRCharacter->GetActorTransform(), NRCharacter->GetVelocity());
+		const FVector VelocityXY = FVector(Velocity.X, Velocity.Y, 0.0f);
+		const FVector VelocityXY_Normalized = VelocityXY.GetSafeNormal();
+		const float MoveAngle = UKismetMathLibrary::NormalizedDeltaRotator(VelocityXY_Normalized.Rotation(), FRotator::ZeroRotator).Yaw;
 		
 		// 1. MoveDirAlpha
 		// 2. MoveDir
@@ -58,9 +59,15 @@ void FNRBodyAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float De
 			bCrouching = CharacterMovementComponent->IsCrouching();
 		}
 
-		// 6. AO_Yaw
-		// 7. AO_Pitch
-		// 8. TurnDir
+		if (const UNRRunSkiComponent* NRRunSkiComponent = Cast<UNRRunSkiComponent>(NRCharacter->GetComponentByClass(UNRRunSkiComponent::StaticClass())))
+		{
+			// 6. bRunning
+			bRunning = NRRunSkiComponent->IsRunning();
+		}
+
+		// 7. AO_Yaw
+		// 8. AO_Pitch
+		// 9. TurnDir
 		UpdateAimOffset(NRCharacter->GetBaseAimRotation(), NRCharacter->IsLocallyControlled(), DeltaSeconds);
 	}
 
@@ -103,13 +110,13 @@ void FNRBodyAnimInstanceProxy::UpdateAimOffset(const FRotator& BaseAimRotation, 
 		TurnDir.SetTurnNone();
 	};
 	
-	// 6. AO_Yaw
+	// 7. AO_Yaw
 	if (!bMoving && !bJumping) // 静止
 	{
-		FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrAimRotation, StartAimRotation);
+		const FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrAimRotation, StartAimRotation);
 		AO_Yaw = DeltaAimRotation.Yaw;
 
-		// 8. TurnDir
+		// 9. TurnDir
 		if (AO_Yaw < -70.0f) TurnDir.SetTurnL();
 		else if (AO_Yaw > 70.0f) TurnDir.SetTurnR();
 
@@ -133,17 +140,17 @@ void FNRBodyAnimInstanceProxy::UpdateAimOffset(const FRotator& BaseAimRotation, 
 		InitAimOffset();
 	}
 
-	// 7. AO_Pitch
+	// 8. AO_Pitch
 	AO_Pitch = BaseAimRotation.Pitch;
 	if (!bLocallyControlled && AO_Pitch > 90.0f)
 	{
-		FVector2D InRange = {270.0f, 360.0f};
-		FVector2D OutRange = {-90.0f, 0.0f};
+		const FVector2D InRange = {270.0f, 360.0f};
+		const FVector2D OutRange = {-90.0f, 0.0f};
 		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
 	}
 }
 
-void FNRBodyAnimInstanceProxy::UpdateCurvesValue(UAnimInstance* InAnimInstance)
+void FNRBodyAnimInstanceProxy::UpdateCurvesValue(const UAnimInstance* InAnimInstance)
 {
 	Curves.bFeetCrossing = InAnimInstance->GetCurveValue(NAME_Curve_Feet_Crossing) == 0.0f ? false : true;
 	// GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Green, FString::Printf(TEXT("FeetCorssing CruveValue %f"), InAnimInstance->GetCurveValue(NAME_Curve_Feet_Crossing)));

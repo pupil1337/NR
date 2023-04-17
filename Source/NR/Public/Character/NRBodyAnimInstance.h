@@ -88,6 +88,7 @@ struct NR_API FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 		bMoving(false),
 		bJumping(false),
 		bCrouching(false),
+		bRunning(false),
 		bCrouchingAndMoving(false),
 		bNotCrouchingAndMoving(false),
 		AO_Yaw(0.0f),
@@ -99,6 +100,7 @@ struct NR_API FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 		bMoving(false),
 		bJumping(false),
 		bCrouching(false),
+		bRunning(false),
 		bCrouchingAndMoving(false),
 		bNotCrouchingAndMoving(false),
 		AO_Yaw(0.0f),
@@ -115,7 +117,7 @@ struct NR_API FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 //~ Begin This Class
 	void CalculateMoveDirAndAlpha(const FVector& V, float MoveAngle, float DeltaSeconds);
 	void UpdateAimOffset(const FRotator& BaseAimRotation, bool bLocallyControlled, float DeltaSeconds);
-	void UpdateCurvesValue(UAnimInstance* InAnimInstance);
+	void UpdateCurvesValue(const UAnimInstance* InAnimInstance);
 	void UpdateOtherValues();
 
 	UPROPERTY(Transient, BlueprintReadOnly)
@@ -132,18 +134,20 @@ struct NR_API FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 	UPROPERTY(Transient, BlueprintReadOnly)
 	uint8 bCrouching: 1;          // 5. 是否在下蹲
 	UPROPERTY(Transient, BlueprintReadOnly)
+	uint8 bRunning: 1;            // 6. 是否在奔跑
+	UPROPERTY(Transient, BlueprintReadOnly)
 	uint8 bCrouchingAndMoving: 1;
 	UPROPERTY(Transient, BlueprintReadOnly)
 	uint8 bNotCrouchingAndMoving: 1;
 
 	UPROPERTY(Transient, BlueprintReadOnly)
-	float AO_Yaw;                 // 6. 瞄准偏移 Yaw
+	float AO_Yaw;                 // 7. 瞄准偏移 Yaw
 	UPROPERTY(Transient, BlueprintReadOnly)
-	float AO_Pitch;               // 7. 瞄准偏移 Pitch
+	float AO_Pitch;               // 8. 瞄准偏移 Pitch
 	UPROPERTY(Transient, BlueprintReadOnly)
 	float AO_Pitch_Negate;
 	UPROPERTY(Transient, BlueprintReadOnly)
-	FTurnDir TurnDir;             // 8. 转身方向
+	FTurnDir TurnDir;             // 9. 转身方向
 
 	UPROPERTY(Transient, BlueprintReadOnly)
 	FNRAnimCurves Curves;         // 曲线值
