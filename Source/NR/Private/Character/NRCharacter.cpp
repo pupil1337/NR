@@ -9,9 +9,9 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Actor/Weapon/NRWeapon.h"
+#include "Character/NRCharacterMovementComponent.h"
 #include "Character/Component/NRComponentBase.h"
 #include "Components/BoxComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 
 const FName NAME_Socket_Camera(TEXT("SOCKET_Camera"));
@@ -20,11 +20,15 @@ const FName NAME_Socket_Weapon(TEXT("SOCKET_Weapon"));
 const FName NAME_Separate_FOV_Alpha(TEXT("Separate_FOV Alpha"));
 const FName NAME_Separate_Alpha(TEXT("Separate Alpha"));
 
-ANRCharacter::ANRCharacter()
+ANRCharacter::ANRCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<UNRCharacterMovementComponent>(CharacterMovementComponentName))
 {
 	PrimaryActorTick.bCanEverTick = true;
 
 	bUseControllerRotationYaw = true;
+
+	// NRCharacterMovementComponent
+	NRCharacterMovementComponent = GetCharacterMovement<UNRCharacterMovementComponent>();
 	
 	// Spring
 	Spring = CreateDefaultSubobject<USpringArmComponent>(TEXT("弹簧臂"));
@@ -195,9 +199,9 @@ void ANRCharacter::UpdateSpringLocation(float DeltaSeconds) const
 void ANRCharacter::UpdateWhetherSeparateFOV() const
 {
 	bool bNeedFixed = false;
-	if (UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement())
+	if (NRCharacterMovementComponent)
 	{
-		bNeedFixed = CharacterMovementComponent->IsCrouching();
+		bNeedFixed = NRCharacterMovementComponent->IsCrouching();
 #ifdef WITH_EDITOR
 		if (bNeedFixed)
 		{

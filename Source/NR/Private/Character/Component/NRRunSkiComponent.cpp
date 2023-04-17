@@ -4,7 +4,7 @@
 #include "Character/Component/NRRunSkiComponent.h"
 
 #include "Character/NRCharacter.h"
-#include "GameFramework/CharacterMovementComponent.h"
+#include "Character/NRCharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 
 UNRRunSkiComponent::UNRRunSkiComponent()
@@ -53,11 +53,11 @@ void UNRRunSkiComponent::OnCrouchInput()
 {
 	if (NRCharacter)
 	{
-		if (!bRunning)
+		if (const UNRCharacterMovementComponent* NRCharacterMovementComponent = NRCharacter->GetCharacterMovement<UNRCharacterMovementComponent>())
 		{
-			if (const UCharacterMovementComponent* CharacterMovementComponent = NRCharacter->GetCharacterMovement())
+			if (!bRunning)
 			{
-				if (CharacterMovementComponent->IsCrouching())
+				if (NRCharacterMovementComponent->IsCrouching())
 				{
 					NRCharacter->UnCrouch(false);
 				}
@@ -78,9 +78,9 @@ bool UNRRunSkiComponent::CheckCanRun() const
 {
 	if (NRCharacter && !bRunning)
 	{
-		if (const UCharacterMovementComponent* CharacterMovementComponent = NRCharacter->GetCharacterMovement())
+		if (const UNRCharacterMovementComponent* NRCharacterMovementComponent = NRCharacter->GetCharacterMovement<UNRCharacterMovementComponent>())
 		{
-			return !CharacterMovementComponent->IsFalling() && !CharacterMovementComponent->IsCrouching();
+			return !NRCharacterMovementComponent->IsFalling();
 		}	
 	}
 	return false;
@@ -89,42 +89,24 @@ bool UNRRunSkiComponent::CheckCanRun() const
 
 void UNRRunSkiComponent::Run(bool NewRun)
 {
-	// 检查是否可奔跑
-	if (bRunning == NewRun || NewRun && !CheckCanRun())
+	if (bRunning == NewRun)
+	{
+		return;
+	}
+	if (NewRun && !CheckCanRun())
 	{
 		return;
 	}
 	
-	RunImpl(NewRun);
-	if (!GetOwner()->HasAuthority())
-	{
-		Server_Run(NewRun);
-	}
-}
-
-void UNRRunSkiComponent::RunImpl(bool NewRun)
-{
 	if (NRCharacter)
 	{
-		if (UCharacterMovementComponent* CharacterMovementComponent = NRCharacter->GetCharacterMovement())
+		if (UNRCharacterMovementComponent* NRCharacterMovementComponent = NRCharacter->GetCharacterMovement<UNRCharacterMovementComponent>())
 		{
-			if (NewRun)
-			{
-				CharacterMovementComponent->MaxWalkSpeed = MaxRunSpeed;
-			}
-			else
-			{
-				CharacterMovementComponent->MaxWalkSpeed = Cast<ANRCharacter>(NRCharacter->GetClass()->GetDefaultObject())->GetCharacterMovement()->MaxWalkSpeed;
-			}
+			NRCharacterMovementComponent->bWantsToRun = NewRun;
 			
 			// bRunning
 			bRunning = NewRun;
 		}
 	}
-}
-
-void UNRRunSkiComponent::Server_Run_Implementation(bool NewRun)
-{
-	Run(NewRun);
 }
 

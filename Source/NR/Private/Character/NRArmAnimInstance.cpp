@@ -5,8 +5,8 @@
 
 #include "Actor/Weapon/NRWeapon.h"
 #include "Character/NRCharacter.h"
+#include "Character/NRCharacterMovementComponent.h"
 #include "Character/Component/NRRunSkiComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
 const FName NAME_Track_Location(TEXT("Location"));
@@ -27,16 +27,9 @@ void FNRArmAnimInstanceProxy::Initialize(UAnimInstance* InAnimInstance)
 	// Temp
 	if (const ANRCharacter* NRCharacter = Cast<ANRCharacter>(InAnimInstance->TryGetPawnOwner()))
 	{
-		const ANRCharacter* NRCharacterCDO = Cast<ANRCharacter>((NRCharacter->GetClass()->GetDefaultObject()));
-		MaxWalkSpeed = NRCharacterCDO->GetCharacterMovement()->MaxWalkSpeed;
-		MaxCrouchSpeed = NRCharacterCDO->GetCharacterMovement()->MaxWalkSpeedCrouched;
-		for (const TSubclassOf<UNRComponentBase>& it: NRCharacterCDO->GetAllNRComponentClasses())
-		{
-			if (const UNRRunSkiComponent* NRRunSkiComponent = Cast<UNRRunSkiComponent>(it->GetDefaultObject()))
-			{
-				MaxRunSpeed = NRRunSkiComponent->GetMaxRunSpeed();
-			}
-		}
+		const ANRCharacter* NRCharacterCDO = NRCharacter->GetClass()->GetDefaultObject<ANRCharacter>();
+		MaxWalkSpeed = NRCharacterCDO->GetCharacterMovement<UNRCharacterMovementComponent>()->MaxWalkSpeed;
+		MaxCrouchSpeed = NRCharacterCDO->GetCharacterMovement<UNRCharacterMovementComponent>()->MaxWalkSpeedCrouched;
 	}
 }
 
@@ -57,12 +50,12 @@ void FNRArmAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float Del
 				}
 			}
 
-			if (const UCharacterMovementComponent* CharacterMovementComponent = NRCharacter->GetCharacterMovement())
+			if (const UNRCharacterMovementComponent* NRCharacterMovementComponent = NRCharacter->GetCharacterMovement<UNRCharacterMovementComponent>())
 			{
 				// 1. bCrouching
-				bCrouching = CharacterMovementComponent->IsCrouching();
+				bCrouching = NRCharacterMovementComponent->IsCrouching();
 				// 2. bJumping
-				bJumping = CharacterMovementComponent->IsFalling();
+				bJumping = NRCharacterMovementComponent->IsFalling();
 			}
 
 			if (const UNRRunSkiComponent* RunSkiComponent = Cast<UNRRunSkiComponent>(NRCharacter->GetComponentByClass(UNRRunSkiComponent::StaticClass())))

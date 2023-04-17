@@ -15,6 +15,7 @@ class UInputAction;
 class ANRWeapon;
 class UBoxComponent;
 class UNRComponentBase;
+class UNRCharacterMovementComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCrouchInput);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnRunInput);
@@ -41,6 +42,9 @@ class NR_API ANRCharacter : public ACharacter
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UBoxComponent> SeparateFOVCheckBox;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
+	TObjectPtr<UNRCharacterMovementComponent> NRCharacterMovementComponent;
 
 	// Settings
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="配置|角色", DisplayName="摄像机-FPS弹簧臂相对eyes位置偏移")
@@ -71,7 +75,7 @@ class NR_API ANRCharacter : public ACharacter
 	ANRWeapon* EquippedWeapon;
 	
 public:
-	ANRCharacter();
+	ANRCharacter(const FObjectInitializer& ObjectInitializer);
 	virtual void OnConstruction(const FTransform& Transform) override;
 	virtual void PreInitializeComponents() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;

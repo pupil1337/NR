@@ -14,9 +14,6 @@ UCLASS(Abstract, Blueprintable)
 class NR_API UNRRunSkiComponent : public UNRComponentBase
 {
 	GENERATED_BODY()
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
-	float MaxRunSpeed = 600.0f;
 	
 public:
 	UNRRunSkiComponent();
@@ -28,7 +25,6 @@ protected:
 
 public:
 	// Gitter
-	FORCEINLINE float GetMaxRunSpeed() const { return MaxRunSpeed; }
 	FORCEINLINE bool IsRunning() const { return bRunning; }
 	
 private:
@@ -40,13 +36,8 @@ private:
 	UFUNCTION()
 	void OnCrouchInput();
 
-	// Check
 	bool CheckCanRun() const;
-	
 	void Run(bool NewRun);
-	void RunImpl(bool NewRun);
-	UFUNCTION(Server, Reliable)
-	void Server_Run(bool NewRun);
 
 	UPROPERTY(Transient, Replicated)
 	bool bRunning;
