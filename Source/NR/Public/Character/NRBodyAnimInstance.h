@@ -85,6 +85,7 @@ struct NR_API FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 	GENERATED_BODY()
 
 	FNRBodyAnimInstanceProxy():
+		VelocityPlayRate(1.0f),
 		bMoving(false),
 		bJumping(false),
 		bCrouching(false),
@@ -97,6 +98,7 @@ struct NR_API FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 	{}
 	
 	FNRBodyAnimInstanceProxy(UAnimInstance* Instance): FAnimInstanceProxy(Instance),
+		VelocityPlayRate(1.0f),
 		bMoving(false),
 		bJumping(false),
 		bCrouching(false),
@@ -117,40 +119,49 @@ struct NR_API FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 //~ Begin This Class
 	void CalculateMoveDirAndAlpha(const FVector& V, float MoveAngle, float DeltaSeconds);
 	void UpdateAimOffset(const FRotator& BaseAimRotation, bool bLocallyControlled, float DeltaSeconds);
+	float GetCurrMoveModeMaxSpeed() const;
 	void UpdateCurvesValue(const UAnimInstance* InAnimInstance);
 	void UpdateOtherValues();
+	
+	// Temp
+	float MaxWalkSpeed = 0.0f;
+	float MaxCrouchSpeed = 0.0f;
+	float MaxRunSpeed = 0.0f;
 
 	UPROPERTY(Transient, BlueprintReadOnly)
-	FNRAnimSettingRow AnimSetting;
-	UPROPERTY(Transient, BlueprintReadOnly)
-	FNRMoveDirAlpha MoveDirAlpha; // 1. 四个方向输入的值
-	UPROPERTY(Transient, BlueprintReadOnly)
-	FNRMoveDir MoveDir;           // 2. 移动方向
+	FNRAnimSettingRow AnimSetting; // AnimSetting
 	
 	UPROPERTY(Transient, BlueprintReadOnly)
-	uint8 bMoving: 1;             // 3. 是否在移动
+	FNRMoveDirAlpha MoveDirAlpha;  // 1.  四个方向输入的值
 	UPROPERTY(Transient, BlueprintReadOnly)
-	uint8 bJumping: 1;            // 4. 是否在跳跃
+	FNRMoveDir MoveDir;            // 2.  移动方向
 	UPROPERTY(Transient, BlueprintReadOnly)
-	uint8 bCrouching: 1;          // 5. 是否在下蹲
+	float VelocityPlayRate;        // 3.  动画播放速率
+	
 	UPROPERTY(Transient, BlueprintReadOnly)
-	uint8 bRunning: 1;            // 6. 是否在奔跑
+	uint8 bMoving: 1;              // 4.  是否在移动
+	UPROPERTY(Transient, BlueprintReadOnly)
+	uint8 bJumping: 1;             // 5.  是否在跳跃
+	UPROPERTY(Transient, BlueprintReadOnly)
+	uint8 bCrouching: 1;           // 6.  是否在下蹲
+	UPROPERTY(Transient, BlueprintReadOnly)
+	uint8 bRunning: 1;             // 7.  是否在奔跑
 	UPROPERTY(Transient, BlueprintReadOnly)
 	uint8 bCrouchingAndMoving: 1;
 	UPROPERTY(Transient, BlueprintReadOnly)
 	uint8 bNotCrouchingAndMoving: 1;
 
 	UPROPERTY(Transient, BlueprintReadOnly)
-	float AO_Yaw;                 // 7. 瞄准偏移 Yaw
+	float AO_Yaw;                  // 8.  瞄准偏移 Yaw
 	UPROPERTY(Transient, BlueprintReadOnly)
-	float AO_Pitch;               // 8. 瞄准偏移 Pitch
+	float AO_Pitch;                // 9.  瞄准偏移 Pitch
 	UPROPERTY(Transient, BlueprintReadOnly)
 	float AO_Pitch_Negate;
 	UPROPERTY(Transient, BlueprintReadOnly)
-	FTurnDir TurnDir;             // 9. 转身方向
+	FTurnDir TurnDir;              // 10. 转身方向
 
 	UPROPERTY(Transient, BlueprintReadOnly)
-	FNRAnimCurves Curves;         // 曲线值
+	FNRAnimCurves Curves;          // 曲线值
 
 	// 临时值
 	FRotator StartAimRotation = FRotator::ZeroRotator;
@@ -175,7 +186,9 @@ protected:
 	//~End   UAnimInstance
 
 	//~PreView Only
+#if WITH_EDITORONLY_DATA
 public:
 	UPROPERTY(EditDefaultsOnly)
 	FNRAnimSettingRow PreView_AnimSetting;
+#endif
 };

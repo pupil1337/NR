@@ -111,14 +111,10 @@ void UNRRunSkiComponent::RunImpl(bool NewRun)
 			if (NewRun)
 			{
 				CharacterMovementComponent->MaxWalkSpeed = MaxRunSpeed;
-				CharacterMovementComponent->bOrientRotationToMovement = true;
-				NRCharacter->bUseControllerRotationYaw = false;
 			}
 			else
 			{
 				CharacterMovementComponent->MaxWalkSpeed = Cast<ANRCharacter>(NRCharacter->GetClass()->GetDefaultObject())->GetCharacterMovement()->MaxWalkSpeed;
-				CharacterMovementComponent->bOrientRotationToMovement = false;
-				NRCharacter->bUseControllerRotationYaw = true;
 			}
 			
 			// bRunning

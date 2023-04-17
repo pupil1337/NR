@@ -17,9 +17,26 @@ void FNRBodyAnimInstanceProxy::Initialize(UAnimInstance* InAnimInstance)
 	FAnimInstanceProxy::Initialize(InAnimInstance);
 
 	// PreView Only
+#if WITH_EDITORONLY_DATA
 	if (const UNRBodyAnimInstance* ArmAnimInstance = Cast<UNRBodyAnimInstance>(InAnimInstance))
 	{
 		AnimSetting = ArmAnimInstance->PreView_AnimSetting;
+	}
+#endif
+
+	// Temp
+	if (const ANRCharacter* NRCharacter = Cast<ANRCharacter>(InAnimInstance->TryGetPawnOwner()))
+	{
+		const ANRCharacter* NRCharacterCDO = Cast<ANRCharacter>((NRCharacter->GetClass()->GetDefaultObject()));
+		MaxWalkSpeed = NRCharacterCDO->GetCharacterMovement()->MaxWalkSpeed;
+		MaxCrouchSpeed = NRCharacterCDO->GetCharacterMovement()->MaxWalkSpeedCrouched;
+		for (const TSubclassOf<UNRComponentBase>& it: NRCharacterCDO->GetAllNRComponentClasses())
+		{
+			if (const UNRRunSkiComponent* NRRunSkiComponent = Cast<UNRRunSkiComponent>(it->GetDefaultObject()))
+			{
+				MaxRunSpeed = NRRunSkiComponent->GetMaxRunSpeed();
+			}
+		}
 	}
 }
 
@@ -46,28 +63,31 @@ void FNRBodyAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float De
 		// 1. MoveDirAlpha
 		// 2. MoveDir
 		CalculateMoveDirAndAlpha(VelocityXY_Normalized, MoveAngle, DeltaSeconds);
+
+		// 3. VelocityPlayRate
+		VelocityPlayRate = VelocityXY.Size() / GetCurrMoveModeMaxSpeed();
 		
-		// 3. bMoving
+		// 4. bMoving
 		bMoving = VelocityXY.X != 0.0f && VelocityXY.Y != 0.0f;
 
 		if (const UCharacterMovementComponent* CharacterMovementComponent = NRCharacter->GetCharacterMovement())
 		{
-			// 4. bJumping
+			// 5. bJumping
 			bJumping = CharacterMovementComponent->IsFalling();
             
-			// 5. bCrouching
+			// 6. bCrouching
 			bCrouching = CharacterMovementComponent->IsCrouching();
 		}
 
 		if (const UNRRunSkiComponent* NRRunSkiComponent = Cast<UNRRunSkiComponent>(NRCharacter->GetComponentByClass(UNRRunSkiComponent::StaticClass())))
 		{
-			// 6. bRunning
+			// 7. bRunning
 			bRunning = NRRunSkiComponent->IsRunning();
 		}
 
-		// 7. AO_Yaw
-		// 8. AO_Pitch
-		// 9. TurnDir
+		// 8.  AO_Yaw
+		// 9.  AO_Pitch
+		// 10. TurnDir
 		UpdateAimOffset(NRCharacter->GetBaseAimRotation(), NRCharacter->IsLocallyControlled(), DeltaSeconds);
 	}
 
@@ -110,13 +130,13 @@ void FNRBodyAnimInstanceProxy::UpdateAimOffset(const FRotator& BaseAimRotation, 
 		TurnDir.SetTurnNone();
 	};
 	
-	// 7. AO_Yaw
+	// 8. AO_Yaw
 	if (!bMoving && !bJumping) // 静止
 	{
 		const FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrAimRotation, StartAimRotation);
 		AO_Yaw = DeltaAimRotation.Yaw;
 
-		// 9. TurnDir
+		// 10. TurnDir
 		if (AO_Yaw < -70.0f) TurnDir.SetTurnL();
 		else if (AO_Yaw > 70.0f) TurnDir.SetTurnR();
 
@@ -140,7 +160,7 @@ void FNRBodyAnimInstanceProxy::UpdateAimOffset(const FRotator& BaseAimRotation, 
 		InitAimOffset();
 	}
 
-	// 8. AO_Pitch
+	// 9. AO_Pitch
 	AO_Pitch = BaseAimRotation.Pitch;
 	if (!bLocallyControlled && AO_Pitch > 90.0f)
 	{
@@ -148,6 +168,20 @@ void FNRBodyAnimInstanceProxy::UpdateAimOffset(const FRotator& BaseAimRotation, 
 		const FVector2D OutRange = {-90.0f, 0.0f};
 		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
 	}
+}
+
+float FNRBodyAnimInstanceProxy::GetCurrMoveModeMaxSpeed() const
+{
+	if (bCrouching)
+	{
+		return MaxCrouchSpeed;
+	}
+	if (bRunning)
+	{
+		return MaxRunSpeed;
+	}
+
+	return MaxWalkSpeed;
 }
 
 void FNRBodyAnimInstanceProxy::UpdateCurvesValue(const UAnimInstance* InAnimInstance)
