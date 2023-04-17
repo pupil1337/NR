@@ -38,11 +38,11 @@ UCLASS()
 class NR_API UNRCharacterMovementComponent : public UCharacterMovementComponent
 {
 	GENERATED_BODY()
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="角色移动: 奔跑", DisplayName="最大奔跑速度")
+	
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="角色移动: 奔跑", DisplayName="最大奔跑速度")
 	float Run_MaxWalkSpeed = 600.0f;
 
-public:
 	UNRCharacterMovementComponent();
 	virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;
 
