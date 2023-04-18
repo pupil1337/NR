@@ -78,6 +78,7 @@ void ANRCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(ANRCharacter, EquippedWeapon, COND_None)
+	DOREPLIFETIME_CONDITION(ANRCharacter, bRunning, COND_SimulatedOnly)
 }
 
 void ANRCharacter::BeginPlay()

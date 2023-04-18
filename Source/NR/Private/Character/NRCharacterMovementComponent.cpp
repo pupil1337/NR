@@ -8,12 +8,12 @@
 
 class ANRCharacter;
 
+// FSavedMove_NR =======================================================================================================
 FSavedMove_NR::FSavedMove_NR()
+	: bWantsToRun(0)
 {
-	bWantsToRun = 0;
 }
 
-// FSavedMove_NR
 bool FSavedMove_NR::CanCombineWith(const FSavedMovePtr& NewMove, ACharacter* InCharacter, float MaxDelta) const
 {
 	const FSavedMove_NR* NewNRMove = static_cast<FSavedMove_NR*>(NewMove.Get());
@@ -63,6 +63,11 @@ void FSavedMove_NR::PrepMoveFor(ACharacter* C)
 }
 
 // FNetworkPredictionData_Client_NR ====================================================================================
+FNetworkPredictionData_Client_NR::FNetworkPredictionData_Client_NR(const UCharacterMovementComponent& ClientMovement)
+	: Super(ClientMovement)
+{
+}
+
 FSavedMovePtr FNetworkPredictionData_Client_NR::AllocateNewMove()
 {
 	return FSavedMovePtr(new FSavedMove_NR());
@@ -95,18 +100,23 @@ void UNRCharacterMovementComponent::OnMovementUpdated(float DeltaSeconds, const 
 {
 	Super::OnMovementUpdated(DeltaSeconds, OldLocation, OldVelocity);
 
-	if (MovementMode == MOVE_Walking)
+	if (ANRCharacter* NRCharacter = Cast<ANRCharacter>(CharacterOwner))
 	{
-		if (bWantsToRun)
+		if (MovementMode == MOVE_Walking)
 		{
-			MaxWalkSpeed = Run_MaxWalkSpeed;
-		}
-		else
-		{
-			if (CharacterOwner)
+			// Run
+			if (bWantsToRun)
 			{
-				MaxWalkSpeed = CharacterOwner->GetClass()->GetDefaultObject<ANRCharacter>()->GetCharacterMovement<UNRCharacterMovementComponent>()->MaxWalkSpeed;
+				MaxWalkSpeed = Run_MaxWalkSpeed;
 			}
-		}
+			else
+			{
+				MaxWalkSpeed = NRCharacter->GetClass()->GetDefaultObject<ANRCharacter>()->GetCharacterMovement<UNRCharacterMovementComponent>()->MaxWalkSpeed;
+			}
+			if (NRCharacter->GetLocalRole() != ROLE_SimulatedProxy)
+			{
+				NRCharacter->bRunning = bWantsToRun;
+			}
+		}	
 	}
 }

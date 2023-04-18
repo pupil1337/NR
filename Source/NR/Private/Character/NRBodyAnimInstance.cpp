@@ -71,12 +71,9 @@ void FNRBodyAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float De
             
 			// 6. bCrouching
 			bCrouching = NRCharacterMovementComponent->IsCrouching();
-		}
 
-		if (const UNRRunSkiComponent* NRRunSkiComponent = Cast<UNRRunSkiComponent>(NRCharacter->GetComponentByClass(UNRRunSkiComponent::StaticClass())))
-		{
 			// 7. bRunning
-			bRunning = NRRunSkiComponent->IsRunning();
+			bRunning = NRCharacter->bRunning;
 		}
 
 		// 8.  AO_Yaw

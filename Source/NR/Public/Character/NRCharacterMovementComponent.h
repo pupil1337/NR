@@ -27,7 +27,7 @@ class NR_API FNetworkPredictionData_Client_NR : public FNetworkPredictionData_Cl
 	using Super = FNetworkPredictionData_Client_Character;
 
 public:
-	FNetworkPredictionData_Client_NR(const UCharacterMovementComponent& ClientMovement): Super(ClientMovement) {}
+	FNetworkPredictionData_Client_NR(const UCharacterMovementComponent& ClientMovement);
 	virtual FSavedMovePtr AllocateNewMove() override;
 };
 

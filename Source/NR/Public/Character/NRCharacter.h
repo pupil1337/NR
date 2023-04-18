@@ -100,6 +100,10 @@ public:
 
 	// Getter
 	FORCEINLINE const TArray<TSubclassOf<UNRComponentBase> >& GetAllNRComponentClasses() const { return NRComponentClasses; }
+
+	// NRCharacterMovementComponent
+	UPROPERTY(Transient, Replicated)
+	bool bRunning;
 	
 private:
 	// LocallyControlled

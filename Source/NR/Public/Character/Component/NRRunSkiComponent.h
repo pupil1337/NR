@@ -17,15 +17,10 @@ class NR_API UNRRunSkiComponent : public UNRComponentBase
 	
 public:
 	UNRRunSkiComponent();
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 //~Begin This Class
 protected:
 	virtual void InitLocallyControlledInputEvent() override;
-
-public:
-	// Gitter
-	FORCEINLINE bool IsRunning() const { return bRunning; }
 	
 private:
 	// Input
@@ -38,9 +33,6 @@ private:
 
 	bool CheckCanRun() const;
 	void Run(bool NewRun);
-
-	UPROPERTY(Transient, Replicated)
-	bool bRunning;
 	
 	// Temp
 	FVector2D MoveInputValue;
