@@ -29,7 +29,10 @@ void UNRRunSkiComponent::OnMoveInput(const FInputActionValue& Value)
 	MoveInputValue = Value.Get<FInputActionValue::Axis2D>();
 	if (MoveInputValue.Y != 1.0f)
 	{
-		Run(false);
+		if (NRCharacter->bRunning == true)
+		{
+			Run(false);
+		}
 	}
 }
 
@@ -37,7 +40,10 @@ void UNRRunSkiComponent::OnRunInput()
 {
 	if (MoveInputValue.Y == 1.0f)
 	{
-		Run(true);
+		if (!NRCharacter->bRunning && CheckCanRun())
+		{
+			Run(true);
+		}
 	}
 }
 
@@ -60,7 +66,7 @@ void UNRRunSkiComponent::OnCrouchInput()
 			}
 			else
 			{
-				// TODO: 如果是bRunning 则滑行
+				Ski(true);
 			}
 		}
 	}
@@ -68,7 +74,7 @@ void UNRRunSkiComponent::OnCrouchInput()
 
 bool UNRRunSkiComponent::CheckCanRun() const
 {
-	if (NRCharacter && !NRCharacter->bRunning)
+	if (NRCharacter)
 	{
 		if (const UNRCharacterMovementComponent* NRCharacterMovementComponent = NRCharacter->GetCharacterMovement<UNRCharacterMovementComponent>())
 		{
@@ -79,22 +85,25 @@ bool UNRRunSkiComponent::CheckCanRun() const
 }
 
 
-void UNRRunSkiComponent::Run(bool NewRun)
+void UNRRunSkiComponent::Run(bool NewRun) const
 {
 	if (NRCharacter)
 	{
-		if (NRCharacter->bRunning == NewRun || NewRun && !CheckCanRun())
-		{
-			return;
-		}
 
 		if (UNRCharacterMovementComponent* NRCharacterMovementComponent = NRCharacter->GetCharacterMovement<UNRCharacterMovementComponent>())
 		{
-			NRCharacterMovementComponent->bWantsToRun = NewRun;
-			if (NewRun && NRCharacterMovementComponent->IsCrouching())
-			{
-				NRCharacter->UnCrouch();
-			}
+			NRCharacterMovementComponent->Run(NewRun);
+		}
+	}
+}
+
+void UNRRunSkiComponent::Ski(bool NewSki) const
+{
+	if (NRCharacter)
+	{
+		if (UNRCharacterMovementComponent* NRCharacterMovementComponent = NRCharacter->GetCharacterMovement<UNRCharacterMovementComponent>())
+		{
+			NRCharacterMovementComponent->Ski(NewSki);
 		}
 	}
 }

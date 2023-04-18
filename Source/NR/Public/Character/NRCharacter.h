@@ -104,6 +104,8 @@ public:
 	// NRCharacterMovementComponent
 	UPROPERTY(Transient, Replicated)
 	bool bRunning;
+	UPROPERTY(Transient, Replicated)
+	bool bSkiing;
 	
 private:
 	// LocallyControlled

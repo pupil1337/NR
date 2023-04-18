@@ -32,7 +32,8 @@ private:
 	void OnCrouchInput();
 
 	bool CheckCanRun() const;
-	void Run(bool NewRun);
+	void Run(bool NewRun) const;
+	void Ski(bool NewSki) const;
 	
 	// Temp
 	FVector2D MoveInputValue;
