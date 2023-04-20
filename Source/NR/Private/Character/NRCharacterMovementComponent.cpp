@@ -136,7 +136,7 @@ void UNRCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float Del
 	if (MovementMode == MOVE_Walking && bWantsToRun && bWantsToCrouch)
 	{
 		FHitResult PotentialSkiSurface;
-		if (Velocity.SizeSquared() > pow(Ski_MinSpeed, 2) && GetSkiSurface(PotentialSkiSurface))
+		if (Velocity.SizeSquared() > pow(MaxWalkSpeedCrouched, 2) && GetSkiSurface(PotentialSkiSurface))
 		{
 			EnterSki(PotentialSkiSurface);
 		}
@@ -226,15 +226,24 @@ void UNRCharacterMovementComponent::PhySki(float deltaTime, int32 Iterations)
 		StartNewPhysics(deltaTime, Iterations);
 		return;
 	}
-	if (Velocity.SizeSquared() < pow(Ski_MinSpeed, 2))
+	if (Velocity.SizeSquared() < pow(MaxWalkSpeedCrouched, 2))
 	{
 		ExitSki(true);
 		StartNewPhysics(deltaTime, Iterations);
 		return;
 	}
 
+	// 重力
 	Velocity += FMath::Abs(GetGravityZ()) * FVector::DownVector * deltaTime;
 
+	FVector VelPlaneDir = FVector::VectorPlaneProject(Velocity, SurfaceHit.Normal).GetSafeNormal(); // 速度沿着平面的投影
+	if (VelPlaneDir.Rotation().Pitch <= Ski_MinSlopeToHasAcceleration)
+	{
+		// 坡度较大时额外加速度
+		Velocity += Ski_AddAcceleration * deltaTime * VelPlaneDir;
+	}
+
+	// TODO: 允许玩家微控方向
 	Acceleration = FVector::ZeroVector;
 
 	if (!HasAnimRootMotion() && !CurrentRootMotion.HasOverrideVelocity())
@@ -251,13 +260,13 @@ void UNRCharacterMovementComponent::PhySki(float deltaTime, int32 Iterations)
 	FQuat OldRotation = UpdatedComponent->GetComponentRotation().Quaternion();
 	FHitResult Hit(1.0f);
 	FVector Adjusted = Velocity * deltaTime; // 位移
-	FVector VelPlaneDir = FVector::VectorPlaneProject(Velocity, SurfaceHit.Normal).GetSafeNormal();
 	FQuat NewRotation = FRotationMatrix::MakeFromXZ(VelPlaneDir, SurfaceHit.Normal).ToQuat();
 	SafeMoveUpdatedComponent(Adjusted, OldRotation, true, Hit);
 
 	if (Hit.Time < 1.0f)
 	{
 		HandleImpact(Hit, deltaTime, Adjusted);
+		// TODO: 参考Walking 编写Setup
 		SlideAlongSurface(Adjusted, (1.0f - Hit.Time), Hit.Normal, Hit, true);
 	}
 
@@ -266,7 +275,7 @@ void UNRCharacterMovementComponent::PhySki(float deltaTime, int32 Iterations)
 	{
 		ExitSki(false);
 	}
-	else if (Velocity.SizeSquared() < pow(Ski_MinSpeed, 2))
+	else if (Velocity.SizeSquared() < pow(MaxWalkSpeedCrouched, 2))
 	{
 		ExitSki(true);
 	}

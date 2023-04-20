@@ -53,13 +53,16 @@ void UNRRunSkiComponent::OnCrouchInput()
 	{
 		if (const UNRCharacterMovementComponent* NRCharacterMovementComponent = NRCharacter->GetCharacterMovement<UNRCharacterMovementComponent>())
 		{
-			if (NRCharacterMovementComponent->IsCrouching())
+			if (!NRCharacterMovementComponent->IsFalling())
 			{
-				NRCharacter->UnCrouch(false);
-			}
-			else
-			{
-				NRCharacter->Crouch(false);
+				if (NRCharacterMovementComponent->IsCrouching())
+				{
+					NRCharacter->UnCrouch(false);
+				}
+				else
+				{
+					NRCharacter->Crouch(false);
+				}	
 			}
 		}
 	}
