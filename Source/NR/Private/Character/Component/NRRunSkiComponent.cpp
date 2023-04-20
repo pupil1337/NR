@@ -53,20 +53,13 @@ void UNRRunSkiComponent::OnCrouchInput()
 	{
 		if (const UNRCharacterMovementComponent* NRCharacterMovementComponent = NRCharacter->GetCharacterMovement<UNRCharacterMovementComponent>())
 		{
-			if (!NRCharacter->bRunning)
+			if (NRCharacterMovementComponent->IsCrouching())
 			{
-				if (NRCharacterMovementComponent->IsCrouching())
-				{
-					NRCharacter->UnCrouch(false);
-				}
-				else
-				{
-					NRCharacter->Crouch(false);
-				}
+				NRCharacter->UnCrouch(false);
 			}
 			else
 			{
-				Ski(true);
+				NRCharacter->Crouch(false);
 			}
 		}
 	}
@@ -89,21 +82,9 @@ void UNRRunSkiComponent::Run(bool NewRun) const
 {
 	if (NRCharacter)
 	{
-
 		if (UNRCharacterMovementComponent* NRCharacterMovementComponent = NRCharacter->GetCharacterMovement<UNRCharacterMovementComponent>())
 		{
 			NRCharacterMovementComponent->Run(NewRun);
-		}
-	}
-}
-
-void UNRRunSkiComponent::Ski(bool NewSki) const
-{
-	if (NRCharacter)
-	{
-		if (UNRCharacterMovementComponent* NRCharacterMovementComponent = NRCharacter->GetCharacterMovement<UNRCharacterMovementComponent>())
-		{
-			NRCharacterMovementComponent->Ski(NewSki);
 		}
 	}
 }

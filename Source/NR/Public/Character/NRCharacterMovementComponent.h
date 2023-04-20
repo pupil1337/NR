@@ -29,7 +29,6 @@ public:
 	virtual void PrepMoveFor(ACharacter* C) override;
 
 	uint8 bWantsToRun: 1;
-	uint8 bWantsToSki: 1;
 };
 
 class NR_API FNetworkPredictionData_Client_NR : public FNetworkPredictionData_Client_Character
@@ -90,11 +89,10 @@ public:
 	bool IsNRMovementMode(ENRMovementMode InNRMovementMode) const;
 	
 	void Run(bool bRun);
-	void Ski(bool bSki);
 	
 private:
 	void EnterSki();
-	void ExitSki();
+	void ExitSki(bool bKeepCrouch);
 	void PhySki(float deltaTime, int32 Iterations);
 	bool GetSkiSurface(FHitResult& Hit) const;
 
@@ -103,5 +101,4 @@ private:
 	ANRCharacter* NRCharacterOwner;
 	
 	bool bWantsToRun;
-	bool bWantsToSki;
 };

@@ -11,8 +11,7 @@ class ANRCharacter;
 
 // FSavedMove_NR =======================================================================================================
 FSavedMove_NR::FSavedMove_NR()
-	: bWantsToRun(0),
-	  bWantsToSki(0)
+	: bWantsToRun(0)
 {
 }
 
@@ -20,10 +19,6 @@ bool FSavedMove_NR::CanCombineWith(const FSavedMovePtr& NewMove, ACharacter* InC
 {
 	const FSavedMove_NR* NewNRMove = static_cast<FSavedMove_NR*>(NewMove.Get());
 	if (bWantsToRun != NewNRMove->bWantsToRun)
-	{
-		return false;
-	}
-	if (bWantsToSki != NewNRMove->bWantsToRun)
 	{
 		return false;
 	}
@@ -35,7 +30,6 @@ void FSavedMove_NR::Clear()
 	Super::Clear();
 
 	bWantsToRun = 0;
-	bWantsToSki = 0;
 }
 
 uint8 FSavedMove_NR::GetCompressedFlags() const
@@ -44,10 +38,6 @@ uint8 FSavedMove_NR::GetCompressedFlags() const
 	if (bWantsToRun)
 	{
 		Result |= FLAG_Custom_0;
-	}
-	if (bWantsToSki)
-	{
-		Result |= FLAG_Custom_1;
 	}
 	
 	return Result;
@@ -60,7 +50,6 @@ void FSavedMove_NR::SetMoveFor(ACharacter* C, float InDeltaTime, FVector const& 
 	if (const UNRCharacterMovementComponent* NRCharacterMovementComponent = C->GetCharacterMovement<UNRCharacterMovementComponent>())
 	{
 		bWantsToRun = NRCharacterMovementComponent->bWantsToRun;
-		bWantsToSki = NRCharacterMovementComponent->bWantsToSki;
 	}
 }
 
@@ -71,7 +60,6 @@ void FSavedMove_NR::PrepMoveFor(ACharacter* C)
 	if (UNRCharacterMovementComponent* NRCharacterMovementComponent = C->GetCharacterMovement<UNRCharacterMovementComponent>())
 	{
 		NRCharacterMovementComponent->bWantsToRun = bWantsToRun;
-		NRCharacterMovementComponent->bWantsToSki = bWantsToSki;
 	}
 }
 
@@ -113,7 +101,6 @@ void UNRCharacterMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
 	Super::UpdateFromCompressedFlags(Flags);
 
 	bWantsToRun = (Flags & FSavedMove_NR::FLAG_Custom_0) != 0;
-	bWantsToSki = (Flags & FSavedMove_NR::FLAG_Custom_1) != 0;
 }
 
 void UNRCharacterMovementComponent::OnMovementUpdated(float DeltaSeconds, const FVector& OldLocation, const FVector& OldVelocity)
@@ -133,17 +120,20 @@ void UNRCharacterMovementComponent::OnMovementUpdated(float DeltaSeconds, const 
 			{
 				MaxWalkSpeed = NRCharacter->GetClass()->GetDefaultObject<ANRCharacter>()->GetCharacterMovement<UNRCharacterMovementComponent>()->MaxWalkSpeed;
 			}
-			if (NRCharacter->GetLocalRole() != ROLE_SimulatedProxy)
-			{
-				NRCharacter->bRunning = bWantsToRun;
-			}
-		}	
+		}
+
+		if (NRCharacter->GetLocalRole() != ROLE_SimulatedProxy)
+		{
+			NRCharacter->bRunning = bWantsToRun;
+		}
 	}
+
+	//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Blue, FString::Printf(TEXT("bWantsToRun: %d bRunning: %d"), bWantsToRun, NRCharacterOwner->bRunning));
 }
 
 void UNRCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float DeltaSeconds)
 {
-	if (MovementMode == MOVE_Walking && bWantsToSki)
+	if (MovementMode == MOVE_Walking && bWantsToRun && bWantsToCrouch)
 	{
 		FHitResult PotentialSkiSurface;
 		if (Velocity.SizeSquared() > pow(Ski_MinSpeed, 2) && GetSkiSurface(PotentialSkiSurface))
@@ -152,9 +142,9 @@ void UNRCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float Del
 		}
 	}
 
-	if (IsNRMovementMode(NRMOVE_Ski) && !bWantsToSki)
+	if (IsNRMovementMode(NRMOVE_Ski) && !bWantsToCrouch)
 	{
-		ExitSki();
+		ExitSki(false);
 	}
 	
 	Super::UpdateCharacterStateBeforeMovement(DeltaSeconds);
@@ -200,28 +190,20 @@ void UNRCharacterMovementComponent::Run(bool bRun)
 }
 
 // Ski
-void UNRCharacterMovementComponent::Ski(bool bSki)
-{
-	bWantsToSki = bSki;
-}
-
 void UNRCharacterMovementComponent::EnterSki()
 {
-	//bWantsToCrouch = true;
 	bWantsToRun = false;
 	
 	Velocity += Velocity.GetSafeNormal2D() * Ski_EnterImpulse;
 	SetMovementMode(MOVE_Custom, NRMOVE_Ski);
 }
 
-void UNRCharacterMovementComponent::ExitSki()
+void UNRCharacterMovementComponent::ExitSki(bool bKeepCrouch)
 {
-	//bWantsToCrouch = false;
-	bWantsToSki = false;
-
-	FQuat NewRotation = FRotationMatrix::MakeFromXZ(UpdatedComponent->GetForwardVector().GetSafeNormal2D(), FVector::UpVector).ToQuat();
-	FHitResult Hit;
-	SafeMoveUpdatedComponent(FVector::ZeroVector, NewRotation, true, Hit);
+	bWantsToCrouch = bKeepCrouch;
+	//FQuat NewRotation = FRotationMatrix::MakeFromXZ(UpdatedComponent->GetForwardVector().GetSafeNormal2D(), FVector::UpVector).ToQuat();
+	//FHitResult Hit;
+	//SafeMoveUpdatedComponent(FVector::ZeroVector, NewRotation, true, Hit);
 	SetMovementMode(MOVE_Walking);
 }
 
@@ -235,16 +217,22 @@ void UNRCharacterMovementComponent::PhySki(float deltaTime, int32 Iterations)
 	RestorePreAdditiveRootMotionVelocity();
 
 	FHitResult SurfaceHit;
-	if (!GetSkiSurface(SurfaceHit) || Velocity.SizeSquared() < pow(Ski_MinSpeed, 2))
+	if (!GetSkiSurface(SurfaceHit))
 	{
-		ExitSki();
+		ExitSki(false);
+		StartNewPhysics(deltaTime, Iterations);
+		return;
+	}
+	if (Velocity.SizeSquared() < pow(Ski_MinSpeed, 2))
+	{
+		ExitSki(true);
 		StartNewPhysics(deltaTime, Iterations);
 		return;
 	}
 
 	Velocity += Ski_GravityForce * FVector::DownVector * deltaTime;
 
-	Acceleration = Acceleration.ProjectOnTo(UpdatedComponent->GetRightVector());
+	Acceleration = FVector::ZeroVector;
 
 	if (!HasAnimRootMotion() && !CurrentRootMotion.HasOverrideVelocity())
 	{
@@ -271,9 +259,13 @@ void UNRCharacterMovementComponent::PhySki(float deltaTime, int32 Iterations)
 	}
 
 	FHitResult NewSurfaceHit;
-	if (!GetSkiSurface(NewSurfaceHit) || Velocity.SizeSquared() < pow(Ski_MinSpeed, 2))
+	if (!GetSkiSurface(NewSurfaceHit))
 	{
-		ExitSki();
+		ExitSki(false);
+	}
+	else if (Velocity.SizeSquared() < pow(Ski_MinSpeed, 2))
+	{
+		ExitSki(true);
 	}
 
 	if (!bJustTeleported && !HasAnimRootMotion() && !CurrentRootMotion.HasOverrideVelocity())
