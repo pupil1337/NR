@@ -43,9 +43,6 @@ class NR_API ANRCharacter : public ACharacter
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UBoxComponent> SeparateFOVCheckBox;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
-	TObjectPtr<UNRCharacterMovementComponent> NRCharacterMovementComponent;
-
 	// Settings
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="配置|角色", DisplayName="摄像机-FPS弹簧臂相对eyes位置偏移")
 	FVector SpringOffsetFPS = FVector(30.0f, 0.0f, 0.0f);
@@ -85,6 +82,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Tick(float DeltaSeconds) override;
 
+	virtual void Jump() override;
 	virtual void OnJumped_Implementation() override;
 
 	// Temp TODO:换成背包组件

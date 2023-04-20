@@ -138,7 +138,7 @@ void UNRCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float Del
 		FHitResult PotentialSkiSurface;
 		if (Velocity.SizeSquared() > pow(Ski_MinSpeed, 2) && GetSkiSurface(PotentialSkiSurface))
 		{
-			EnterSki();
+			EnterSki(PotentialSkiSurface);
 		}
 	}
 
@@ -190,21 +190,24 @@ void UNRCharacterMovementComponent::Run(bool bRun)
 }
 
 // Ski
-void UNRCharacterMovementComponent::EnterSki()
+void UNRCharacterMovementComponent::EnterSki(const FHitResult& PotentialSkiSurface)
 {
 	bWantsToRun = false;
-	
-	Velocity += Velocity.GetSafeNormal2D() * Ski_EnterImpulse;
+	NRCharacterOwner->bSkiing = true;
+
+	const FVector VelPlaneDir = FVector::VectorPlaneProject(Velocity, PotentialSkiSurface.Normal).GetSafeNormal();
+	Velocity += VelPlaneDir * Ski_EnterImpulse;
 	SetMovementMode(MOVE_Custom, NRMOVE_Ski);
 }
 
 void UNRCharacterMovementComponent::ExitSki(bool bKeepCrouch)
 {
 	bWantsToCrouch = bKeepCrouch;
+	NRCharacterOwner->bSkiing = false;
 	//FQuat NewRotation = FRotationMatrix::MakeFromXZ(UpdatedComponent->GetForwardVector().GetSafeNormal2D(), FVector::UpVector).ToQuat();
 	//FHitResult Hit;
 	//SafeMoveUpdatedComponent(FVector::ZeroVector, NewRotation, true, Hit);
-	SetMovementMode(MOVE_Walking);
+	SetMovementMode(bKeepCrouch ? MOVE_Walking : MOVE_Falling);
 }
 
 void UNRCharacterMovementComponent::PhySki(float deltaTime, int32 Iterations)
@@ -230,7 +233,7 @@ void UNRCharacterMovementComponent::PhySki(float deltaTime, int32 Iterations)
 		return;
 	}
 
-	Velocity += Ski_GravityForce * FVector::DownVector * deltaTime;
+	Velocity += FMath::Abs(GetGravityZ()) * FVector::DownVector * deltaTime;
 
 	Acceleration = FVector::ZeroVector;
 

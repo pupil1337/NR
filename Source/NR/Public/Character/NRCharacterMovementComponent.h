@@ -61,8 +61,6 @@ public:
 	float Ski_MinSpeed = 200.0f;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="角色移动: 滑行", DisplayName="开始滑行冲量")
 	float Ski_EnterImpulse = 500.0f;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="角色移动: 滑行", DisplayName="滑行向下的力")
-	float Ski_GravityForce = 5000.0f;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="角色移动: 滑行", DisplayName="滑行摩擦力")
 	float Ski_Friction = 1.3f;
 	
@@ -91,7 +89,7 @@ public:
 	void Run(bool bRun);
 	
 private:
-	void EnterSki();
+	void EnterSki(const FHitResult& PotentialSkiSurface);
 	void ExitSki(bool bKeepCrouch);
 	void PhySki(float deltaTime, int32 Iterations);
 	bool GetSkiSurface(FHitResult& Hit) const;

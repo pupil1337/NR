@@ -26,9 +26,6 @@ ANRCharacter::ANRCharacter(const FObjectInitializer& ObjectInitializer)
 	PrimaryActorTick.bCanEverTick = true;
 
 	bUseControllerRotationYaw = true;
-
-	// NRCharacterMovementComponent
-	NRCharacterMovementComponent = GetCharacterMovement<UNRCharacterMovementComponent>();
 	
 	// Spring
 	Spring = CreateDefaultSubobject<USpringArmComponent>(TEXT("弹簧臂"));
@@ -179,10 +176,25 @@ void ANRCharacter::Tick(float DeltaSeconds)
 	}
 }
 
+void ANRCharacter::Jump()
+{
+	if (const UNRCharacterMovementComponent* NRCharacterMovementComponent = GetCharacterMovement<UNRCharacterMovementComponent>())
+	{
+		if (NRCharacterMovementComponent->IsCrouching())
+		{
+			UnCrouch();
+		}
+		else
+		{
+			Super::Jump();
+		}
+	}
+}
+
 void ANRCharacter::OnJumped_Implementation()
 {
 	Super::OnJumped_Implementation();
-
+	
 	OnJumpedEvent.Broadcast();
 }
 
@@ -201,7 +213,7 @@ void ANRCharacter::UpdateSpringLocation(float DeltaSeconds) const
 void ANRCharacter::UpdateWhetherSeparateFOV() const
 {
 	bool bNeedFixed = false;
-	if (NRCharacterMovementComponent)
+	if (UNRCharacterMovementComponent* NRCharacterMovementComponent = GetCharacterMovement<UNRCharacterMovementComponent>())
 	{
 		bNeedFixed = NRCharacterMovementComponent->IsCrouching();
 #ifdef WITH_EDITOR
