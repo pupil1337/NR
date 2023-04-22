@@ -92,6 +92,7 @@ struct NR_API FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 		bRunning(false),
 		bCrouchingAndMoving(false),
 		bNotCrouchingAndMoving(false),
+		bSkiing(false),
 		AO_Yaw(0.0f),
 		AO_Pitch(0.0f),
 		AO_Pitch_Negate(0.0f)
@@ -105,6 +106,7 @@ struct NR_API FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 		bRunning(false),
 		bCrouchingAndMoving(false),
 		bNotCrouchingAndMoving(false),
+		bSkiing(false),
 		AO_Yaw(0.0f),
 		AO_Pitch(0.0f),
 		AO_Pitch_Negate(0.0f)
@@ -150,15 +152,17 @@ struct NR_API FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 	uint8 bCrouchingAndMoving: 1;
 	UPROPERTY(Transient, BlueprintReadOnly)
 	uint8 bNotCrouchingAndMoving: 1;
+	UPROPERTY(Transient, BlueprintReadOnly)
+	uint8 bSkiing: 1;              // 8.  是否在滑铲
 
 	UPROPERTY(Transient, BlueprintReadOnly)
-	float AO_Yaw;                  // 8.  瞄准偏移 Yaw
+	float AO_Yaw;                  // 9.  瞄准偏移 Yaw
 	UPROPERTY(Transient, BlueprintReadOnly)
-	float AO_Pitch;                // 9.  瞄准偏移 Pitch
+	float AO_Pitch;                // 10.  瞄准偏移 Pitch
 	UPROPERTY(Transient, BlueprintReadOnly)
 	float AO_Pitch_Negate;
 	UPROPERTY(Transient, BlueprintReadOnly)
-	FTurnDir TurnDir;              // 10. 转身方向
+	FTurnDir TurnDir;              // 11. 转身方向
 
 	UPROPERTY(Transient, BlueprintReadOnly)
 	FNRAnimCurves Curves;          // 曲线值

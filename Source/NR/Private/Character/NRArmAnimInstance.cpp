@@ -59,18 +59,20 @@ void FNRArmAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float Del
 				bJumping = NRCharacterMovementComponent->IsFalling();
 				// 3. bRunning
 				bRunning = NRCharacter->bRunning;
+				// 4. bSkiing
+				bSkiing = NRCharacter->bSkiing;
 			}
 			
 			const FVector Velocity = UKismetMathLibrary::InverseTransformDirection(NRCharacter->GetActorTransform(), NRCharacter->GetVelocity());
 			const FVector VelocityXY = FVector(Velocity.X, Velocity.Y, 0.0f);
 			
 			const float MaxSpeed = GetCurrMoveModeMaxSpeed();
-			// 4. VelocityAlpha
+			// 5. VelocityAlpha
 			VelocityAlpha = FMath::Clamp<float>(VelocityXY.Size() / MaxSpeed, 0.0f, 1.0f);
-			// 5. VelocityNormalized
+			// 6. VelocityNormalized
 			VelocityNormalized = VelocityXY.GetSafeNormal() * VelocityAlpha;
-			// 6. VelocityPlayRate
-			VelocityPlayRate = bJumping ? 0.0f : VelocityXY.Size() / MaxSpeed;
+			// 7. VelocityPlayRate
+			VelocityPlayRate = bJumping || bSkiing ? 0.0f : VelocityXY.Size() / MaxSpeed;
 
 			// Jump Offset
 			if (const UNRArmAnimInstance* NRArmAnimInstance = Cast<UNRArmAnimInstance>(InAnimInstance))
@@ -105,12 +107,12 @@ void FNRArmAnimInstanceProxy::Update(float DeltaSeconds)
 	{
 		if (CurveLocation)
 		{
-			// 7. JumpOffset_Location
+			// 8. JumpOffset_Location
 			JumpOffset_Location += CurveLocation->GetVectorValue(InTime);
 		}
 		if (CurveRotation)
 		{
-			// 8. JumpOffset_Rotation
+			// 9. JumpOffset_Rotation
 			const FVector RotationV = CurveRotation->GetVectorValue(InTime);
 			JumpOffset_Rotation += FRotator(RotationV.Y, RotationV.Z, RotationV.X);
 		}

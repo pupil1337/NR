@@ -74,11 +74,14 @@ void FNRBodyAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float De
 
 			// 7. bRunning
 			bRunning = NRCharacter->bRunning;
+
+			// 8. bSkiing
+			bSkiing = NRCharacter->bSkiing;
 		}
 
-		// 8.  AO_Yaw
-		// 9.  AO_Pitch
-		// 10. TurnDir
+		// 9.  AO_Yaw
+		// 10.  AO_Pitch
+		// 11. TurnDir
 		UpdateAimOffset(NRCharacter->GetBaseAimRotation(), NRCharacter->IsLocallyControlled(), DeltaSeconds);
 	}
 
@@ -121,13 +124,13 @@ void FNRBodyAnimInstanceProxy::UpdateAimOffset(const FRotator& BaseAimRotation, 
 		TurnDir.SetTurnNone();
 	};
 	
-	// 8. AO_Yaw
+	// 9. AO_Yaw
 	if (!bMoving && !bJumping) // 静止
 	{
 		const FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrAimRotation, StartAimRotation);
 		AO_Yaw = DeltaAimRotation.Yaw;
 
-		// 10. TurnDir
+		// 11. TurnDir
 		if (AO_Yaw < -70.0f) TurnDir.SetTurnL();
 		else if (AO_Yaw > 70.0f) TurnDir.SetTurnR();
 
@@ -151,7 +154,7 @@ void FNRBodyAnimInstanceProxy::UpdateAimOffset(const FRotator& BaseAimRotation, 
 		InitAimOffset();
 	}
 
-	// 9. AO_Pitch
+	// 10. AO_Pitch
 	AO_Pitch = BaseAimRotation.Pitch;
 	if (!bLocallyControlled && AO_Pitch > 90.0f)
 	{
