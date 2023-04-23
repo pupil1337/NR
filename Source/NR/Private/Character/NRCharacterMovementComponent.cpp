@@ -106,45 +106,35 @@ void UNRCharacterMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
 void UNRCharacterMovementComponent::OnMovementUpdated(float DeltaSeconds, const FVector& OldLocation, const FVector& OldVelocity)
 {
 	Super::OnMovementUpdated(DeltaSeconds, OldLocation, OldVelocity);
-
-	if (ANRCharacter* NRCharacter = Cast<ANRCharacter>(CharacterOwner))
+	
+	if (NRCharacterOwner && NRCharacterOwner->GetLocalRole() != ROLE_SimulatedProxy)
 	{
+		// Run
 		if (MovementMode == MOVE_Walking)
 		{
-			// Run
-			if (bWantsToRun)
-			{
-				MaxWalkSpeed = Run_MaxWalkSpeed;
-			}
-			else
-			{
-				MaxWalkSpeed = NRCharacter->GetClass()->GetDefaultObject<ANRCharacter>()->GetCharacterMovement<UNRCharacterMovementComponent>()->MaxWalkSpeed;
-			}
+			MaxWalkSpeed = bWantsToRun ? Run_MaxWalkSpeed : NRCharacterOwner->GetClass()->GetDefaultObject<ANRCharacter>()->GetCharacterMovement<UNRCharacterMovementComponent>()->MaxWalkSpeed;
 		}
-
-		if (NRCharacter->GetLocalRole() != ROLE_SimulatedProxy)
-		{
-			NRCharacter->bRunning = bWantsToRun;
-		}
+		NRCharacterOwner->bRunning = bWantsToRun;
 	}
-
-	//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Blue, FString::Printf(TEXT("bWantsToRun: %d bRunning: %d"), bWantsToRun, NRCharacterOwner->bRunning));
 }
 
 void UNRCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float DeltaSeconds)
 {
-	if (MovementMode == MOVE_Walking && bWantsToRun && bWantsToCrouch)
+	if (NRCharacterOwner->GetLocalRole() != ROLE_SimulatedProxy)
 	{
-		FHitResult PotentialSkiSurface;
-		if (Velocity.SizeSquared() > pow(MaxWalkSpeedCrouched, 2) && GetSkiSurface(PotentialSkiSurface))
+		// Ski
+		if (MovementMode == MOVE_Walking && bWantsToRun && bWantsToCrouch)
 		{
-			EnterSki(PotentialSkiSurface);
+			FHitResult PotentialSkiSurface;
+			if (Velocity.SizeSquared() > pow(MaxWalkSpeedCrouched, 2) && GetSkiSurface(PotentialSkiSurface))
+			{
+				EnterSki(PotentialSkiSurface);
+			}
 		}
-	}
-
-	if (IsNRMovementMode(NRMOVE_Ski) && !bWantsToCrouch)
-	{
-		ExitSki(false);
+		if (IsNRMovementMode(NRMOVE_Ski) && !bWantsToCrouch)
+		{
+			ExitSki(false);
+		}
 	}
 	
 	Super::UpdateCharacterStateBeforeMovement(DeltaSeconds);
@@ -200,16 +190,6 @@ void UNRCharacterMovementComponent::EnterSki(const FHitResult& PotentialSkiSurfa
 	SetMovementMode(MOVE_Custom, NRMOVE_Ski);
 }
 
-void UNRCharacterMovementComponent::ExitSki(bool bKeepCrouch)
-{
-	bWantsToCrouch = bKeepCrouch;
-	NRCharacterOwner->bSkiing = false;
-	//FQuat NewRotation = FRotationMatrix::MakeFromXZ(UpdatedComponent->GetForwardVector().GetSafeNormal2D(), FVector::UpVector).ToQuat();
-	//FHitResult Hit;
-	//SafeMoveUpdatedComponent(FVector::ZeroVector, NewRotation, true, Hit);
-	SetMovementMode(bKeepCrouch ? MOVE_Walking : MOVE_Falling);
-}
-
 void UNRCharacterMovementComponent::PhySki(float deltaTime, int32 Iterations)
 {
 	if (deltaTime < MIN_TICK_TIME)
@@ -260,8 +240,8 @@ void UNRCharacterMovementComponent::PhySki(float deltaTime, int32 Iterations)
 	FQuat OldRotation = UpdatedComponent->GetComponentRotation().Quaternion();
 	FHitResult Hit(1.0f);
 	FVector Adjusted = Velocity * deltaTime; // 位移
-	FQuat NewRotation = FRotationMatrix::MakeFromXZ(VelPlaneDir, SurfaceHit.Normal).ToQuat();
-	SafeMoveUpdatedComponent(Adjusted, OldRotation, true, Hit);
+	FQuat NewRotation = FRotationMatrix::MakeFromXZ(FVector::VectorPlaneProject(UpdatedComponent->GetForwardVector(), SurfaceHit.Normal).GetSafeNormal(), SurfaceHit.Normal).ToQuat();
+	SafeMoveUpdatedComponent(Adjusted, NewRotation, true, Hit);
 
 	if (Hit.Time < 1.0f)
 	{
@@ -284,6 +264,16 @@ void UNRCharacterMovementComponent::PhySki(float deltaTime, int32 Iterations)
 	{
 		Velocity = (UpdatedComponent->GetComponentLocation() - OldLocation) / deltaTime;
 	}
+}
+
+void UNRCharacterMovementComponent::ExitSki(bool bKeepCrouch)
+{
+	bWantsToCrouch = bKeepCrouch;
+	NRCharacterOwner->bSkiing = false;
+	const FQuat NewRotation = FRotationMatrix::MakeFromXZ(UpdatedComponent->GetForwardVector().GetSafeNormal2D(), FVector::UpVector).ToQuat();
+	FHitResult Hit;
+	SafeMoveUpdatedComponent(FVector::ZeroVector, NewRotation, true, Hit);
+	SetMovementMode(bKeepCrouch ? MOVE_Walking : MOVE_Falling);
 }
 
 bool UNRCharacterMovementComponent::GetSkiSurface(FHitResult& Hit) const

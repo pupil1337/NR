@@ -89,12 +89,13 @@ public:
 	bool IsNRMovementMode(ENRMovementMode InNRMovementMode) const;
 	
 	void Run(bool bRun);
+
+	bool GetSkiSurface(FHitResult& Hit) const;
 	
 private:
 	void EnterSki(const FHitResult& PotentialSkiSurface);
-	void ExitSki(bool bKeepCrouch);
 	void PhySki(float deltaTime, int32 Iterations);
-	bool GetSkiSurface(FHitResult& Hit) const;
+	void ExitSki(bool bKeepCrouch);
 
 	// Transient
 	UPROPERTY(Transient)

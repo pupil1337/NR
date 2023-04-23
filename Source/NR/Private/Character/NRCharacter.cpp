@@ -216,12 +216,6 @@ void ANRCharacter::UpdateWhetherSeparateFOV() const
 	if (UNRCharacterMovementComponent* NRCharacterMovementComponent = GetCharacterMovement<UNRCharacterMovementComponent>())
 	{
 		bNeedFixed = NRCharacterMovementComponent->IsCrouching();
-#ifdef WITH_EDITOR
-		if (bNeedFixed)
-		{
-			GEngine->AddOnScreenDebugMessage(0, 1.0f, FColor::Red, FString::Printf(TEXT("蹲伏.默认修复穿模")));	
-		}
-#endif
 	}
 
 	if (!bNeedFixed)
@@ -238,9 +232,6 @@ void ANRCharacter::UpdateWhetherSeparateFOV() const
 			QueryParams
 			))
 		{
-#ifdef WITH_EDITOR
-			GEngine->AddOnScreenDebugMessage(0, 1.0f, FColor::Red, FString::Printf(TEXT("穿模.并修复")));
-#endif
 			bNeedFixed = true;
 			if (EquippedWeapon) EquippedWeapon->SetFPS_SeparateFOV(true, true);
 			SetFPS_SeparateFOV(true, true);
