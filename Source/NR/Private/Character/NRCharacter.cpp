@@ -17,6 +17,7 @@
 const FName NAME_Socket_Camera(TEXT("SOCKET_Camera"));
 const FName NAME_Bone_Spine_01(TEXT("spine_01"));
 const FName NAME_Socket_Weapon(TEXT("SOCKET_Weapon"));
+const FName NAME_Socket_VB_SOCKET_hand_r_ik_hand_gun(TEXT("VB SOCKET_hand_r_ik_hand_gun"));
 const FName NAME_Separate_FOV_Alpha(TEXT("Separate_FOV Alpha"));
 const FName NAME_Separate_Alpha(TEXT("Separate Alpha"));
 
@@ -303,7 +304,7 @@ void ANRCharacter::OnRep_EquippedWeapon(const ANRWeapon* OldEquippedWeapon) cons
 	}
 	else
 	{
-		EquippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, NAME_Socket_Weapon);
+		EquippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, NAME_Socket_VB_SOCKET_hand_r_ik_hand_gun);
 	}
 }
 
