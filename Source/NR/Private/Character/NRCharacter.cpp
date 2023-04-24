@@ -12,6 +12,8 @@
 #include "Character/Component/NRComponentBase.h"
 #include "Components/BoxComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "Subsystem/SaveGame/NRSaveGame.h"
+#include "Subsystem/SaveGame/NRSaveGameSubsystem.h"
 
 const FName NAME_Socket_Camera(TEXT("SOCKET_Camera"));
 const FName NAME_Bone_Spine_01(TEXT("spine_01"));
@@ -87,6 +89,25 @@ void ANRCharacter::BeginPlay()
 		MeshLeg->DestroyComponent();
 		Camera->DestroyComponent();
 		SeparateFOVCheckBox->DestroyComponent();
+	}
+
+	// TODO: 测试 删除
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		if (const UGameInstance* GameInstance = GetGameInstance())
+		{
+			if (UNRSaveGameSubsystem* NRSaveGameSubsystem = GameInstance->GetSubsystem<UNRSaveGameSubsystem>())
+			{
+				NRSaveGameSubsystem->LoadGame(FAsyncLoadGameFromSlotDelegate::CreateLambda([this](const FString& SlotName, const int32 UserIndex, USaveGame* LoadedGame)->void
+				{
+					if (const UNRSaveGame* NRSaveGame = Cast<UNRSaveGame>(LoadedGame))
+					{
+						SetActorLocation(NRSaveGame->Location);
+					}
+					UE_LOG(LogTemp, Log, TEXT("LoadGame:: SlotName:%s UserIndex:%d, bSuccess:%d"), *SlotName, UserIndex, LoadedGame ? 1 : 0);
+				}));
+			}
+		}
 	}
 }
 
