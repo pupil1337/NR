@@ -300,11 +300,11 @@ void ANRCharacter::OnRep_EquippedWeapon(const ANRWeapon* OldEquippedWeapon) cons
 
 	if (IsLocallyControlled())
 	{
-		EquippedWeapon->AttachToComponent(MeshArm, FAttachmentTransformRules::KeepRelativeTransform, NAME_Socket_Weapon);
+		EquippedWeapon->AttachToComponent(MeshArm, FAttachmentTransformRules::SnapToTargetNotIncludingScale, NAME_Socket_Weapon);
 	}
 	else
 	{
-		EquippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, NAME_Socket_VB_SOCKET_hand_r_ik_hand_gun);
+		EquippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, NAME_Socket_VB_SOCKET_hand_r_ik_hand_gun);
 	}
 }
 
