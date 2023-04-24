@@ -12,9 +12,9 @@ UNRRunSkiComponent::UNRRunSkiComponent()
 	PrimaryComponentTick.bStartWithTickEnabled = false;
 }
 
-void UNRRunSkiComponent::InitLocallyControlledInputEvent()
+void UNRRunSkiComponent::InitLocallyControlledInputEvent(UInputComponent* PlayerInputComponent)
 {
-	Super::InitLocallyControlledInputEvent();
+	Super::InitLocallyControlledInputEvent(PlayerInputComponent);
 
 	if (NRCharacter)
 	{

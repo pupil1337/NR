@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "NRComponentBase.generated.h"
 
+class UInputComponent;
 class ANRCharacter;
 
 UCLASS(Abstract)
@@ -18,7 +19,7 @@ public:
 	virtual void InitializeComponent() override;
 
 //~Begin This Class
-	virtual void InitLocallyControlledInputEvent() {}
+	virtual void InitLocallyControlledInputEvent(UInputComponent* PlayerInputComponent) {}
 
 protected:
 	UPROPERTY(Transient)

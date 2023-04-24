@@ -6,6 +6,7 @@
 #include "Actor/Weapon/NRWeapon.h"
 #include "Character/NRCharacter.h"
 #include "Character/NRCharacterMovementComponent.h"
+#include "Character/Component/NRBagComponent.h"
 #include "Character/Component/NRRunSkiComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Table/Weapon/NRWeaponInformation.h"
@@ -41,11 +42,14 @@ void FNRBodyAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float De
 	if (const ANRCharacter* NRCharacter = Cast<ANRCharacter>(InAnimInstance->TryGetPawnOwner()))
 	{
 		// AnimSetting
-		if (const ANRWeapon* Weapon = NRCharacter->GetEquippedWeapon())
+		if (const UNRBagComponent* BagComponent = Cast<UNRBagComponent>(NRCharacter->GetComponentByClass(UNRBagComponent::StaticClass())))
 		{
-			if (const FNRWeaponInformationRow* WeaponInfo = Weapon->GetWeaponInformation())
+			if (const ANRWeapon* Weapon = BagComponent->GetEquippedWeapon())
 			{
-				AnimSetting = *WeaponInfo->GetAnimSetting();
+				if (const FNRWeaponInformationRow* WeaponInfo = Weapon->GetWeaponInformation())
+				{
+					AnimSetting = *WeaponInfo->GetAnimSetting();
+				}
 			}
 		}
 		

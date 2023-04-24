@@ -65,12 +65,6 @@ class NR_API ANRCharacter : public ACharacter
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="配置|角色", DisplayName="需要创建的组件")
 	TArray<TSubclassOf<UNRComponentBase>> NRComponentClasses;
 	
-	// Temp TODO:换成背包组件
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="配置|临时")
-	TSubclassOf<ANRWeapon> WeaponClass;
-	UPROPERTY(Transient, ReplicatedUsing=OnRep_EquippedWeapon)
-	ANRWeapon* EquippedWeapon;
-	
 public:
 	ANRCharacter(const FObjectInitializer& ObjectInitializer);
 	virtual void OnConstruction(const FTransform& Transform) override;
@@ -85,9 +79,6 @@ public:
 	virtual void Jump() override;
 	virtual void OnJumped_Implementation() override;
 
-	// Temp TODO:换成背包组件
-	FORCEINLINE ANRWeapon* GetEquippedWeapon() const { return EquippedWeapon; }
-
 //~ This Class Begin
 
 	// Input Event Delegate
@@ -98,6 +89,7 @@ public:
 
 	// Getter
 	FORCEINLINE const TArray<TSubclassOf<UNRComponentBase> >& GetAllNRComponentClasses() const { return NRComponentClasses; }
+	FORCEINLINE USkeletalMeshComponent* GetMeshArm() const { return MeshArm; }
 
 	// NRCharacterMovementComponent
 	UPROPERTY(Transient, Replicated)
@@ -117,8 +109,4 @@ private:
 	void OnLookInput(const FInputActionValue& Value);
 	void OnCrouchInput(const FInputActionValue& Value);
 	void OnRunInput(const FInputActionValue& Value);
-
-	// Temp TODO:换成背包组件
-	UFUNCTION()
-	void OnRep_EquippedWeapon(const ANRWeapon* OldEquippedWeapon) const;
 };

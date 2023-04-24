@@ -10,7 +10,7 @@
 class USkeletalMeshComponent;
 class UBoxComponent;
 
-UCLASS()
+UCLASS(Abstract)
 class NR_API ANRWeapon : public AActor
 {
 	GENERATED_BODY()

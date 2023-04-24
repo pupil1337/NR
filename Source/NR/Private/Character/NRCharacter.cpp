@@ -8,7 +8,6 @@
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
-#include "Actor/Weapon/NRWeapon.h"
 #include "Character/NRCharacterMovementComponent.h"
 #include "Character/Component/NRComponentBase.h"
 #include "Components/BoxComponent.h"
@@ -16,8 +15,6 @@
 
 const FName NAME_Socket_Camera(TEXT("SOCKET_Camera"));
 const FName NAME_Bone_Spine_01(TEXT("spine_01"));
-const FName NAME_Socket_Weapon(TEXT("SOCKET_Weapon"));
-const FName NAME_Socket_VB_SOCKET_hand_r_ik_hand_gun(TEXT("VB SOCKET_hand_r_ik_hand_gun"));
 const FName NAME_Separate_FOV_Alpha(TEXT("Separate_FOV Alpha"));
 const FName NAME_Separate_Alpha(TEXT("Separate Alpha"));
 
@@ -74,8 +71,7 @@ void ANRCharacter::PreInitializeComponents()
 void ANRCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME_CONDITION(ANRCharacter, EquippedWeapon, COND_None)
+	
 	DOREPLIFETIME_CONDITION(ANRCharacter, bRunning, COND_SimulatedOnly)
 	DOREPLIFETIME_CONDITION(ANRCharacter, bSkiing, COND_SimulatedOnly)
 }
@@ -91,19 +87,6 @@ void ANRCharacter::BeginPlay()
 		MeshLeg->DestroyComponent();
 		Camera->DestroyComponent();
 		SeparateFOVCheckBox->DestroyComponent();
-	}
-
-	// TODO:换成背包组件
-	if (HasAuthority())
-	{
-		if (WeaponClass)
-		{
-			FActorSpawnParameters Params;
-			Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-			Params.Owner = this;
-			EquippedWeapon = GetWorld()->SpawnActor<ANRWeapon>(WeaponClass, Params);
-			OnRep_EquippedWeapon(nullptr);
-		}
 	}
 }
 
@@ -151,17 +134,17 @@ void ANRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 							EnhancedInputComponent->BindAction(IA_Run, ETriggerEvent::Started, this, &ThisClass::OnRunInput);
 						}
 					}
-
-					// Components注册输入事件
-					for (UActorComponent* it: GetComponents())
-					{
-						if (UNRComponentBase* tNRComp = Cast<UNRComponentBase>(it))
-						{
-							tNRComp->InitLocallyControlledInputEvent();
-						}
-					}
 				}
 			}		
+		}
+	}
+
+	// Components注册输入事件
+	for (UActorComponent* it: GetComponents())
+	{
+		if (UNRComponentBase* tNRComp = Cast<UNRComponentBase>(it))
+		{
+			tNRComp->InitLocallyControlledInputEvent(PlayerInputComponent);
 		}
 	}
 }
@@ -234,12 +217,12 @@ void ANRCharacter::UpdateWhetherSeparateFOV() const
 			))
 		{
 			bNeedFixed = true;
-			if (EquippedWeapon) EquippedWeapon->SetFPS_SeparateFOV(true, true);
+			//if (EquippedWeapon) EquippedWeapon->SetFPS_SeparateFOV(true, true); TODO
 			SetFPS_SeparateFOV(true, true);
 		}
 	}
 
-	if (EquippedWeapon) EquippedWeapon->SetFPS_SeparateFOV(true, bNeedFixed);
+	//if (EquippedWeapon) EquippedWeapon->SetFPS_SeparateFOV(true, bNeedFixed);TODO
 	SetFPS_SeparateFOV(true, bNeedFixed);
 }
 
@@ -288,23 +271,5 @@ void ANRCharacter::OnCrouchInput(const FInputActionValue& Value)
 void ANRCharacter::OnRunInput(const FInputActionValue& Value)
 {
 	OnInputEvent_Run.Broadcast();
-}
-
-// Temp
-void ANRCharacter::OnRep_EquippedWeapon(const ANRWeapon* OldEquippedWeapon) const
-{
-	if (OldEquippedWeapon)
-	{
-		// ....
-	}
-
-	if (IsLocallyControlled())
-	{
-		EquippedWeapon->AttachToComponent(MeshArm, FAttachmentTransformRules::SnapToTargetNotIncludingScale, NAME_Socket_Weapon);
-	}
-	else
-	{
-		EquippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, NAME_Socket_VB_SOCKET_hand_r_ik_hand_gun);
-	}
 }
 

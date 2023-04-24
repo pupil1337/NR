@@ -4,11 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "NRComponentBase.h"
+#include "InputActionValue.h"
 #include "NRRunSkiComponent.generated.h"
 
+class UInputComponent;
 
 /**
- * 奔跑
+ * 奔跑/滑铲
  */
 UCLASS(Abstract, Blueprintable)
 class NR_API UNRRunSkiComponent : public UNRComponentBase
@@ -20,7 +22,7 @@ public:
 
 //~Begin This Class
 protected:
-	virtual void InitLocallyControlledInputEvent() override;
+	virtual void InitLocallyControlledInputEvent(UInputComponent* PlayerInputComponent) override;
 	
 private:
 	// Input
