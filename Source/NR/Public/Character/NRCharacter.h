@@ -7,6 +7,7 @@
 #include "InputActionValue.h"
 #include "NRCharacter.generated.h"
 
+class UNRSaveGame;
 class USpringArmComponent;
 class USkeletalMeshComponent;
 class UCameraComponent;
@@ -72,6 +73,10 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	virtual void BeginPlay() override;
+	// TODO: 测试删除
+	UFUNCTION(Server, Reliable)
+	void ApplySavedGame(UNRSaveGame* NRSaveGame);
+	
 	virtual void PawnClientRestart() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Tick(float DeltaSeconds) override;

@@ -90,24 +90,14 @@ void ANRCharacter::BeginPlay()
 		Camera->DestroyComponent();
 		SeparateFOVCheckBox->DestroyComponent();
 	}
+}
 
-	// TODO: 测试 删除
-	if (GetLocalRole() == ROLE_Authority)
+// TODO: NRSavedGame不支持RPC 需修改
+void ANRCharacter::ApplySavedGame_Implementation(UNRSaveGame* NRSaveGame)
+{
+	if (NRSaveGame)
 	{
-		if (const UGameInstance* GameInstance = GetGameInstance())
-		{
-			if (UNRSaveGameSubsystem* NRSaveGameSubsystem = GameInstance->GetSubsystem<UNRSaveGameSubsystem>())
-			{
-				NRSaveGameSubsystem->LoadGame(FAsyncLoadGameFromSlotDelegate::CreateLambda([this](const FString& SlotName, const int32 UserIndex, USaveGame* LoadedGame)->void
-				{
-					if (const UNRSaveGame* NRSaveGame = Cast<UNRSaveGame>(LoadedGame))
-					{
-						SetActorLocation(NRSaveGame->Location);
-					}
-					UE_LOG(LogTemp, Log, TEXT("LoadGame:: SlotName:%s UserIndex:%d, bSuccess:%d"), *SlotName, UserIndex, LoadedGame ? 1 : 0);
-				}));
-			}
-		}
+		SetActorLocation(NRSaveGame->Location);
 	}
 }
 
@@ -116,6 +106,22 @@ void ANRCharacter::PawnClientRestart()
 	Super::PawnClientRestart();
 	
 	SetMeshesVisibility();
+
+	// TODO: 测试 删除
+	if (const UGameInstance* GameInstance = GetGameInstance())
+	{
+		if (UNRSaveGameSubsystem* NRSaveGameSubsystem = GameInstance->GetSubsystem<UNRSaveGameSubsystem>())
+		{
+			NRSaveGameSubsystem->LoadGame(FAsyncLoadGameFromSlotDelegate::CreateLambda([this, NRSaveGameSubsystem](const FString& SlotName, const int32 UserIndex, USaveGame* LoadedGame)->void
+			{
+				if (UNRSaveGame* NRSaveGame = Cast<UNRSaveGame>(LoadedGame))
+				{
+					NRSaveGameSubsystem->NRSaveGame = NRSaveGame;
+					ApplySavedGame(NRSaveGame);
+				}
+			}));
+		}
+	}
 }
 
 void ANRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

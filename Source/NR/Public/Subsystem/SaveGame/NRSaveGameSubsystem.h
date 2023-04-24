@@ -8,6 +8,7 @@
 #include "NRSaveGameSubsystem.generated.h"
 
 class APlayerController;
+class UNRSaveGame;
 
 /**
  * 
@@ -16,12 +17,16 @@ UCLASS()
 class NR_API UNRSaveGameSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
-
+	
+// ~Begin This Class
 public:
-	void SaveGame(const FAsyncSaveGameToSlotDelegate& SavedDelegate);
-
-	void LoadGame(const FAsyncLoadGameFromSlotDelegate& LoadedDelegate);
+	void SaveGame(const FAsyncSaveGameToSlotDelegate& SavedDelegate) const;
+	static void LoadGame(const FAsyncLoadGameFromSlotDelegate& LoadedDelegate);
 
 private:
 	APlayerController* GetLocallyPlayerController() const;
+
+public:
+	UPROPERTY(Transient)
+	UNRSaveGame* NRSaveGame;
 };

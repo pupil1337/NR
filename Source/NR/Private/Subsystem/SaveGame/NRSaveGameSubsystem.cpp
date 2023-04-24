@@ -5,30 +5,30 @@
 
 #include "Subsystem/SaveGame/NRSaveGame.h"
 
-void UNRSaveGameSubsystem::SaveGame(const FAsyncSaveGameToSlotDelegate& SavedDelegate)
+void UNRSaveGameSubsystem::SaveGame(const FAsyncSaveGameToSlotDelegate& SavedDelegate) const
 {
-	if (UNRSaveGame* NRSaveGame = Cast<UNRSaveGame>(UGameplayStatics::CreateSaveGameObject(UNRSaveGame::StaticClass())))
+	if (UNRSaveGame* tNRSaveGame = Cast<UNRSaveGame>(UGameplayStatics::CreateSaveGameObject(UNRSaveGame::StaticClass())))
 	{
-		if (APlayerController* PlayerController = GetLocallyPlayerController())
+		if (const APlayerController* PlayerController = GetLocallyPlayerController())
 		{
-			NRSaveGame->PlayerName = TEXT("Pupil");
-			NRSaveGame->Location = PlayerController->GetFocalLocation();
+			tNRSaveGame->PlayerName = TEXT("Pupil");
+			tNRSaveGame->Location = PlayerController->GetFocalLocation();
 
-			UGameplayStatics::AsyncSaveGameToSlot(NRSaveGame, TEXT("SaveGameTest"), 0, SavedDelegate);	
+			UGameplayStatics::AsyncSaveGameToSlot(tNRSaveGame, TEXT("SavedGame"), 0, SavedDelegate);	
 		}
 	}
 }
 
 void UNRSaveGameSubsystem::LoadGame(const FAsyncLoadGameFromSlotDelegate& LoadedDelegate)
 {
-	UGameplayStatics::AsyncLoadGameFromSlot(TEXT("SaveGameTest"), 0, LoadedDelegate);
+	UGameplayStatics::AsyncLoadGameFromSlot(TEXT("SavedGame"), 0, LoadedDelegate);
 }
 
 APlayerController* UNRSaveGameSubsystem::GetLocallyPlayerController() const
 {
 	if (const UGameInstance* GameInstance = GetGameInstance())
 	{
-		for (ULocalPlayer* it: GameInstance->GetLocalPlayers())
+		for (const ULocalPlayer* it: GameInstance->GetLocalPlayers())
 		{
 			if (it && it->PlayerController && it->PlayerController->IsLocalPlayerController())
 			{

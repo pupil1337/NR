@@ -17,9 +17,9 @@ class NR_API UNRSaveGame : public USaveGame
 public:
 	UNRSaveGame();
 
-	UPROPERTY(Transient)
+	UPROPERTY(SaveGame)
 	FString PlayerName;
 
-	UPROPERTY(Transient)
+	UPROPERTY(SaveGame)
 	FVector Location;
 };
