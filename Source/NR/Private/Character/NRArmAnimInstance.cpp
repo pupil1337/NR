@@ -3,11 +3,10 @@
 
 #include "Character/NRArmAnimInstance.h"
 
-#include "Actor/Weapon/NRWeapon.h"
+#include "Actor/Weapon/NRWeaponBase.h"
 #include "Character/NRCharacter.h"
 #include "Character/NRCharacterMovementComponent.h"
 #include "Character/Component/NRBagComponent.h"
-#include "Character/Component/NRRunSkiComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
 const FName NAME_Track_Location(TEXT("Location"));
@@ -46,7 +45,7 @@ void FNRArmAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float Del
 			// AnimSetting
 			if (const UNRBagComponent* BagComponent = Cast<UNRBagComponent>(NRCharacter->GetComponentByClass(UNRBagComponent::StaticClass())))
 			{
-				if (const ANRWeapon* Weapon = BagComponent->GetEquippedWeapon())
+				if (const ANRWeaponBase* Weapon = BagComponent->GetEquippedWeapon())
 				{
 					if (const FNRWeaponInformationRow* WeaponInfo = Weapon->GetWeaponInformation())
 					{

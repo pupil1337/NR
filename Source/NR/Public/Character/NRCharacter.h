@@ -13,7 +13,7 @@ class USkeletalMeshComponent;
 class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
-class ANRWeapon;
+class ANRWeaponBase;
 class UBoxComponent;
 class UNRComponentBase;
 class UNRCharacterMovementComponent;

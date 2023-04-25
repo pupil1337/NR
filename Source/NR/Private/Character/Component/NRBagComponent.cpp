@@ -3,7 +3,7 @@
 
 #include "Character/Component/NRBagComponent.h"
 
-#include "Actor/Weapon/NRWeapon.h"
+#include "Actor/Weapon/NRWeaponBase.h"
 #include "Character/NRCharacter.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
@@ -38,7 +38,7 @@ void UNRBagComponent::BeginPlay()
 			FActorSpawnParameters Params;
 			Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 			Params.Owner = NRCharacter;
-			WeaponSlot[0] = GetWorld()->SpawnActor<ANRWeapon>(WeaponClass, Params);
+			WeaponSlot[0] = GetWorld()->SpawnActor<ANRWeaponBase>(WeaponClass, Params);
 			EquippedWeapon = WeaponSlot[0];
 			OnRep_EquippedWeapon(nullptr);
 		}
@@ -94,7 +94,7 @@ void UNRBagComponent::TryEquipWeaponInSlot(uint8 Slot)
 	}
 }
 
-void UNRBagComponent::OnRep_EquippedWeapon(const ANRWeapon* OldEquippedWeapon) const
+void UNRBagComponent::OnRep_EquippedWeapon(const ANRWeaponBase* OldEquippedWeapon) const
 {
 	if (NRCharacter)
 	{

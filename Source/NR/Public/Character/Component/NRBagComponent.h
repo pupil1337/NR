@@ -9,7 +9,7 @@
 class UInputMappingContext;
 class UInputAction;
 class UInputComponent;
-class ANRWeapon;
+class ANRWeaponBase;
 
 /**
  * 
@@ -32,7 +32,7 @@ class NR_API UNRBagComponent : public UNRComponentBase
 
 	// TODO:换成从存档中读取武器数据,然后生成武器
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="配置|临时")
-	TSubclassOf<ANRWeapon> WeaponClass;
+	TSubclassOf<ANRWeaponBase> WeaponClass;
 	
 public:
 	UNRBagComponent();
@@ -48,14 +48,14 @@ public:
 	void TryEquipWeaponInSlot(uint8 Slot);
 
 	// Getter
-	FORCEINLINE ANRWeapon* GetEquippedWeapon() const { return EquippedWeapon; }
+	FORCEINLINE ANRWeaponBase* GetEquippedWeapon() const { return EquippedWeapon; }
 
 private:
 	UFUNCTION()
-	void OnRep_EquippedWeapon(const ANRWeapon* OldEquippedWeapon) const;
+	void OnRep_EquippedWeapon(const ANRWeaponBase* OldEquippedWeapon) const;
 	
 	UPROPERTY(Transient, Replicated)
-	ANRWeapon* WeaponSlot[4];
+	ANRWeaponBase* WeaponSlot[4];
 	UPROPERTY(Transient, ReplicatedUsing=OnRep_EquippedWeapon)
-	ANRWeapon* EquippedWeapon;
+	ANRWeaponBase* EquippedWeapon;
 };
