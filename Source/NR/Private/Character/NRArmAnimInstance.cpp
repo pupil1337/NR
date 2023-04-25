@@ -15,14 +15,6 @@ const FName NAME_Track_Rotation(TEXT("Rotation"));
 void FNRArmAnimInstanceProxy::Initialize(UAnimInstance* InAnimInstance)
 {
 	FAnimInstanceProxy::Initialize(InAnimInstance);
-
-#if WITH_EDITORONLY_DATA
-	// PreView Only
-	if (const UNRArmAnimInstance* ArmAnimInstance = Cast<UNRArmAnimInstance>(InAnimInstance))
-	{
-		AnimSetting = ArmAnimInstance->PreView_AnimSetting;
-	}
-#endif
 	
 	// Temp
 	if (const ANRCharacter* NRCharacter = Cast<ANRCharacter>(InAnimInstance->TryGetPawnOwner()))

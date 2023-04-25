@@ -55,34 +55,54 @@ protected:
 	uint8 LandStamp = 0;
 	float LandSeconds = 0.0f;
 	bool bPlayLand = false;
-	
-	UPROPERTY(Transient, BlueprintReadOnly)
-	FNRAnimSettingRow AnimSetting; // 动画设置
-	
-	UPROPERTY(Transient, BlueprintReadOnly)
-	uint8 bCrouching: 1;           // 1.  是否蹲伏
-	UPROPERTY(Transient, BlueprintReadOnly)
-	uint8 bJumping: 1;             // 2.  是否跳跃
-	UPROPERTY(Transient, BlueprintReadOnly)
-	uint8 bRunning: 1;             // 3.  是否奔跑
-	UPROPERTY(Transient, BlueprintReadOnly)
-	uint8 bSkiing: 1;              // 4.  是否在滑铲
-	
-	UPROPERTY(Transient, BlueprintReadOnly)
-	float VelocityAlpha;           // 5.  与当前最大移动速度比率 (clamp 0 1) 0:idle不混合移动 1:idle混合移动
-	UPROPERTY(Transient, BlueprintReadOnly)
-	FVector VelocityNormalized;    // 6.  速度归一化后
-	UPROPERTY(Transient, BlueprintReadOnly)
-	float VelocityPlayRate;        // 7.  移动动画播放速率 (不 clamp) jump/ski 时为0
 
-	UPROPERTY(Transient, BlueprintReadOnly)
-	FVector JumpOffset_Location;   // 8.  跳跃时应用曲线值来修改ik_hand_gun位置
-	UPROPERTY(Transient, BlueprintReadOnly)
-	FRotator JumpOffset_Rotation;  // 9.  跳跃时应用曲线值来修改ik_hand_gun旋转
-	UPROPERTY(Transient, BlueprintReadOnly)
-	FVector LandOffset_Location;   // 10.  着陆时应用曲线值来修改ik_hand_gun位置
-	UPROPERTY(Transient, BlueprintReadOnly)
-	FRotator LandOffset_Rotation;  // 11. 着陆时应用曲线值来修改ik_hand_gun旋转
+	/** 动画设置 */
+	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
+	FNRAnimSettingRow AnimSetting;
+
+	/** 1. 是否蹲伏 */
+	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
+	uint8 bCrouching: 1;
+
+	/** 2. 是否跳跃 */
+	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
+	uint8 bJumping: 1;
+
+	/** 3. 是否奔跑 */
+	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
+	uint8 bRunning: 1;
+
+	/** 4. 是否在滑铲 */
+	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
+	uint8 bSkiing: 1;
+
+	/** 5. 与当前最大移动速度比率 (clamp 0 1) 0:idle不混合移动 1:idle混合移动 */
+	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
+	float VelocityAlpha;
+
+	/** 6. 速度归一化后 */
+	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
+	FVector VelocityNormalized;
+
+	/** 7. 移动动画播放速率 (不 clamp) jump/ski 时为0 */
+	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
+	float VelocityPlayRate;
+
+	/** 8. 跳跃时应用曲线值来修改ik_hand_gun位置 */
+	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
+	FVector JumpOffset_Location;
+
+	/** 9. 跳跃时应用曲线值来修改ik_hand_gun旋转 */
+	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
+	FRotator JumpOffset_Rotation;
+
+	/** 10. 着陆时应用曲线值来修改ik_hand_gun位置 */
+	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
+	FVector LandOffset_Location;
+
+	/** 11. 着陆时应用曲线值来修改ik_hand_gun旋转 */
+	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
+	FRotator LandOffset_Rotation;
 };
 
 /**
@@ -93,7 +113,7 @@ class NR_API UNRArmAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
 	
-	UPROPERTY(Transient, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
+	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	FNRArmAnimInstanceProxy mProxy;
 
 protected:
@@ -111,11 +131,4 @@ public:
 	void OnJumped();
 	UFUNCTION()
 	void OnLanded(const FHitResult& Hit);
-
-	//~PreView Only
-#if WITH_EDITORONLY_DATA
-public:
-	UPROPERTY(EditDefaultsOnly)
-	FNRAnimSettingRow PreView_AnimSetting;
-#endif
 };

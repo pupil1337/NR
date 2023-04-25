@@ -16,14 +16,6 @@ void FNRBodyAnimInstanceProxy::Initialize(UAnimInstance* InAnimInstance)
 {
 	FAnimInstanceProxy::Initialize(InAnimInstance);
 
-	// PreView Only
-#if WITH_EDITORONLY_DATA
-	if (const UNRBodyAnimInstance* ArmAnimInstance = Cast<UNRBodyAnimInstance>(InAnimInstance))
-	{
-		AnimSetting = ArmAnimInstance->PreView_AnimSetting;
-	}
-#endif
-
 	// Temp
 	if (const ANRCharacter* NRCharacter = Cast<ANRCharacter>(InAnimInstance->TryGetPawnOwner()))
 	{
