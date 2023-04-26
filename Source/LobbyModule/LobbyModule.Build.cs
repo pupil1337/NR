@@ -8,7 +8,11 @@ public class LobbyModule : ModuleRules
 
         PrivateDependencyModuleNames.AddRange(new string[]
         {
-            "Core", "CoreUObject", "Engine"
+            "Core", "CoreUObject", "Engine",
+            
+            "UMG",
+            
+            "BaseModule"
         });
     }
 }
