@@ -8,6 +8,10 @@
 			"Name": "NR",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "LobbyModule",
+			"Type": "Runtime"
 		}
 	]
 }

@@ -10,6 +10,6 @@ public class NRTarget : TargetRules
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
 
-		ExtraModuleNames.AddRange( new string[] { "NR" } );
+		ExtraModuleNames.AddRange( new string[] { "LobbyModule", "NR" } );
 	}
 }
