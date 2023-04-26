@@ -10,7 +10,7 @@
  * 
  */
 UCLASS(Abstract, NotBlueprintable)
-class NR_API UNRUserWidgetBase : public UUserWidget
+class BASEMODULE_API UNRUserWidgetBase : public UUserWidget
 {
 	GENERATED_BODY()
 

@@ -14,6 +14,8 @@ public class NR : ModuleRules
 			
 			"EnhancedInput",
 			"UMG",
+			
+			"BaseModule"
 		});
 	}
 }

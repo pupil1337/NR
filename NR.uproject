@@ -5,13 +5,17 @@
 	"Description": "",
 	"Modules": [
 		{
-			"Name": "NR",
-			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"Name": "BaseModule",
+			"Type": "Runtime"
 		},
 		{
 			"Name": "LobbyModule",
 			"Type": "Runtime"
+		},
+		{
+			"Name": "NR",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
 		}
 	]
 }

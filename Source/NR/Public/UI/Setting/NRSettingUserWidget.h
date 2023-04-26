@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/NRUserWidgetBase.h"
+#include "NRUserWidgetBase.h"
 #include "NRSettingUserWidget.generated.h"
 
 class UButton;
