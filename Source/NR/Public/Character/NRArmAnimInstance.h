@@ -108,7 +108,7 @@ protected:
 /**
  * 
  */
-UCLASS()
+UCLASS(Abstract)
 class NR_API UNRArmAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "NRCharacterBase.h"
 #include "InputActionValue.h"
 #include "NRCharacter.generated.h"
 
@@ -23,8 +23,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnRunInput);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMoveInput, const FInputActionValue&, Value);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnJumped);
 
-UCLASS()
-class NR_API ANRCharacter : public ACharacter
+UCLASS(Abstract, Blueprintable)
+class NR_API ANRCharacter : public ANRCharacterBase
 {
 	GENERATED_BODY()
 

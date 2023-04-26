@@ -199,7 +199,7 @@ struct NR_API FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 /**
  * 
  */
-UCLASS()
+UCLASS(Abstract)
 class NR_API UNRBodyAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
