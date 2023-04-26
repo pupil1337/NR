@@ -73,9 +73,6 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	virtual void BeginPlay() override;
-	// TODO: 测试删除
-	UFUNCTION(Server, Reliable)
-	void ApplySavedGame(UNRSaveGame* NRSaveGame);
 	
 	virtual void PawnClientRestart() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

@@ -20,7 +20,7 @@ void UNRSettingUserWidget::OnButton_SaveGameClicked()
 {
 	if (const UGameInstance* GameInstance = GetGameInstance())
 	{
-		if (UNRSaveGameSubsystem* NRSaveGameSubsystem = GameInstance->GetSubsystem<UNRSaveGameSubsystem>())
+		if (const UNRSaveGameSubsystem* NRSaveGameSubsystem = GameInstance->GetSubsystem<UNRSaveGameSubsystem>())
 		{
 			NRSaveGameSubsystem->SaveGame(FAsyncSaveGameToSlotDelegate::CreateLambda([](const FString& SlotName, const int32 UserIndex, bool bSuccess)->void
 			{

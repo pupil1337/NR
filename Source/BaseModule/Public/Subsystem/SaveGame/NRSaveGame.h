@@ -6,20 +6,27 @@
 #include "GameFramework/SaveGame.h"
 #include "NRSaveGame.generated.h"
 
+USTRUCT()
+struct FSaveGameData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(SaveGame)
+	FVector Location;
+};
+
 /**
  * 
  */
 UCLASS()
-class NR_API UNRSaveGame : public USaveGame
+class BASEMODULE_API UNRSaveGame : public USaveGame
 {
 	GENERATED_BODY()
 
 public:
 	UNRSaveGame();
 
+//~Begin This Class
 	UPROPERTY(SaveGame)
-	FString PlayerName;
-
-	UPROPERTY(SaveGame)
-	FVector Location;
+	FSaveGameData SaveGameData;
 };

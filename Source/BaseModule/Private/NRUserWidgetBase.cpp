@@ -3,12 +3,9 @@
 
 #include "NRUserWidgetBase.h"
 
-bool UNRUserWidgetBase::Initialize()
+void UNRUserWidgetBase::NativeOnInitialized()
 {
-	if (Super::Initialize())
-	{
-		BindWidgetEvent();
-		return true;
-	}
-	return false;
+	Super::NativeOnInitialized();
+
+	BindWidgetEvent();
 }

@@ -15,7 +15,7 @@ class BASEMODULE_API UNRUserWidgetBase : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	virtual bool Initialize() override;
+	virtual void NativeOnInitialized() override;
 
 //~Begin This Class
 protected:

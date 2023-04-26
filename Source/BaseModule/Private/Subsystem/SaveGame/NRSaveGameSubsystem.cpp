@@ -5,14 +5,18 @@
 
 #include "Subsystem/SaveGame/NRSaveGame.h"
 
+bool UNRSaveGameSubsystem::HaveSavedGame()
+{
+	return UGameplayStatics::DoesSaveGameExist(TEXT("SavedGame"), 0);
+}
+
 void UNRSaveGameSubsystem::SaveGame(const FAsyncSaveGameToSlotDelegate& SavedDelegate) const
 {
 	if (UNRSaveGame* tNRSaveGame = Cast<UNRSaveGame>(UGameplayStatics::CreateSaveGameObject(UNRSaveGame::StaticClass())))
 	{
 		if (const APlayerController* PlayerController = GetLocallyPlayerController())
 		{
-			tNRSaveGame->PlayerName = TEXT("Pupil");
-			tNRSaveGame->Location = PlayerController->GetFocalLocation();
+			tNRSaveGame->SaveGameData.Location = PlayerController->GetFocalLocation();
 
 			UGameplayStatics::AsyncSaveGameToSlot(tNRSaveGame, TEXT("SavedGame"), 0, SavedDelegate);	
 		}

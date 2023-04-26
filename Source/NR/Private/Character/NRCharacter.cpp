@@ -12,8 +12,6 @@
 #include "Character/Component/NRComponentBase.h"
 #include "Components/BoxComponent.h"
 #include "Net/UnrealNetwork.h"
-#include "Subsystem/SaveGame/NRSaveGame.h"
-#include "Subsystem/SaveGame/NRSaveGameSubsystem.h"
 
 const FName NAME_Socket_Camera(TEXT("SOCKET_Camera"));
 const FName NAME_Bone_Spine_01(TEXT("spine_01"));
@@ -93,36 +91,11 @@ void ANRCharacter::BeginPlay()
 	}
 }
 
-// TODO: NRSavedGame不支持RPC 需修改
-void ANRCharacter::ApplySavedGame_Implementation(UNRSaveGame* NRSaveGame)
-{
-	if (NRSaveGame)
-	{
-		SetActorLocation(NRSaveGame->Location);
-	}
-}
-
 void ANRCharacter::PawnClientRestart()
 {
 	Super::PawnClientRestart();
 	
 	SetMeshesVisibility();
-
-	// TODO: 测试 删除
-	if (const UGameInstance* GameInstance = GetGameInstance())
-	{
-		if (UNRSaveGameSubsystem* NRSaveGameSubsystem = GameInstance->GetSubsystem<UNRSaveGameSubsystem>())
-		{
-			NRSaveGameSubsystem->LoadGame(FAsyncLoadGameFromSlotDelegate::CreateLambda([this, NRSaveGameSubsystem](const FString& SlotName, const int32 UserIndex, USaveGame* LoadedGame)->void
-			{
-				if (UNRSaveGame* NRSaveGame = Cast<UNRSaveGame>(LoadedGame))
-				{
-					NRSaveGameSubsystem->NRSaveGame = NRSaveGame;
-					ApplySavedGame(NRSaveGame);
-				}
-			}));
-		}
-	}
 }
 
 void ANRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
