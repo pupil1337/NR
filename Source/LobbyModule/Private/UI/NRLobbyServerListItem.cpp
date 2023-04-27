@@ -2,3 +2,7 @@
 
 
 #include "UI/NRLobbyServerListItem.h"
+
+void UNRLobbyServerListItem::Update(const FOnlineSessionSearchResult& SearchResult)
+{
+}

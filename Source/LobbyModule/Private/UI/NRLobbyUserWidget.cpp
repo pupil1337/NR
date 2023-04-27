@@ -5,8 +5,10 @@
 
 #include "Components/Border.h"
 #include "Components/Button.h"
+#include "Components/ScrollBox.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Subsystem/OnlineSession/OnlineSessionSubsystem.h"
+#include "UI/NRLobbyServerListItem.h"
 
 void UNRLobbyUserWidget::BindWidgetEvent()
 {
@@ -16,19 +18,24 @@ void UNRLobbyUserWidget::BindWidgetEvent()
 	Button_SearchSession->OnClicked.AddUniqueDynamic(this, &ThisClass::OnButton_SearchSessionClicked);
 	Button_QuitGame->OnClicked.AddUniqueDynamic(this, &ThisClass::OnButton_QuitGameClicked);
 
+	if (const UGameInstance* GameInstance = GetGameInstance())
+	{
+		OnlineSessionSubsystem = GameInstance->GetSubsystem<UOnlineSessionSubsystem>();
 
-	OnCreateSessionCompleteDelegate.BindUObject(this, &ThisClass::OnCreateSessionComplete);
-	OnFindSessionsCompleteDelegate.BindUObject(this, &ThisClass::OnFindSessionsComplete);
+		if (OnlineSessionSubsystem)
+		{
+			OnlineSessionSubsystem->OnCreateSessionCompleteEvent.AddUObject(this, &ThisClass::OnCreateSessionComplete);
+			OnlineSessionSubsystem->OnFindSessionsCompleteEvent.AddUObject(this, &ThisClass::OnFindSessionsComplete);
+		}
+	}
+	
 }
 
 void UNRLobbyUserWidget::OnButton_NewGameClicked()
 {
-	if (const UGameInstance* GameInstance = GetGameInstance())
+	if (OnlineSessionSubsystem)
 	{
-		if (UOnlineSessionSubsystem* OnlineSessionSubsystem = GameInstance->GetSubsystem<UOnlineSessionSubsystem>())
-		{
-			OnlineSessionSubsystem->CreateSession(OnCreateSessionCompleteDelegate);
-		}
+		OnlineSessionSubsystem->CreateSession();
 	}
 	//GetWorld()->ServerTravel("/Game/Maps/TestMain?listen");
 }
@@ -38,12 +45,9 @@ void UNRLobbyUserWidget::OnButton_SearchSessionClicked()
 	Border_ServerList->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 	Border_ServerList->ClearChildren();
 
-	if (const UGameInstance* GameInstance = GetGameInstance())
+	if (OnlineSessionSubsystem)
 	{
-		if (UOnlineSessionSubsystem* OnlineSessionSubsystem = GameInstance->GetSubsystem<UOnlineSessionSubsystem>())
-		{
-			OnlineSessionSubsystem->FindSessions(100, OnFindSessionsCompleteDelegate);
-		}
+		OnlineSessionSubsystem->FindSessions(100);
 	}
 }
 
@@ -57,13 +61,15 @@ void UNRLobbyUserWidget::OnCreateSessionComplete(FName SessionName, bool bWasSuc
 	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Create Session:: bWasSuccessful:%d SessionName:%s"), bWasSuccessful, *SessionName.ToString()));
 }
 
-void UNRLobbyUserWidget::OnFindSessionsComplete(bool bWasSuccessful)
+void UNRLobbyUserWidget::OnFindSessionsComplete(const TArray<FOnlineSessionSearchResult>& SearchResults, bool bWasSuccessful)
 {
-	if (const UGameInstance* GameInstance = GetGameInstance())
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Find Session:: bWasSuccessful:%d Num:%d"), bWasSuccessful, SearchResults.Num()));
+	for (const FOnlineSessionSearchResult& it: SearchResults)
 	{
-		if (const UOnlineSessionSubsystem* OnlineSessionSubsystem = GameInstance->GetSubsystem<UOnlineSessionSubsystem>())
+		if (UNRLobbyServerListItem* tItem = CreateWidget<UNRLobbyServerListItem>(GetOwningPlayer(), UNRLobbyServerListItem::StaticClass()))
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Find Session:: bWasSuccessful:%d Num:%d"), bWasSuccessful, OnlineSessionSubsystem->GetSearchResults().Num()));
+			tItem->Update(it);
+			ScrollBox_ServerList->AddChild(tItem);
 		}
 	}
 }

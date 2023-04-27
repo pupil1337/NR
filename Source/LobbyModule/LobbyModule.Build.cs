@@ -11,10 +11,7 @@ public class LobbyModule : ModuleRules
             "Core", "CoreUObject", "Engine",
             
             "UMG",
-        });
-        
-        PublicDependencyModuleNames.AddRange(new string[]
-        {
+            
             "BaseModule"
         });
     }

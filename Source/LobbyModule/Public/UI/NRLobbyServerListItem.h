@@ -28,4 +28,8 @@ class LOBBYMODULE_API UNRLobbyServerListItem : public UNRUserWidgetBase
 	
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UTextBlock> Text_Ping;
+
+//~Begin This Class
+public:
+	void Update(const FOnlineSessionSearchResult& SearchResult);
 };

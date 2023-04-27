@@ -4,11 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "NRUserWidgetBase.h"
-#include "Interfaces/OnlineSessionDelegates.h"
 #include "NRLobbyUserWidget.generated.h"
 
 class UButton;
 class UBorder;
+class UScrollBox;
+class UOnlineSessionSubsystem;
 
 /**
  * 
@@ -35,6 +36,9 @@ class LOBBYMODULE_API UNRLobbyUserWidget : public UNRUserWidgetBase
 
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UBorder> Border_ServerList;
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UScrollBox> ScrollBox_ServerList;
 	
 protected:
 	virtual void BindWidgetEvent() override;
@@ -50,11 +54,9 @@ private:
 	UFUNCTION()
 	void OnButton_QuitGameClicked();
 
-	UFUNCTION()
 	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
-	UFUNCTION()
-	void OnFindSessionsComplete(bool bWasSuccessful);
+	void OnFindSessionsComplete(const TArray<FOnlineSessionSearchResult>& SearchResults, bool bWasSuccessful);
 
-	FOnCreateSessionCompleteDelegate OnCreateSessionCompleteDelegate;
-	FOnFindSessionsCompleteDelegate OnFindSessionsCompleteDelegate;
+	UPROPERTY(Transient)
+	UOnlineSessionSubsystem* OnlineSessionSubsystem;
 };

@@ -15,30 +15,24 @@ void UOnlineSessionSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("OnlineSubsystem is: %s"), *OnlineSubsystem->GetSubsystemName().ToString()));
 	}
+
+	OnCreateSessionCompleteDelegate.BindUObject(this, &ThisClass::OnCreateSessionComplete);
+	OnDestroySessionCompleteDelegate.BindUObject(this, &ThisClass::OnDestroySessionComplete);
+	OnFindSessionsCompleteDelegate.BindUObject(this, &ThisClass::OnFindSessionsComplete);
 }
 
-void UOnlineSessionSubsystem::CreateSession(const FOnCreateSessionCompleteDelegate& OnCreateSessionCompleteDelegate)
+void UOnlineSessionSubsystem::CreateSession()
 {
 	if (OnlineSessionInterface)
 	{
 		if (OnlineSessionInterface->GetNamedSession(NAME_GameSession))
 		{
 			bCreateSessionAfterDestroyed = true;
-			DestroySession(FOnDestroySessionCompleteDelegate::CreateLambda([](FName SessionName, bool bWasSuccessful)->void
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, FString::Printf(TEXT("Destroy Session:: bWasSuccessful:%d SessionName:%s"), bWasSuccessful, *SessionName.ToString()));
-			}));	
+			DestroySession();	
 			return;
 		}
 		
-		OnCreateSessionCompleteDelegateHandle = OnlineSessionInterface->AddOnCreateSessionCompleteDelegate_Handle(FOnCreateSessionCompleteDelegate::CreateLambda([this, &OnCreateSessionCompleteDelegate](FName SessionName, bool bWasSuccessful) -> void
-		{
-			if (OnlineSessionInterface)
-			{
-				OnlineSessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(OnCreateSessionCompleteDelegateHandle);
-			}
-			OnCreateSessionCompleteDelegate.Execute(SessionName, bWasSuccessful);
-		}));
+		OnCreateSessionCompleteDelegateHandle = OnlineSessionInterface->AddOnCreateSessionCompleteDelegate_Handle(OnCreateSessionCompleteDelegate);
 
 		OnlineSessionSettingsPtr = MakeShareable(new FOnlineSessionSettings);
 		OnlineSessionSettingsPtr->bIsLANMatch = IOnlineSubsystem::Get()->GetSubsystemName() == "NULL" ? true : false;
@@ -49,58 +43,36 @@ void UOnlineSessionSubsystem::CreateSession(const FOnCreateSessionCompleteDelega
 		OnlineSessionSettingsPtr->bShouldAdvertise = true;
 		OnlineSessionSettingsPtr->bUseLobbiesIfAvailable = true;
 		OnlineSessionSettingsPtr->BuildUniqueId = true;
-		OnlineSessionSettingsPtr->Set(FName("MatchType"), FString("NR"), EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+		OnlineSessionSettingsPtr->Set(FName("GameName"), FString("NR"), EOnlineDataAdvertisementType::Type::ViaOnlineServiceAndPing);
 		if (!OnlineSessionInterface->CreateSession(*GetWorld()->GetFirstLocalPlayerFromController()->GetPreferredUniqueNetId(), NAME_GameSession, *OnlineSessionSettingsPtr))
 		{
 			OnlineSessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(OnCreateSessionCompleteDelegateHandle);
 
-			OnCreateSessionCompleteDelegate.Execute(FName("None"), false);
+			OnCreateSessionCompleteEvent.Broadcast(FName("None"), false);
 		}
 	}
 }
 
-void UOnlineSessionSubsystem::DestroySession(const FOnDestroySessionCompleteDelegate& OnDestroySessionCompleteDelegate)
+void UOnlineSessionSubsystem::DestroySession()
 {
 	if (OnlineSessionInterface)
 	{
-		OnDestroySessionCompleteDelegateHandle = OnlineSessionInterface->AddOnDestroySessionCompleteDelegate_Handle(FOnDestroySessionCompleteDelegate::CreateLambda([this, &OnDestroySessionCompleteDelegate](FName SessionName, bool bWasSuccessful)->void
-		{
-			if (OnlineSessionInterface)
-			{
-				OnlineSessionInterface->ClearOnDestroySessionCompleteDelegate_Handle(OnDestroySessionCompleteDelegateHandle);
-			}
-			OnDestroySessionCompleteDelegate.Execute(SessionName, bWasSuccessful);
-
-			if (bWasSuccessful && bCreateSessionAfterDestroyed)
-			{
-				bCreateSessionAfterDestroyed = false;
-				CreateSession(FOnCreateSessionCompleteDelegate::CreateLambda([](FName SessionName, bool bWasSuccessful)->void
-				{
-					GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Create Session:: bWasSuccessful:%d SessionName:%s"), bWasSuccessful, *SessionName.ToString()));
-				}));
-			}
-		}));
+		OnDestroySessionCompleteDelegateHandle = OnlineSessionInterface->AddOnDestroySessionCompleteDelegate_Handle(OnDestroySessionCompleteDelegate);
 
 		if (!OnlineSessionInterface->DestroySession(NAME_GameSession))
 		{
 			OnlineSessionInterface->ClearOnDestroySessionCompleteDelegate_Handle(OnDestroySessionCompleteDelegateHandle);
-			OnDestroySessionCompleteDelegate.Execute(FName("None"), false);
+
+			OnDestroySessionCompleteEvent.Broadcast(FName("None"), false);
 		}
 	}
 }
 
-void UOnlineSessionSubsystem::FindSessions(int32 MaxSearchResults, const FOnFindSessionsCompleteDelegate& OnFindSessionsCompleteDelegate)
+void UOnlineSessionSubsystem::FindSessions(int32 MaxSearchResults)
 {
 	if (OnlineSessionInterface)
 	{
-		OnFindSessionsCompleteDelegateHandle = OnlineSessionInterface->AddOnFindSessionsCompleteDelegate_Handle(FOnFindSessionsCompleteDelegate::CreateLambda([this, &OnFindSessionsCompleteDelegate](bool bWasSuccessful)->void
-		{
-			if (OnlineSessionInterface)
-			{
-				OnlineSessionInterface->ClearOnFindSessionsCompleteDelegate_Handle(OnFindSessionsCompleteDelegateHandle);
-			}
-			OnFindSessionsCompleteDelegate.Execute(bWasSuccessful);
-		}));
+		OnFindSessionsCompleteDelegateHandle = OnlineSessionInterface->AddOnFindSessionsCompleteDelegate_Handle(OnFindSessionsCompleteDelegate);
 
 		OnlineSessionSearchPtr = MakeShareable(new FOnlineSessionSearch);
 		OnlineSessionSearchPtr->MaxSearchResults = MaxSearchResults;
@@ -112,4 +84,37 @@ void UOnlineSessionSubsystem::FindSessions(int32 MaxSearchResults, const FOnFind
 			OnFindSessionsCompleteDelegate.Execute(false);
 		}
 	}
+}
+
+void UOnlineSessionSubsystem::OnCreateSessionComplete(FName SessionName, bool bWasSuccessful)
+{
+	if (OnlineSessionInterface)
+	{
+		OnlineSessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(OnCreateSessionCompleteDelegateHandle);
+	}
+	OnCreateSessionCompleteEvent.Broadcast(SessionName, bWasSuccessful);
+}
+
+void UOnlineSessionSubsystem::OnDestroySessionComplete(FName SessionName, bool bWasSuccessful)
+{
+	if (OnlineSessionInterface)
+	{
+		OnlineSessionInterface->ClearOnDestroySessionCompleteDelegate_Handle(OnDestroySessionCompleteDelegateHandle);
+	}
+	OnDestroySessionCompleteEvent.Broadcast(SessionName, bWasSuccessful);
+
+	if (bWasSuccessful && bCreateSessionAfterDestroyed)
+	{
+		bCreateSessionAfterDestroyed = false;
+		CreateSession();
+	}
+}
+
+void UOnlineSessionSubsystem::OnFindSessionsComplete(bool bWasSuccessful)
+{
+	if (OnlineSessionInterface)
+	{
+		OnlineSessionInterface->ClearOnFindSessionsCompleteDelegate_Handle(OnFindSessionsCompleteDelegateHandle);
+	}
+	OnFindSessionsCompleteEvent.Broadcast(OnlineSessionSearchPtr->SearchResults, bWasSuccessful);
 }
