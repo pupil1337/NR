@@ -52,21 +52,17 @@ USTRUCT(BlueprintType)
 struct NR_API FTurnDir
 {
 	GENERATED_BODY()
-	FTurnDir(): None(true), Left(false), Right(false) {}
+	FTurnDir(): Left(false), Right(false) {}
 	
-	void SetTurnNone() { Clear(); None = true; }
 	void SetTurnL() { Clear(); Left = true; }
 	void SetTurnR() { Clear(); Right = true; }
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	uint8 None: 1;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	uint8 Left: 1;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	uint8 Right: 1;
 
 private:
-	void Clear() { None = Left = Right = false; }
+	void Clear() { Left = Right = false; }
 };
 
 USTRUCT(BlueprintType)

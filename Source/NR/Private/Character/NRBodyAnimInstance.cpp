@@ -116,7 +116,6 @@ void FNRBodyAnimInstanceProxy::UpdateAimOffset(const FRotator& BaseAimRotation, 
 	{
 		StartAimRotation = CurrAimRotation;
 		AO_Yaw = 0.0f;
-		TurnDir.SetTurnNone();
 	};
 	
 	// 9. AO_Yaw
@@ -129,7 +128,7 @@ void FNRBodyAnimInstanceProxy::UpdateAimOffset(const FRotator& BaseAimRotation, 
 		if (AO_Yaw < -70.0f) TurnDir.SetTurnL();
 		else if (AO_Yaw > 70.0f) TurnDir.SetTurnR();
 
-		if (TurnDir.None == false)
+		if (TurnDir.Left || TurnDir.Right)
 		{
 			// 在转身
 			AO_Yaw = InterpAO_Yaw = FMath::FInterpTo<float>(InterpAO_Yaw, 0.0f, DeltaSeconds, 5.0f);
