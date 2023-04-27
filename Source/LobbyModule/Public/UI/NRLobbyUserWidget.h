@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "NRUserWidgetBase.h"
+#include "Interfaces/OnlineSessionDelegates.h"
 #include "NRLobbyUserWidget.generated.h"
 
 class UButton;
@@ -48,4 +49,12 @@ private:
 	
 	UFUNCTION()
 	void OnButton_QuitGameClicked();
+
+	UFUNCTION()
+	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
+	UFUNCTION()
+	void OnFindSessionsComplete(bool bWasSuccessful);
+
+	FOnCreateSessionCompleteDelegate OnCreateSessionCompleteDelegate;
+	FOnFindSessionsCompleteDelegate OnFindSessionsCompleteDelegate;
 };

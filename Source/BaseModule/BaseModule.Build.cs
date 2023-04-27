@@ -9,8 +9,12 @@ public class BaseModule : ModuleRules
         PrivateDependencyModuleNames.AddRange(new string[]
         {
             "Core", "CoreUObject", "Engine",
-            
-            "UMG"
+            "UMG",
+        });
+        
+        PublicDependencyModuleNames.AddRange(new string[]
+        {
+            "OnlineSubsystem"
         });
     }
 }
