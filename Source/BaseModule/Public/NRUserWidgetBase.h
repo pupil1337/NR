@@ -16,8 +16,10 @@ class BASEMODULE_API UNRUserWidgetBase : public UUserWidget
 
 public:
 	virtual void NativeOnInitialized() override;
+	virtual void NativeDestruct() override;
 
 //~Begin This Class
 protected:
 	virtual void BindWidgetEvent() {}
+	virtual void UnBindExternalEvent() {}
 };

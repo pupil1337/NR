@@ -24,11 +24,21 @@ void UNRLobbyUserWidget::BindWidgetEvent()
 
 		if (OnlineSessionSubsystem)
 		{
-			OnlineSessionSubsystem->OnCreateSessionCompleteEvent.AddUObject(this, &ThisClass::OnCreateSessionComplete);
+			OnlineSessionSubsystem->OnCreateAndStartSessionCompleteEvent.AddUObject(this, &ThisClass::OnCreateAndStartSessionComplete);
 			OnlineSessionSubsystem->OnFindSessionsCompleteEvent.AddUObject(this, &ThisClass::OnFindSessionsComplete);
 		}
 	}
-	
+}
+
+void UNRLobbyUserWidget::UnBindExternalEvent()
+{
+	Super::UnBindExternalEvent();
+
+	if (OnlineSessionSubsystem)
+	{
+		OnlineSessionSubsystem->OnCreateAndStartSessionCompleteEvent.RemoveAll(this);
+		OnlineSessionSubsystem->OnFindSessionsCompleteEvent.RemoveAll(this);
+	}
 }
 
 void UNRLobbyUserWidget::OnButton_NewGameClicked()
@@ -47,7 +57,7 @@ void UNRLobbyUserWidget::OnButton_SearchSessionClicked()
 
 	if (OnlineSessionSubsystem)
 	{
-		OnlineSessionSubsystem->FindSessions(100);
+		OnlineSessionSubsystem->FindSessions(10);
 	}
 }
 
@@ -56,9 +66,9 @@ void UNRLobbyUserWidget::OnButton_QuitGameClicked()
 	UKismetSystemLibrary::QuitGame(this, nullptr, EQuitPreference::Quit, false);
 }
 
-void UNRLobbyUserWidget::OnCreateSessionComplete(FName SessionName, bool bWasSuccessful)
+void UNRLobbyUserWidget::OnCreateAndStartSessionComplete(FName SessionName, bool bWasSuccessful)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Create Session:: bWasSuccessful:%d SessionName:%s"), bWasSuccessful, *SessionName.ToString()));
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Create And Start Session:: bWasSuccessful:%d SessionName:%s"), bWasSuccessful, *SessionName.ToString()));
 }
 
 void UNRLobbyUserWidget::OnFindSessionsComplete(const TArray<FOnlineSessionSearchResult>& SearchResults, bool bWasSuccessful)
@@ -66,6 +76,14 @@ void UNRLobbyUserWidget::OnFindSessionsComplete(const TArray<FOnlineSessionSearc
 	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Find Session:: bWasSuccessful:%d Num:%d"), bWasSuccessful, SearchResults.Num()));
 	for (const FOnlineSessionSearchResult& it: SearchResults)
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Cyan,
+			FString::Printf(TEXT("Session:: ServerName:%s, Player:%d/%d, Ping:%dms"),
+				*it.Session.OwningUserName,
+				it.Session.SessionSettings.NumPublicConnections - it.Session.NumOpenPublicConnections,
+				it.Session.SessionSettings.NumPublicConnections,
+				it.PingInMs
+				)
+			);
 		if (UNRLobbyServerListItem* tItem = CreateWidget<UNRLobbyServerListItem>(GetOwningPlayer(), UNRLobbyServerListItem::StaticClass()))
 		{
 			tItem->Update(it);

@@ -17,6 +17,7 @@ void UOnlineSessionSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	}
 
 	OnCreateSessionCompleteDelegate.BindUObject(this, &ThisClass::OnCreateSessionComplete);
+	OnStartSessionCompleteDelegate.BindUObject(this, &ThisClass::OnStartSessionComplete);
 	OnDestroySessionCompleteDelegate.BindUObject(this, &ThisClass::OnDestroySessionComplete);
 	OnFindSessionsCompleteDelegate.BindUObject(this, &ThisClass::OnFindSessionsComplete);
 }
@@ -41,14 +42,14 @@ void UOnlineSessionSubsystem::CreateSession()
 		OnlineSessionSettingsPtr->bUsesPresence = true;
 		OnlineSessionSettingsPtr->bAllowJoinViaPresence = true;
 		OnlineSessionSettingsPtr->bShouldAdvertise = true;
-		OnlineSessionSettingsPtr->bUseLobbiesIfAvailable = true;
-		OnlineSessionSettingsPtr->BuildUniqueId = true;
-		OnlineSessionSettingsPtr->Set(FName("GameName"), FString("NR"), EOnlineDataAdvertisementType::Type::ViaOnlineServiceAndPing);
+		//OnlineSessionSettingsPtr->bUseLobbiesIfAvailable = true;
+		//OnlineSessionSettingsPtr->BuildUniqueId = true;
+		//OnlineSessionSettingsPtr->Set(FName("GameName"), FString("NR"), EOnlineDataAdvertisementType::Type::ViaOnlineServiceAndPing);
 		if (!OnlineSessionInterface->CreateSession(*GetWorld()->GetFirstLocalPlayerFromController()->GetPreferredUniqueNetId(), NAME_GameSession, *OnlineSessionSettingsPtr))
 		{
 			OnlineSessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(OnCreateSessionCompleteDelegateHandle);
 
-			OnCreateSessionCompleteEvent.Broadcast(FName("None"), false);
+			OnCreateAndStartSessionCompleteEvent.Broadcast(NAME_GameSession, false);
 		}
 	}
 }
@@ -63,7 +64,7 @@ void UOnlineSessionSubsystem::DestroySession()
 		{
 			OnlineSessionInterface->ClearOnDestroySessionCompleteDelegate_Handle(OnDestroySessionCompleteDelegateHandle);
 
-			OnDestroySessionCompleteEvent.Broadcast(FName("None"), false);
+			OnDestroySessionCompleteEvent.Broadcast(NAME_GameSession, false);
 		}
 	}
 }
@@ -81,7 +82,8 @@ void UOnlineSessionSubsystem::FindSessions(int32 MaxSearchResults)
 		if (!OnlineSessionInterface->FindSessions(*GetWorld()->GetFirstLocalPlayerFromController()->GetPreferredUniqueNetId(), OnlineSessionSearchPtr.ToSharedRef()))
 		{
 			OnlineSessionInterface->ClearOnFindSessionsCompleteDelegate_Handle(OnFindSessionsCompleteDelegateHandle);
-			OnFindSessionsCompleteDelegate.Execute(false);
+
+			OnFindSessionsCompleteEvent.Broadcast(TArray<FOnlineSessionSearchResult>(), false);
 		}
 	}
 }
@@ -91,8 +93,26 @@ void UOnlineSessionSubsystem::OnCreateSessionComplete(FName SessionName, bool bW
 	if (OnlineSessionInterface)
 	{
 		OnlineSessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(OnCreateSessionCompleteDelegateHandle);
+
+		if (bWasSuccessful)
+		{
+			OnStartSessionCompleteDelegateHandle = OnlineSessionInterface->AddOnStartSessionCompleteDelegate_Handle(OnStartSessionCompleteDelegate);
+
+			OnlineSessionInterface->StartSession(NAME_GameSession);
+			return;
+		}
 	}
-	OnCreateSessionCompleteEvent.Broadcast(SessionName, bWasSuccessful);
+	OnCreateAndStartSessionCompleteEvent.Broadcast(SessionName, false);
+}
+
+void UOnlineSessionSubsystem::OnStartSessionComplete(FName SessionName, bool bWasSuccessful)
+{
+	if (OnlineSessionInterface)
+	{
+		OnlineSessionInterface->ClearOnStartSessionCompleteDelegate_Handle(OnStartSessionCompleteDelegateHandle);
+	}
+
+	OnCreateAndStartSessionCompleteEvent.Broadcast(SessionName, bWasSuccessful);
 }
 
 void UOnlineSessionSubsystem::OnDestroySessionComplete(FName SessionName, bool bWasSuccessful)

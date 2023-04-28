@@ -9,7 +9,7 @@
 #include "OnlineSessionSettings.h"
 #include "OnlineSessionSubsystem.generated.h"
 
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnCreateSessionCompleteEvent, FName, bool)
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnCreateAndStartSessionCompleteEvent, FName, bool)
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnDestroySessionCompleteEvent, FName, bool)
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnFindSessionsCompleteEvent, const TArray<FOnlineSessionSearchResult>&, bool);
 
@@ -25,18 +25,17 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	
 //~Begin This Class
-	void CreateSession();
-	void DestroySession();
-	void FindSessions(int32 MaxSearchResults);
-
-	FORCEINLINE const TArray<FOnlineSessionSearchResult>& GetSearchResults() const { return OnlineSessionSearchPtr->SearchResults; }
-
-	FOnCreateSessionCompleteEvent OnCreateSessionCompleteEvent;
+	FOnCreateAndStartSessionCompleteEvent OnCreateAndStartSessionCompleteEvent;
 	FOnDestroySessionCompleteEvent OnDestroySessionCompleteEvent;
 	FOnFindSessionsCompleteEvent OnFindSessionsCompleteEvent;
 	
+	void CreateSession();
+	void DestroySession();
+	void FindSessions(int32 MaxSearchResults);
+	
 private:
 	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
+	void OnStartSessionComplete(FName SessionName, bool bWasSuccessful);
 	void OnDestroySessionComplete(FName SessionName, bool bWasSuccessful);
 	void OnFindSessionsComplete(bool bWasSuccessful);
 	
@@ -45,10 +44,12 @@ private:
 	TSharedPtr<FOnlineSessionSearch> OnlineSessionSearchPtr;
 
 	FOnCreateSessionCompleteDelegate OnCreateSessionCompleteDelegate;
+	FOnStartSessionCompleteDelegate OnStartSessionCompleteDelegate;
 	FOnDestroySessionCompleteDelegate OnDestroySessionCompleteDelegate;
 	FOnFindSessionsCompleteDelegate OnFindSessionsCompleteDelegate;
 	
 	FDelegateHandle OnCreateSessionCompleteDelegateHandle;
+	FDelegateHandle OnStartSessionCompleteDelegateHandle;
 	FDelegateHandle OnDestroySessionCompleteDelegateHandle;
 	FDelegateHandle OnFindSessionsCompleteDelegateHandle;
 

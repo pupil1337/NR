@@ -9,3 +9,10 @@ void UNRUserWidgetBase::NativeOnInitialized()
 
 	BindWidgetEvent();
 }
+
+void UNRUserWidgetBase::NativeDestruct()
+{
+	Super::NativeDestruct();
+
+	UnBindExternalEvent();
+}

@@ -42,6 +42,7 @@ class LOBBYMODULE_API UNRLobbyUserWidget : public UNRUserWidgetBase
 	
 protected:
 	virtual void BindWidgetEvent() override;
+	virtual void UnBindExternalEvent() override;
 
 	//~Begin This Class
 private:
@@ -54,7 +55,7 @@ private:
 	UFUNCTION()
 	void OnButton_QuitGameClicked();
 
-	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
+	void OnCreateAndStartSessionComplete(FName SessionName, bool bWasSuccessful);
 	void OnFindSessionsComplete(const TArray<FOnlineSessionSearchResult>& SearchResults, bool bWasSuccessful);
 
 	UPROPERTY(Transient)
