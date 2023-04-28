@@ -53,7 +53,8 @@ struct NR_API FTurnDir
 {
 	GENERATED_BODY()
 	FTurnDir(): Left(false), Right(false) {}
-	
+
+	void SetTurnNone() { Clear(); }
 	void SetTurnL() { Clear(); Left = true; }
 	void SetTurnR() { Clear(); Right = true; }
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
