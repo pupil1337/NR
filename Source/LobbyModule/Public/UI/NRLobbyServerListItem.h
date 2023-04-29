@@ -31,5 +31,5 @@ class LOBBYMODULE_API UNRLobbyServerListItem : public UNRUserWidgetBase
 
 //~Begin This Class
 public:
-	void Update(const FOnlineSessionSearchResult& SearchResult);
+	void Update(const FOnlineSessionSearchResult& SearchResult) const;
 };

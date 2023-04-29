@@ -9,6 +9,8 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Subsystem/OnlineSession/OnlineSessionSubsystem.h"
 #include "UI/NRLobbyServerListItem.h"
+#include "OnlineSessionSettings.h"
+#include "Components/TextBlock.h"
 
 void UNRLobbyUserWidget::BindWidgetEvent()
 {
@@ -32,13 +34,13 @@ void UNRLobbyUserWidget::BindWidgetEvent()
 
 void UNRLobbyUserWidget::UnBindExternalEvent()
 {
-	Super::UnBindExternalEvent();
-
 	if (OnlineSessionSubsystem)
 	{
 		OnlineSessionSubsystem->OnCreateAndStartSessionCompleteEvent.RemoveAll(this);
 		OnlineSessionSubsystem->OnFindSessionsCompleteEvent.RemoveAll(this);
 	}
+	
+	Super::UnBindExternalEvent();
 }
 
 void UNRLobbyUserWidget::OnButton_NewGameClicked()
@@ -53,8 +55,10 @@ void UNRLobbyUserWidget::OnButton_NewGameClicked()
 void UNRLobbyUserWidget::OnButton_SearchSessionClicked()
 {
 	Border_ServerList->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
-	Border_ServerList->ClearChildren();
-
+	ScrollBox_ServerList->ClearChildren();
+	Text_FindSession->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	Text_FindSession->SetText(FText::FromString(TEXT("搜寻中...")));
+	
 	if (OnlineSessionSubsystem)
 	{
 		OnlineSessionSubsystem->FindSessions(10);
@@ -73,6 +77,16 @@ void UNRLobbyUserWidget::OnCreateAndStartSessionComplete(FName SessionName, bool
 
 void UNRLobbyUserWidget::OnFindSessionsComplete(const TArray<FOnlineSessionSearchResult>& SearchResults, bool bWasSuccessful)
 {
+	if (SearchResults.Num() > 0)
+	{
+		Text_FindSession->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	else
+	{
+		Text_FindSession->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+		Text_FindSession->SetText(FText::FromString(TEXT("无")));
+	}
+	
 	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Find Session:: bWasSuccessful:%d Num:%d"), bWasSuccessful, SearchResults.Num()));
 	for (const FOnlineSessionSearchResult& it: SearchResults)
 	{
@@ -84,10 +98,14 @@ void UNRLobbyUserWidget::OnFindSessionsComplete(const TArray<FOnlineSessionSearc
 				it.PingInMs
 				)
 			);
-		if (UNRLobbyServerListItem* tItem = CreateWidget<UNRLobbyServerListItem>(GetOwningPlayer(), UNRLobbyServerListItem::StaticClass()))
+		
+		if (NRLobbyServerListItemClass)
 		{
-			tItem->Update(it);
-			ScrollBox_ServerList->AddChild(tItem);
+			if (UNRLobbyServerListItem* tItem = CreateWidget<UNRLobbyServerListItem>(GetOwningPlayer(), NRLobbyServerListItemClass))
+			{
+				tItem->Update(it);
+				ScrollBox_ServerList->AddChild(tItem);
+			}
 		}
 	}
 }

@@ -9,12 +9,14 @@
 class UButton;
 class UBorder;
 class UScrollBox;
+class UTextBlock;
+class UNRLobbyServerListItem;
 class UOnlineSessionSubsystem;
 
 /**
  * 
  */
-UCLASS(Abstract, Blueprintable)
+UCLASS(Blueprintable)
 class LOBBYMODULE_API UNRLobbyUserWidget : public UNRUserWidgetBase
 {
 	GENERATED_BODY()
@@ -39,6 +41,12 @@ class LOBBYMODULE_API UNRLobbyUserWidget : public UNRUserWidgetBase
 
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UScrollBox> ScrollBox_ServerList;
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UTextBlock> Text_FindSession;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UNRLobbyServerListItem> NRLobbyServerListItemClass;
 	
 protected:
 	virtual void BindWidgetEvent() override;
