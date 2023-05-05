@@ -10,7 +10,8 @@
 #include "OnlineSessionSubsystem.generated.h"
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnCreateAndStartSessionCompleteEvent, FName, bool)
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnFindSessionsCompleteEvent, const TArray<FOnlineSessionSearchResult>&, bool);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnFindSessionsCompleteEvent, const TArray<FOnlineSessionSearchResult>&, bool)
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnJoinSessionCompleteEvent, FName, EOnJoinSessionCompleteResult::Type)
 
 /**
  * 
@@ -27,14 +28,17 @@ public:
 //~Begin This Class
 	FOnCreateAndStartSessionCompleteEvent OnCreateAndStartSessionCompleteEvent;
 	FOnFindSessionsCompleteEvent OnFindSessionsCompleteEvent;
+	FOnJoinSessionCompleteEvent OnJoinSessionCompleteEvent;
 	
 	void CreateSession();
 	void FindSessions(int32 MaxSearchResults);
+	void JoinSession(const FOnlineSessionSearchResult& Result);
 	
 private:
 	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
 	void OnStartSessionComplete(FName SessionName, bool bWasSuccessful);
 	void OnFindSessionsComplete(bool bWasSuccessful);
+	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type bWasSuccessful);
 	
 	IOnlineSessionPtr OnlineSessionInterface;
 	TSharedPtr<FOnlineSessionSettings> OnlineSessionSettingsPtr;
@@ -43,8 +47,10 @@ private:
 	FOnCreateSessionCompleteDelegate OnCreateSessionCompleteDelegate;
 	FOnStartSessionCompleteDelegate OnStartSessionCompleteDelegate;
 	FOnFindSessionsCompleteDelegate OnFindSessionsCompleteDelegate;
+	FOnJoinSessionCompleteDelegate OnJoinSessionCompleteDelegate;
 	
 	FDelegateHandle OnCreateSessionCompleteDelegateHandle;
 	FDelegateHandle OnStartSessionCompleteDelegateHandle;
 	FDelegateHandle OnFindSessionsCompleteDelegateHandle;
+	FDelegateHandle OnJoinSessionCompleteDelegateHandle;
 };

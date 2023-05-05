@@ -19,6 +19,7 @@ void UOnlineSessionSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	OnCreateSessionCompleteDelegate.BindUObject(this, &ThisClass::OnCreateSessionComplete);
 	OnStartSessionCompleteDelegate.BindUObject(this, &ThisClass::OnStartSessionComplete);
 	OnFindSessionsCompleteDelegate.BindUObject(this, &ThisClass::OnFindSessionsComplete);
+	OnJoinSessionCompleteDelegate.BindUObject(this, &ThisClass::OnJoinSessionComplete);
 }
 
 void UOnlineSessionSubsystem::Deinitialize()
@@ -73,6 +74,19 @@ void UOnlineSessionSubsystem::FindSessions(int32 MaxSearchResults)
 	OnFindSessionsCompleteEvent.Broadcast(TArray<FOnlineSessionSearchResult>(), false);
 }
 
+void UOnlineSessionSubsystem::JoinSession(const FOnlineSessionSearchResult& Result)
+{
+	if (OnlineSessionInterface)
+	{
+		OnJoinSessionCompleteDelegateHandle = OnlineSessionInterface->AddOnJoinSessionCompleteDelegate_Handle(OnJoinSessionCompleteDelegate);
+
+		OnlineSessionInterface->JoinSession(*GetWorld()->GetFirstLocalPlayerFromController()->GetPreferredUniqueNetId(), NAME_GameSession, Result);
+		return;
+	}
+
+	OnJoinSessionCompleteEvent.Broadcast(NAME_GameSession, EOnJoinSessionCompleteResult::Type::UnknownError);
+}
+
 void UOnlineSessionSubsystem::OnCreateSessionComplete(FName SessionName, bool bWasSuccessful)
 {
 	if (OnlineSessionInterface)
@@ -112,4 +126,14 @@ void UOnlineSessionSubsystem::OnFindSessionsComplete(bool bWasSuccessful)
 	}
 	
 	OnFindSessionsCompleteEvent.Broadcast(OnlineSessionSearchPtr->SearchResults, bWasSuccessful);
+}
+
+void UOnlineSessionSubsystem::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type bWasSuccessful)
+{
+	if (OnlineSessionInterface)
+	{
+		OnlineSessionInterface->ClearOnJoinSessionCompleteDelegate_Handle(OnJoinSessionCompleteDelegateHandle);
+	}
+
+	OnJoinSessionCompleteEvent.Broadcast(SessionName, bWasSuccessful);
 }

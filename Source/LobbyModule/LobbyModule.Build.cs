@@ -14,5 +14,10 @@ public class LobbyModule : ModuleRules
             
             "BaseModule"
         });
+        
+        PublicDependencyModuleNames.AddRange(new string[]
+        {
+            "OnlineSubsystem"
+        });
     }
 }

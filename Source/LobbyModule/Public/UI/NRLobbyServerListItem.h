@@ -4,10 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "NRUserWidgetBase.h"
+#include "OnlineSessionSettings.h"
 #include "NRLobbyServerListItem.generated.h"
 
 class UButton;
 class UTextBlock;
+
+DECLARE_DELEGATE(FOnServerListItemClickedCallBack)
 
 /**
  * 
@@ -29,7 +32,17 @@ class LOBBYMODULE_API UNRLobbyServerListItem : public UNRUserWidgetBase
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UTextBlock> Text_Ping;
 
+protected:
+	virtual void BindWidgetEvent() override;
+	
 //~Begin This Class
 public:
-	void Update(const FOnlineSessionSearchResult& SearchResult) const;
+	void Update(const FOnlineSessionSearchResult& InSearchResult, const FOnServerListItemClickedCallBack& InOnClickedCallBack);
+
+private:
+	UFUNCTION()
+	void OnButton_SelectClicked();
+
+	FOnlineSessionSearchResult SearchResult;
+	FOnServerListItemClickedCallBack OnClickedCallBack;
 };

@@ -103,7 +103,10 @@ void UNRLobbyUserWidget::OnFindSessionsComplete(const TArray<FOnlineSessionSearc
 		{
 			if (UNRLobbyServerListItem* tItem = CreateWidget<UNRLobbyServerListItem>(GetOwningPlayer(), NRLobbyServerListItemClass))
 			{
-				tItem->Update(it);
+				tItem->Update(it, FOnServerListItemClickedCallBack::CreateLambda([this, it]()->void
+				{
+					OnlineSessionSubsystem->JoinSession(it);
+				}));
 				ScrollBox_ServerList->AddChild(tItem);
 			}
 		}
