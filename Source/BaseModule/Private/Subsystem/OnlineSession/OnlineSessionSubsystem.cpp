@@ -48,9 +48,7 @@ void UOnlineSessionSubsystem::CreateSession()
 		OnlineSessionSettingsPtr->bAllowJoinInProgress = true;
 		OnlineSessionSettingsPtr->bUsesPresence = true;
 		OnlineSessionSettingsPtr->bAllowJoinViaPresence = true;
-		//OnlineSessionSettingsPtr->bUseLobbiesIfAvailable = true;
-		//OnlineSessionSettingsPtr->BuildUniqueId = true;
-		//OnlineSessionSettingsPtr->Set(FName("GameName"), FString("NR"), EOnlineDataAdvertisementType::Type::ViaOnlineServiceAndPing);
+		OnlineSessionSettingsPtr->Set(FName("GameName"), FString("NR"), EOnlineDataAdvertisementType::Type::ViaOnlineServiceAndPing);
 		OnlineSessionInterface->CreateSession(*GetWorld()->GetFirstLocalPlayerFromController()->GetPreferredUniqueNetId(), NAME_GameSession, *OnlineSessionSettingsPtr);
 		return;
 	}
@@ -84,7 +82,7 @@ void UOnlineSessionSubsystem::JoinSession(const FOnlineSessionSearchResult& Resu
 		return;
 	}
 
-	OnJoinSessionCompleteEvent.Broadcast(NAME_GameSession, EOnJoinSessionCompleteResult::Type::UnknownError);
+	OnJoinSessionCompleteEvent.Broadcast(NAME_GameSession, EOnJoinSessionCompleteResult::Type::UnknownError, FString());
 }
 
 void UOnlineSessionSubsystem::OnCreateSessionComplete(FName SessionName, bool bWasSuccessful)
@@ -130,10 +128,14 @@ void UOnlineSessionSubsystem::OnFindSessionsComplete(bool bWasSuccessful)
 
 void UOnlineSessionSubsystem::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type bWasSuccessful)
 {
+	FString Address;
+	
 	if (OnlineSessionInterface)
 	{
 		OnlineSessionInterface->ClearOnJoinSessionCompleteDelegate_Handle(OnJoinSessionCompleteDelegateHandle);
+		
+		OnlineSessionInterface->GetResolvedConnectString(SessionName, Address);
 	}
 
-	OnJoinSessionCompleteEvent.Broadcast(SessionName, bWasSuccessful);
+	OnJoinSessionCompleteEvent.Broadcast(SessionName, bWasSuccessful, Address);
 }

@@ -11,7 +11,7 @@
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnCreateAndStartSessionCompleteEvent, FName, bool)
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnFindSessionsCompleteEvent, const TArray<FOnlineSessionSearchResult>&, bool)
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnJoinSessionCompleteEvent, FName, EOnJoinSessionCompleteResult::Type)
+DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnJoinSessionCompleteEvent, FName, EOnJoinSessionCompleteResult::Type, const FString&)
 
 /**
  * 

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "NRUserWidgetBase.h"
+#include "Interfaces/OnlineSessionInterface.h"
 #include "NRLobbyUserWidget.generated.h"
 
 class UButton;
@@ -65,6 +66,7 @@ private:
 
 	void OnCreateAndStartSessionComplete(FName SessionName, bool bWasSuccessful);
 	void OnFindSessionsComplete(const TArray<FOnlineSessionSearchResult>& SearchResults, bool bWasSuccessful);
+	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type bWasSuccessful, const FString& Address);
 
 	UPROPERTY(Transient)
 	UOnlineSessionSubsystem* OnlineSessionSubsystem;

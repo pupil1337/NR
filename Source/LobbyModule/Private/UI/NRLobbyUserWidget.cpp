@@ -28,6 +28,7 @@ void UNRLobbyUserWidget::BindWidgetEvent()
 		{
 			OnlineSessionSubsystem->OnCreateAndStartSessionCompleteEvent.AddUObject(this, &ThisClass::OnCreateAndStartSessionComplete);
 			OnlineSessionSubsystem->OnFindSessionsCompleteEvent.AddUObject(this, &ThisClass::OnFindSessionsComplete);
+			OnlineSessionSubsystem->OnJoinSessionCompleteEvent.AddUObject(this, &ThisClass::OnJoinSessionComplete);
 		}
 	}
 }
@@ -49,7 +50,6 @@ void UNRLobbyUserWidget::OnButton_NewGameClicked()
 	{
 		OnlineSessionSubsystem->CreateSession();
 	}
-	//GetWorld()->ServerTravel("/Game/Maps/TestMain?listen");
 }
 
 void UNRLobbyUserWidget::OnButton_SearchSessionClicked()
@@ -73,6 +73,11 @@ void UNRLobbyUserWidget::OnButton_QuitGameClicked()
 void UNRLobbyUserWidget::OnCreateAndStartSessionComplete(FName SessionName, bool bWasSuccessful)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Create And Start Session:: bWasSuccessful:%d SessionName:%s"), bWasSuccessful, *SessionName.ToString()));
+
+	if (UWorld* World = GetWorld())
+	{
+		World->ServerTravel("/Game/Maps/TestMain?listen");
+	}
 }
 
 void UNRLobbyUserWidget::OnFindSessionsComplete(const TArray<FOnlineSessionSearchResult>& SearchResults, bool bWasSuccessful)
@@ -109,6 +114,19 @@ void UNRLobbyUserWidget::OnFindSessionsComplete(const TArray<FOnlineSessionSearc
 				}));
 				ScrollBox_ServerList->AddChild(tItem);
 			}
+		}
+	}
+}
+
+void UNRLobbyUserWidget::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type bWasSuccessful, const FString& Address)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, FString::Printf(TEXT("Join Session:: bWasSuccessful:%d SessionName:%s Address:%s"), bWasSuccessful, *SessionName.ToString(), *Address));
+
+	if (bWasSuccessful == EOnJoinSessionCompleteResult::Type::Success)
+	{
+		if (APlayerController* PlayerController = GetOwningPlayer())
+		{
+			PlayerController->ClientTravel(Address, TRAVEL_Absolute);
 		}
 	}
 }
