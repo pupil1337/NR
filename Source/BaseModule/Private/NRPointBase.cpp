@@ -16,7 +16,10 @@ ANRPointBase::ANRPointBase()
 	
 #if WITH_EDITORONLY_DATA
 	ArrowComponent = CreateEditorOnlyDefaultSubobject<UArrowComponent>(TEXT("Arrow"));
-	ArrowComponent->SetupAttachment(GetCapsuleComponent());
+	if (ArrowComponent)
+	{
+		ArrowComponent->SetupAttachment(GetCapsuleComponent());	
+	}
 #endif
 }
 

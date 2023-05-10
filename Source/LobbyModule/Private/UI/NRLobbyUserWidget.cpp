@@ -76,7 +76,7 @@ void UNRLobbyUserWidget::OnCreateAndStartSessionComplete(FName SessionName, bool
 
 	if (UWorld* World = GetWorld())
 	{
-		World->ServerTravel("/Game/Maps/TestMain?listen");
+		World->ServerTravel("/Game/Lobby/Lobby?listen");
 	}
 }
 

@@ -6,6 +6,9 @@
 #include "GameFramework/PlayerController.h"
 #include "NRLobbyPlayerController.generated.h"
 
+class UNRLobbyUserWidget;
+class ANRLobbyCharacter;
+
 /**
  * 
  */
@@ -14,8 +17,20 @@ class LOBBYMODULE_API ANRLobbyPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
-//~Begin This Class
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UNRLobbyUserWidget> NRLobbyUserWidgetClass;
+	
 public:
+	virtual void BeginPlay() override;
+	virtual void AcknowledgePossession(APawn* P) override;
+
+	virtual void Destroyed() override;
+	
+//~Begin This Class
 	UFUNCTION(Client, Reliable)
 	void Client_OnPlayerLogin();
+
+private:
+	UPROPERTY(Transient)
+	ANRLobbyCharacter* NRLobbyCharacter;
 };

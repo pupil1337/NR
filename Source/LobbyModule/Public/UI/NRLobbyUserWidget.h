@@ -17,7 +17,7 @@ class UOnlineSessionSubsystem;
 /**
  * 
  */
-UCLASS(Blueprintable)
+UCLASS(Abstract, Blueprintable)
 class LOBBYMODULE_API UNRLobbyUserWidget : public UNRUserWidgetBase
 {
 	GENERATED_BODY()
