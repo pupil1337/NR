@@ -7,6 +7,7 @@
 #include "Interfaces/OnlineSessionInterface.h"
 #include "NRLobbyUserWidget.generated.h"
 
+class UWidgetSwitcher;
 class UButton;
 class UBorder;
 class UScrollBox;
@@ -23,29 +24,47 @@ class LOBBYMODULE_API UNRLobbyUserWidget : public UNRUserWidgetBase
 	GENERATED_BODY()
 
 	UPROPERTY(meta=(BindWidget))
-	TObjectPtr<UButton> Button_ContinueGame;
+	TObjectPtr<UWidgetSwitcher> WidgetSwitcher_Panel;
 	
+	/* Panel 0 */
 	UPROPERTY(meta=(BindWidget))
-	TObjectPtr<UButton> Button_NewGame;
+	TObjectPtr<UButton> Button_StartGame;
 
 	UPROPERTY(meta=(BindWidget))
-	TObjectPtr<UButton> Button_SearchSession;
-	
-	UPROPERTY(meta=(BindWidget))
-	TObjectPtr<UButton> Button_Setting;
+	TObjectPtr<UButton> Button_Setting;// TODO
 	
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UButton> Button_QuitGame;
 
+	/* Panel 1 */
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UButton> Button_ContinueGame;// TODO
+	
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UButton> Button_NewGame;// TODO
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UButton> Button_ChangePlayer;// TODO
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UButton> Button_SearchPublic;
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UButton> Button_BackTo0;
+
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UBorder> Border_ServerList;
-
+	
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UScrollBox> ScrollBox_ServerList;
 
 	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UButton> Button_CloseServerList;
+	
+	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UTextBlock> Text_FindSession;
-
+	
+	// Settings
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UNRLobbyServerListItem> NRLobbyServerListItemClass;
 	
@@ -56,6 +75,9 @@ protected:
 	//~Begin This Class
 private:
 	UFUNCTION()
+	void OnButton_StartGameClicked();
+	
+	UFUNCTION()
 	void OnButton_NewGameClicked();
 
 	UFUNCTION()
@@ -63,6 +85,9 @@ private:
 	
 	UFUNCTION()
 	void OnButton_QuitGameClicked();
+
+	UFUNCTION()
+	void OnButton_CloseServerListClicked();
 
 	void OnCreateAndStartSessionComplete(FName SessionName, bool bWasSuccessful);
 	void OnFindSessionsComplete(const TArray<FOnlineSessionSearchResult>& SearchResults, bool bWasSuccessful);

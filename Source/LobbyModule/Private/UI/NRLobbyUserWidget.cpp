@@ -11,14 +11,17 @@
 #include "UI/NRLobbyServerListItem.h"
 #include "OnlineSessionSettings.h"
 #include "Components/TextBlock.h"
+#include "Components/WidgetSwitcher.h"
 
 void UNRLobbyUserWidget::BindWidgetEvent()
 {
 	Super::BindWidgetEvent();
-	
+
+	Button_StartGame->OnClicked.AddUniqueDynamic(this, &ThisClass::OnButton_StartGameClicked);
 	Button_NewGame->OnClicked.AddUniqueDynamic(this, &ThisClass::OnButton_NewGameClicked);
-	Button_SearchSession->OnClicked.AddUniqueDynamic(this, &ThisClass::OnButton_SearchSessionClicked);
+	Button_SearchPublic->OnClicked.AddUniqueDynamic(this, &ThisClass::OnButton_SearchSessionClicked);
 	Button_QuitGame->OnClicked.AddUniqueDynamic(this, &ThisClass::OnButton_QuitGameClicked);
+	Button_CloseServerList->OnClicked.AddUniqueDynamic(this, &ThisClass::OnButton_CloseServerListClicked);
 
 	if (const UGameInstance* GameInstance = GetGameInstance())
 	{
@@ -44,8 +47,14 @@ void UNRLobbyUserWidget::UnBindExternalEvent()
 	Super::UnBindExternalEvent();
 }
 
+void UNRLobbyUserWidget::OnButton_StartGameClicked()
+{
+	WidgetSwitcher_Panel->SetActiveWidgetIndex(1);
+}
+
 void UNRLobbyUserWidget::OnButton_NewGameClicked()
 {
+	// TODO
 	if (OnlineSessionSubsystem)
 	{
 		OnlineSessionSubsystem->CreateSession();
@@ -68,6 +77,11 @@ void UNRLobbyUserWidget::OnButton_SearchSessionClicked()
 void UNRLobbyUserWidget::OnButton_QuitGameClicked()
 {
 	UKismetSystemLibrary::QuitGame(this, nullptr, EQuitPreference::Quit, false);
+}
+
+void UNRLobbyUserWidget::OnButton_CloseServerListClicked()
+{
+	Border_ServerList->SetVisibility(ESlateVisibility::Collapsed);
 }
 
 void UNRLobbyUserWidget::OnCreateAndStartSessionComplete(FName SessionName, bool bWasSuccessful)
