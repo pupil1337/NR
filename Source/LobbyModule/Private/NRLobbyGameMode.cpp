@@ -5,9 +5,9 @@
 
 #include "NRLobbyPlayerController.h"
 
-void ANRLobbyGameMode::PostLogin(APlayerController* NewPlayer)
+void ANRLobbyGameMode::OnPostLogin(AController* NewPlayer)
 {
-	Super::PostLogin(NewPlayer);
+	Super::OnPostLogin(NewPlayer);
 
 	if (ANRLobbyPlayerController* NRLobbyPlayerController = Cast<ANRLobbyPlayerController>(NewPlayer))
 	{
@@ -19,5 +19,28 @@ void ANRLobbyGameMode::PostLogin(APlayerController* NewPlayer)
 
 void ANRLobbyGameMode::Logout(AController* Exiting)
 {
+	if (ANRLobbyPlayerController* NRLobbyPlayerController = Cast<ANRLobbyPlayerController>(Exiting))
+	{
+		PlayerControllers.Remove(NRLobbyPlayerController);
+	}
+	
 	Super::Logout(Exiting);
 }
+
+AActor* ANRLobbyGameMode::FindPlayerStart_Implementation(AController* Player, const FString& IncomingName)
+{
+	FString ComingName = IncomingName;
+	if (IncomingName.IsEmpty())
+	{
+		for (int i = 0; i < PlayerControllers.Num(); ++i)
+		{
+			if (PlayerControllers[i] == Player)
+			{
+				ComingName = FString::FromInt(i);
+			}
+		}
+	}
+	
+	return Super::FindPlayerStart_Implementation(Player, ComingName);
+}
+

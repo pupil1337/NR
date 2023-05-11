@@ -17,8 +17,10 @@ class LOBBYMODULE_API ANRLobbyGameMode : public AGameModeBase
 	GENERATED_BODY()
 	
 public:
-	virtual void PostLogin(APlayerController* NewPlayer) override;
+	virtual void OnPostLogin(AController* NewPlayer) override;
 	virtual void Logout(AController* Exiting) override;
+
+	virtual AActor* FindPlayerStart_Implementation(AController* Player, const FString& IncomingName) override;
 
 //~Begin This Class
 private:
