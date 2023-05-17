@@ -72,7 +72,12 @@ protected:
 	virtual void BindWidgetEvent() override;
 	virtual void UnBindExternalEvent() override;
 
-	//~Begin This Class
+public:
+	virtual void RemoveFromParent() override;
+
+//~Begin This Class
+	void RemoveFromParentImpl();
+	
 private:
 	UFUNCTION()
 	void OnButton_StartGameClicked();

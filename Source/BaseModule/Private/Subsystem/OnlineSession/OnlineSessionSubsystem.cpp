@@ -4,6 +4,7 @@
 #include "Subsystem/OnlineSession/OnlineSessionSubsystem.h"
 
 #include "OnlineSubsystem.h"
+#include "Online/OnlineSessionNames.h"
 
 void UOnlineSessionSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {

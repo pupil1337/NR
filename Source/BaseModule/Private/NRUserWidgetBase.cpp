@@ -12,7 +12,7 @@ void UNRUserWidgetBase::NativeOnInitialized()
 
 void UNRUserWidgetBase::NativeDestruct()
 {
-	Super::NativeDestruct();
-
 	UnBindExternalEvent();
+	
+	Super::NativeDestruct();
 }

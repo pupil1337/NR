@@ -17,16 +17,14 @@ void ANRLobbyPlayerController::BeginPlay()
 			if (!NRGameInstance->LobbyWidget)
 			{
 				NRGameInstance->LobbyWidget = CreateWidget<UNRLobbyUserWidget>(NRGameInstance, NRLobbyUserWidgetClass);
+				NRGameInstance->LobbyWidget->AddToViewport();
 			}
-			NRGameInstance->LobbyWidget->AddToViewport();
 		}
 
 		const FInputModeUIOnly InputModeUIOnly;
 		SetInputMode(InputModeUIOnly);
 		SetShowMouseCursor(true);
 	}
-
-	// TODO: PlayerState中的HandleWelcomeMessage()函数
 }
 
 void ANRLobbyPlayerController::AcknowledgePossession(APawn* P)

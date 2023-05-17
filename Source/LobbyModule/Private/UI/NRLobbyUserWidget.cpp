@@ -47,6 +47,18 @@ void UNRLobbyUserWidget::UnBindExternalEvent()
 	Super::UnBindExternalEvent();
 }
 
+void UNRLobbyUserWidget::RemoveFromParent()
+{
+	// 切换关卡不销毁此Widget
+
+	// 手动调用RemoveFromParentImpl
+}
+
+void UNRLobbyUserWidget::RemoveFromParentImpl()
+{
+	Super::RemoveFromParent();
+}
+
 void UNRLobbyUserWidget::OnButton_StartGameClicked()
 {
 	WidgetSwitcher_Panel->SetActiveWidgetIndex(1);
