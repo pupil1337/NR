@@ -21,7 +21,9 @@ struct NR_API FNRArmAnimInstanceProxy : public FAnimInstanceProxy
 		VelocityNormalized(FVector::ZeroVector),
 		VelocityPlayRate(1.0f),
 		JumpOffset_Location(FVector::ZeroVector),
-		JumpOffset_Rotation(FRotator::ZeroRotator)
+		JumpOffset_Rotation(FRotator::ZeroRotator),
+		LandOffset_Location(FVector::ZeroVector),
+		LandOffset_Rotation(FRotator::ZeroRotator)
 	{}
 	FNRArmAnimInstanceProxy(UAnimInstance* Instance): FAnimInstanceProxy(Instance),
 		bCrouching(false),
@@ -32,7 +34,9 @@ struct NR_API FNRArmAnimInstanceProxy : public FAnimInstanceProxy
 		VelocityNormalized(FVector::ZeroVector),
 		VelocityPlayRate(1.0f),
 		JumpOffset_Location(FVector::ZeroVector),
-		JumpOffset_Rotation(FRotator::ZeroRotator)
+		JumpOffset_Rotation(FRotator::ZeroRotator),
+		LandOffset_Location(FVector::ZeroVector),
+		LandOffset_Rotation(FRotator::ZeroRotator)
 	{}
 	
 protected:

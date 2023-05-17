@@ -12,7 +12,7 @@ struct FSaveGameData
 	GENERATED_BODY()
 
 	UPROPERTY(SaveGame)
-	FVector Location;
+	FVector Location = FVector::ZeroVector;
 };
 
 /**
