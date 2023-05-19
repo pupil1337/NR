@@ -12,6 +12,7 @@ class UButton;
 class UBorder;
 class UScrollBox;
 class UTextBlock;
+class UComboBoxString;
 class UNRLobbyServerListItem;
 class UOnlineSessionSubsystem;
 
@@ -63,6 +64,9 @@ class LOBBYMODULE_API UNRLobbyUserWidget : public UNRUserWidgetBase
 	
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UTextBlock> Text_FindSession;
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UComboBoxString> ComboBoxString_OnlineMode;
 	
 	// Settings
 	UPROPERTY(EditDefaultsOnly)
@@ -93,6 +97,9 @@ private:
 
 	UFUNCTION()
 	void OnButton_CloseServerListClicked();
+
+	UFUNCTION()
+	void OnComboBoxString_OnlineModeSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType);
 
 	void OnCreateAndStartSessionComplete(FName SessionName, bool bWasSuccessful);
 	void OnFindSessionsComplete(const TArray<FOnlineSessionSearchResult>& SearchResults, bool bWasSuccessful);

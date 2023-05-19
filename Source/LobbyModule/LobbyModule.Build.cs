@@ -17,6 +17,7 @@ public class LobbyModule : ModuleRules
         
         PublicDependencyModuleNames.AddRange(new string[]
         {
+            "SlateCore",
             "OnlineSubsystem"
         });
     }

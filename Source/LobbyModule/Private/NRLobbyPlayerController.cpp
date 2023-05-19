@@ -34,10 +34,17 @@ void ANRLobbyPlayerController::AcknowledgePossession(APawn* P)
 
 void ANRLobbyPlayerController::Destroyed()
 {
+	if (UNRGameInstance* NRGameInstance = GetGameInstance<UNRGameInstance>())
+	{
+		if (UNRLobbyUserWidget* NRLobbyUserWidget = Cast<UNRLobbyUserWidget>(NRGameInstance->LobbyWidget))
+		{
+			NRLobbyUserWidget->RemoveFromParentImpl();
+			NRGameInstance->LobbyWidget = nullptr;
+		}
+	}
 	Super::Destroyed();
 }
 
 void ANRLobbyPlayerController::Client_OnPlayerLogin_Implementation()
 {
-	int a = 1;
 }

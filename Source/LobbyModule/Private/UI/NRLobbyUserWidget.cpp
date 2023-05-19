@@ -10,6 +10,7 @@
 #include "Subsystem/OnlineSession/OnlineSessionSubsystem.h"
 #include "UI/NRLobbyServerListItem.h"
 #include "OnlineSessionSettings.h"
+#include "Components/ComboBoxString.h"
 #include "Components/TextBlock.h"
 #include "Components/WidgetSwitcher.h"
 
@@ -22,6 +23,7 @@ void UNRLobbyUserWidget::BindWidgetEvent()
 	Button_SearchPublic->OnClicked.AddUniqueDynamic(this, &ThisClass::OnButton_SearchSessionClicked);
 	Button_QuitGame->OnClicked.AddUniqueDynamic(this, &ThisClass::OnButton_QuitGameClicked);
 	Button_CloseServerList->OnClicked.AddUniqueDynamic(this, &ThisClass::OnButton_CloseServerListClicked);
+	ComboBoxString_OnlineMode->OnSelectionChanged.AddUniqueDynamic(this, &ThisClass::OnComboBoxString_OnlineModeSelectionChanged);
 
 	if (const UGameInstance* GameInstance = GetGameInstance())
 	{
@@ -66,10 +68,9 @@ void UNRLobbyUserWidget::OnButton_StartGameClicked()
 
 void UNRLobbyUserWidget::OnButton_NewGameClicked()
 {
-	// TODO
-	if (OnlineSessionSubsystem)
+	if (UWorld* World = GetWorld())
 	{
-		OnlineSessionSubsystem->CreateSession();
+		World->ServerTravel("/Game/Maps/TestMain?listen");
 	}
 }
 
@@ -96,14 +97,20 @@ void UNRLobbyUserWidget::OnButton_CloseServerListClicked()
 	Border_ServerList->SetVisibility(ESlateVisibility::Collapsed);
 }
 
+void UNRLobbyUserWidget::OnComboBoxString_OnlineModeSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
+{
+	if (SelectedItem.Equals(TEXT("在线公共")))
+	{
+		if (OnlineSessionSubsystem)
+		{
+			OnlineSessionSubsystem->CreateSession();
+		}
+	}
+}
+
 void UNRLobbyUserWidget::OnCreateAndStartSessionComplete(FName SessionName, bool bWasSuccessful)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Create And Start Session:: bWasSuccessful:%d SessionName:%s"), bWasSuccessful, *SessionName.ToString()));
-
-	if (UWorld* World = GetWorld())
-	{
-		World->ServerTravel("/Game/Lobby/Lobby?listen");
-	}
 }
 
 void UNRLobbyUserWidget::OnFindSessionsComplete(const TArray<FOnlineSessionSearchResult>& SearchResults, bool bWasSuccessful)
