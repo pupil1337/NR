@@ -7,6 +7,7 @@
 #include "Character/NRCharacter.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "Engine/AssetManager.h"
 #include "Net/UnrealNetwork.h"
 
 const FName NAME_Socket_Weapon(TEXT("SOCKET_Weapon"));
@@ -33,12 +34,12 @@ void UNRBagComponent::BeginPlay()
 	// TODO:换成从存档中读取武器数据,然后生成武器
 	if (NRCharacter && NRCharacter->HasAuthority())
 	{
-		if (WeaponClass)
+		if (DefaultWeaponClass)
 		{
 			FActorSpawnParameters Params;
 			Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 			Params.Owner = NRCharacter;
-			WeaponSlot[0] = GetWorld()->SpawnActor<ANRWeaponBase>(WeaponClass, Params);
+			WeaponSlot[0] = GetWorld()->SpawnActor<ANRWeaponBase>(DefaultWeaponClass, Params);
 			EquippedWeapon = WeaponSlot[0];
 			OnRep_EquippedWeapon(nullptr);
 		}

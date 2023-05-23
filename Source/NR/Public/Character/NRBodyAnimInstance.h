@@ -129,7 +129,7 @@ struct NR_API FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 
 	/** AnimSetting */
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
-	FNRAnimSettingRow AnimSetting;
+	FNRBodyAnimSetRow AnimSetting;
 
 	/** 1. 四个方向输入的值 */
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)

@@ -7,50 +7,47 @@
 #include "Curves/CurveVector.h"
 #include "NRAnimSetting.generated.h"
 
+/**
+ * 手臂 动画Sequence/跳跃动画曲线
+ */
 USTRUCT(BlueprintType)
-struct NR_API FNRArmAnimSequence
+struct NR_API FNRArmAnimSetRow : public FTableRowBase
 {
 	GENERATED_BODY()
 
+	/** 动画SequenceBase */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="静止")
-	TObjectPtr<UAnimSequenceBase> IdlePose;
+	TSoftObjectPtr<UAnimSequenceBase> IdlePose;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="呼吸-站立")
-	TObjectPtr<UAnimSequenceBase> BreathingStandPose;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="呼吸")
+	TSoftObjectPtr<UAnimSequenceBase> BreathingStandPose;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="奔跑")
-	TObjectPtr<UAnimSequenceBase> RunPose;
-};
+	TSoftObjectPtr<UAnimSequenceBase> RunPose;
 
-USTRUCT(BlueprintType)
-struct NR_API FNRBodyAnimSequence
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="静止")
-	TObjectPtr<UAnimSequenceBase> IdlePose;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="奔跑")
-	TObjectPtr<UAnimSequenceBase> RunPose;
-};
-
-USTRUCT(BlueprintType)
-struct NR_API FNRAnimSettingRow : public FTableRowBase
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="动画", DisplayName="手臂动画")
-	FNRArmAnimSequence ArmAnimSequence;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="动画", DisplayName="全身动画")
-	FNRBodyAnimSequence BodyAnimSequence;
-
+	/** 跳跃动画曲线 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="曲线", DisplayName="跳跃Offset Location ")
-	TObjectPtr<UCurveVector> JumpOffsetCurveLocation;
+	TSoftObjectPtr<UCurveVector> JumpOffsetCurveLocation;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="曲线", DisplayName="跳跃Offset Rotation ")
-	TObjectPtr<UCurveVector> JumpOffsetCurveRotation;
+	TSoftObjectPtr<UCurveVector> JumpOffsetCurveRotation;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="曲线", DisplayName="着陆Offset Location ")
-	TObjectPtr<UCurveVector> LandOffsetCurveLocation;
+	TSoftObjectPtr<UCurveVector> LandOffsetCurveLocation;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="曲线", DisplayName="着陆Offset Rotation ")
-	TObjectPtr<UCurveVector> LandOffsetCurveRotation;
+	TSoftObjectPtr<UCurveVector> LandOffsetCurveRotation;
+};
+
+/**
+ * 全身 动画Sequence
+ */
+USTRUCT(BlueprintType)
+struct NR_API FNRBodyAnimSetRow : public FTableRowBase
+{
+	GENERATED_BODY()
+	
+	/** 动画SequenceBase */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="全身-静止")
+	TSoftObjectPtr<UAnimSequenceBase> IdlePose;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="全身-奔跑")
+	TSoftObjectPtr<UAnimSequenceBase> RunPose;
 };

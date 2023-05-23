@@ -4,8 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstanceProxy.h"
+#include "Engine/StreamableManager.h"
 #include "Table/Weapon/NRAnimSetting.h"
 #include "NRArmAnimInstance.generated.h"
+
+class ANRWeaponBase;
 
 USTRUCT(BlueprintType)
 struct NR_API FNRArmAnimInstanceProxy : public FAnimInstanceProxy
@@ -62,8 +65,11 @@ protected:
 
 	/** 动画设置 */
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
-	FNRAnimSettingRow AnimSetting;
+	FNRArmAnimSetRow AnimSetting;
 
+	/** 动画缓存 */
+	TMap<const ANRWeaponBase*, TSharedPtr<FStreamableHandle>> StreamableHandleMap;
+	
 	/** 1. 是否蹲伏 */
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	uint8 bCrouching: 1;
@@ -117,7 +123,7 @@ class NR_API UNRArmAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
 	
-	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
+	UPROPERTY(Transient, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	FNRArmAnimInstanceProxy mProxy;
 
 protected:

@@ -29,10 +29,9 @@ class NR_API UNRBagComponent : public UNRComponentBase
 	TObjectPtr<UInputAction> IA_3;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="配置|输入")
 	TObjectPtr<UInputAction> IA_4;
-
-	// TODO:换成从存档中读取武器数据,然后生成武器
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="配置|临时")
-	TSubclassOf<ANRWeaponBase> WeaponClass;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="配置|空手")
+	TSubclassOf<ANRWeaponBase> DefaultWeaponClass;
 	
 public:
 	UNRBagComponent();
@@ -55,7 +54,7 @@ private:
 	void OnRep_EquippedWeapon(const ANRWeaponBase* OldEquippedWeapon) const;
 	
 	UPROPERTY(Transient, Replicated)
-	ANRWeaponBase* WeaponSlot[4];
+	ANRWeaponBase* WeaponSlot[5]; // 武器插槽 0为空手, 1~4为武器
 	UPROPERTY(Transient, ReplicatedUsing=OnRep_EquippedWeapon)
 	ANRWeaponBase* EquippedWeapon;
 };

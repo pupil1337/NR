@@ -3,6 +3,7 @@
 
 #include "Character/NRArmAnimInstance.h"
 
+#include "NRGameSingleton.h"
 #include "Actor/Weapon/NRWeaponBase.h"
 #include "Character/NRCharacter.h"
 #include "Character/NRCharacterMovementComponent.h"
@@ -41,7 +42,32 @@ void FNRArmAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float Del
 				{
 					if (const FNRWeaponInformationRow* WeaponInfo = Weapon->GetWeaponInformation())
 					{
-						AnimSetting = *WeaponInfo->GetAnimSetting();
+						AnimSetting = *WeaponInfo->GetArmAnimSet();
+
+						// TODO: 是否要换到武器里?
+						if (!StreamableHandleMap.Contains(Weapon))
+						{
+							// GC不使用武器的动画
+							for (auto it: StreamableHandleMap)
+							{
+								if (it.Value)
+								{
+									//it.Value.Get()->ReleaseHandle();
+									it.Value.Reset();
+								}
+							}
+							StreamableHandleMap.Empty(0);
+
+							// 加载当前使用的武器动画
+							if (UNRGameSingleton* NRGameSingleton = GEngine ? Cast<UNRGameSingleton>(GEngine->GameSingleton) : nullptr)
+							{
+								TArray<FSoftObjectPath> AssetsToLoad;
+								UNRGameSingleton::AddSoftObjectPathToArray(AnimSetting.IdlePose, AssetsToLoad);
+								
+								const TSharedPtr<FStreamableHandle> StreamableHandle = NRGameSingleton->StreamableManager.RequestAsyncLoad(AssetsToLoad);
+								StreamableHandleMap.Add(Weapon, StreamableHandle);
+							}
+						}
 					}
 				}
 			}
@@ -115,12 +141,12 @@ void FNRArmAnimInstanceProxy::Update(float DeltaSeconds)
 	if (bPlayJump)
 	{
 		JumpSeconds += DeltaSeconds;
-		ApplyJumpOffset(AnimSetting.JumpOffsetCurveLocation, AnimSetting.JumpOffsetCurveRotation, JumpSeconds);
+		//ApplyJumpOffset(AnimSetting.JumpOffsetCurveLocation, AnimSetting.JumpOffsetCurveRotation, JumpSeconds); TODO
 	}
 	if (bPlayLand)
 	{
 		LandSeconds += DeltaSeconds;
-		ApplyJumpOffset(AnimSetting.LandOffsetCurveLocation, AnimSetting.LandOffsetCurveRotation, LandSeconds);
+		//ApplyJumpOffset(AnimSetting.LandOffsetCurveLocation, AnimSetting.LandOffsetCurveRotation, LandSeconds); TODO
 	}
 }
 

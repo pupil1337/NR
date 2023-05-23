@@ -39,7 +39,7 @@ void FNRBodyAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float De
 			{
 				if (const FNRWeaponInformationRow* WeaponInfo = Weapon->GetWeaponInformation())
 				{
-					AnimSetting = *WeaponInfo->GetAnimSetting();
+					AnimSetting = *WeaponInfo->GetBodyAnimSet();
 				}
 			}
 		}
