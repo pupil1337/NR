@@ -8,6 +8,6 @@ void UNRGameSingleton::AddSoftObjectPathToArray(const TSoftObjectPtr<UObject>& S
 {
 	if (SoftObjectPtr.IsPending())
 	{
-		PathArray.Add(SoftObjectPtr.ToSoftObjectPath());
+		PathArray.AddUnique(SoftObjectPtr.ToSoftObjectPath());
 	}
 }

@@ -50,6 +50,7 @@ protected:
 	//~End   FAnimInstanceProxy
 
 //~Begin This Class
+	void LoadAsset(const ANRWeaponBase* WeaponEquipped);
 	float GetCurrMoveModeMaxSpeed() const;
 	// Temp
 	float MaxWalkSpeed = 0.0f;
@@ -68,7 +69,7 @@ protected:
 	FNRArmAnimSetRow AnimSetting;
 
 	/** 动画缓存 */
-	TMap<const ANRWeaponBase*, TSharedPtr<FStreamableHandle>> StreamableHandleMap;
+	TPair<const ANRWeaponBase*, TSharedPtr<FStreamableHandle>> StreamableHandlePair;
 	
 	/** 1. 是否蹲伏 */
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)

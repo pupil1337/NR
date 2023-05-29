@@ -3,6 +3,7 @@
 
 #include "Character/NRBodyAnimInstance.h"
 
+#include "NRGameSingleton.h"
 #include "Actor/Weapon/NRWeaponBase.h"
 #include "Character/NRCharacter.h"
 #include "Character/NRCharacterMovementComponent.h"
@@ -40,6 +41,7 @@ void FNRBodyAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float De
 				if (const FNRWeaponInformationRow* WeaponInfo = Weapon->GetWeaponInformation())
 				{
 					AnimSetting = *WeaponInfo->GetBodyAnimSet();
+					LoadAsset(Weapon);
 				}
 			}
 		}
@@ -90,6 +92,31 @@ void FNRBodyAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float De
 void FNRBodyAnimInstanceProxy::Update(float DeltaSeconds)
 {
 	FAnimInstanceProxy::Update(DeltaSeconds);
+}
+
+void FNRBodyAnimInstanceProxy::LoadAsset(const ANRWeaponBase* WeaponEquipped)
+{
+	// 如果当前装备的武器不是已经缓存的资源
+	if (StreamableHandlePair.Key != WeaponEquipped)
+	{
+		// 1.GC旧的武器相关资源
+		if (StreamableHandlePair.Value)
+		{
+			StreamableHandlePair.Value.Get()->ReleaseHandle();
+			StreamableHandlePair.Value.Reset();
+		}
+
+		// 2.加载当前使用的武器相关资源
+		if (UNRGameSingleton* NRGameSingleton = GEngine ? Cast<UNRGameSingleton>(GEngine->GameSingleton) : nullptr)
+		{
+			TArray<FSoftObjectPath> AssetsToLoad;
+			UNRGameSingleton::AddSoftObjectPathToArray(AnimSetting.IdlePose, AssetsToLoad);
+			UNRGameSingleton::AddSoftObjectPathToArray(AnimSetting.RunPose, AssetsToLoad);
+
+			StreamableHandlePair.Key = WeaponEquipped;
+			StreamableHandlePair.Value = NRGameSingleton->StreamableManager.RequestAsyncLoad(AssetsToLoad);
+		}
+	}
 }
 
 

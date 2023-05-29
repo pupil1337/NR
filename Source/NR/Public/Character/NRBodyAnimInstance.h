@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstanceProxy.h"
+#include "Engine/StreamableManager.h"
 #include "Table/Weapon/NRAnimSetting.h"
 #include "NRBodyAnimInstance.generated.h"
 
@@ -76,6 +77,8 @@ struct NR_API FNRAnimCurves
 	uint8 bFeetCrossing: 1;
 };
 
+class ANRWeaponBase;
+
 USTRUCT(BlueprintType)
 struct NR_API FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 {
@@ -116,6 +119,7 @@ struct NR_API FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 	//~End FAnimInstanceProxy
 
 //~ Begin This Class
+	void LoadAsset(const ANRWeaponBase* WeaponEquipped);
 	void CalculateMoveDirAndAlpha(const FVector& V, float MoveAngle, float DeltaSeconds);
 	void UpdateAimOffset(const FRotator& BaseAimRotation, bool bLocallyControlled, float DeltaSeconds);
 	float GetCurrMoveModeMaxSpeed() const;
@@ -131,6 +135,9 @@ struct NR_API FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	FNRBodyAnimSetRow AnimSetting;
 
+	/** 动画缓存 */
+	TPair<const ANRWeaponBase*, TSharedPtr<FStreamableHandle>> StreamableHandlePair;
+	
 	/** 1. 四个方向输入的值 */
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	FNRMoveDirAlpha MoveDirAlpha;

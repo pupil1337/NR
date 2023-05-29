@@ -43,31 +43,7 @@ void FNRArmAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float Del
 					if (const FNRWeaponInformationRow* WeaponInfo = Weapon->GetWeaponInformation())
 					{
 						AnimSetting = *WeaponInfo->GetArmAnimSet();
-
-						// TODO: 是否要换到武器里?
-						if (!StreamableHandleMap.Contains(Weapon))
-						{
-							// GC不使用武器的动画
-							for (auto it: StreamableHandleMap)
-							{
-								if (it.Value)
-								{
-									//it.Value.Get()->ReleaseHandle();
-									it.Value.Reset();
-								}
-							}
-							StreamableHandleMap.Empty(0);
-
-							// 加载当前使用的武器动画
-							if (UNRGameSingleton* NRGameSingleton = GEngine ? Cast<UNRGameSingleton>(GEngine->GameSingleton) : nullptr)
-							{
-								TArray<FSoftObjectPath> AssetsToLoad;
-								UNRGameSingleton::AddSoftObjectPathToArray(AnimSetting.IdlePose, AssetsToLoad);
-								
-								const TSharedPtr<FStreamableHandle> StreamableHandle = NRGameSingleton->StreamableManager.RequestAsyncLoad(AssetsToLoad);
-								StreamableHandleMap.Add(Weapon, StreamableHandle);
-							}
-						}
+						LoadAsset(Weapon);
 					}
 				}
 			}
@@ -141,12 +117,42 @@ void FNRArmAnimInstanceProxy::Update(float DeltaSeconds)
 	if (bPlayJump)
 	{
 		JumpSeconds += DeltaSeconds;
-		//ApplyJumpOffset(AnimSetting.JumpOffsetCurveLocation, AnimSetting.JumpOffsetCurveRotation, JumpSeconds); TODO
+		ApplyJumpOffset(AnimSetting.JumpOffsetCurveLocation.Get(), AnimSetting.JumpOffsetCurveRotation.Get(), JumpSeconds);
 	}
 	if (bPlayLand)
 	{
 		LandSeconds += DeltaSeconds;
-		//ApplyJumpOffset(AnimSetting.LandOffsetCurveLocation, AnimSetting.LandOffsetCurveRotation, LandSeconds); TODO
+		ApplyJumpOffset(AnimSetting.LandOffsetCurveLocation.Get(), AnimSetting.LandOffsetCurveRotation.Get(), LandSeconds);
+	}
+}
+
+void FNRArmAnimInstanceProxy::LoadAsset(const ANRWeaponBase* WeaponEquipped)
+{
+	// 如果当前装备的武器不是已经缓存的资源
+	if (StreamableHandlePair.Key != WeaponEquipped)
+	{
+		// 1.GC旧的武器相关资源
+		if (StreamableHandlePair.Value)
+		{
+			StreamableHandlePair.Value.Get()->ReleaseHandle();
+			StreamableHandlePair.Value.Reset();
+		}
+
+		// 2.加载当前使用的武器相关资源
+		if (UNRGameSingleton* NRGameSingleton = GEngine ? Cast<UNRGameSingleton>(GEngine->GameSingleton) : nullptr)
+		{
+			TArray<FSoftObjectPath> AssetsToLoad;
+			UNRGameSingleton::AddSoftObjectPathToArray(AnimSetting.IdlePose, AssetsToLoad);
+			UNRGameSingleton::AddSoftObjectPathToArray(AnimSetting.BreathingStandPose, AssetsToLoad);
+			UNRGameSingleton::AddSoftObjectPathToArray(AnimSetting.RunPose, AssetsToLoad);
+			UNRGameSingleton::AddSoftObjectPathToArray(AnimSetting.JumpOffsetCurveLocation, AssetsToLoad);
+			UNRGameSingleton::AddSoftObjectPathToArray(AnimSetting.JumpOffsetCurveRotation, AssetsToLoad);
+			UNRGameSingleton::AddSoftObjectPathToArray(AnimSetting.LandOffsetCurveLocation, AssetsToLoad);
+			UNRGameSingleton::AddSoftObjectPathToArray(AnimSetting.LandOffsetCurveRotation, AssetsToLoad);
+
+			StreamableHandlePair.Key = WeaponEquipped;
+			StreamableHandlePair.Value = NRGameSingleton->StreamableManager.RequestAsyncLoad(AssetsToLoad);
+		}
 	}
 }
 
