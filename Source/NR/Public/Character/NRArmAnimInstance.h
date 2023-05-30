@@ -124,7 +124,7 @@ class NR_API UNRArmAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
 	
-	UPROPERTY(Transient, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
+	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	FNRArmAnimInstanceProxy mProxy;
 
 protected:

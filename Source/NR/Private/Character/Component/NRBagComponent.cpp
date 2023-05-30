@@ -7,6 +7,7 @@
 #include "Character/NRCharacter.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "NRGameSingleton.h"
 #include "Engine/AssetManager.h"
 #include "Net/UnrealNetwork.h"
 
@@ -40,6 +41,7 @@ void UNRBagComponent::BeginPlay()
 			Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 			Params.Owner = NRCharacter;
 			WeaponSlot[0] = GetWorld()->SpawnActor<ANRWeaponBase>(DefaultWeaponClass, Params);
+			WeaponSlot[0]->SetWeaponInformation(Cast<UNRGameSingleton>(GEngine->GameSingleton)->WeaponInformationDataTable->FindRow<FNRWeaponInformationRow>(TEXT("Box"), "Box"));
 			EquippedWeapon = WeaponSlot[0];
 			OnRep_EquippedWeapon(nullptr);
 		}

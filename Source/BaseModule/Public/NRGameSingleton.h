@@ -7,10 +7,12 @@
 #include "Engine/StreamableManager.h"
 #include "NRGameSingleton.generated.h"
 
+class UDataTable;
+
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable)
 class BASEMODULE_API UNRGameSingleton : public UObject
 {
 	GENERATED_BODY()
@@ -19,4 +21,7 @@ public:
 	FStreamableManager StreamableManager;
 
 	static void AddSoftObjectPathToArray(const TSoftObjectPtr<UObject>& SoftObjectPtr, TArray<FSoftObjectPath>& PathArray);
+
+	UPROPERTY(EditDefaultsOnly)
+	UDataTable* WeaponInformationDataTable;
 };

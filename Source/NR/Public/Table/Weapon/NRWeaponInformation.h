@@ -7,6 +7,7 @@
 #include "NRAnimSetting.h"
 #include "NRWeaponInformation.generated.h"
 
+class ANRWeaponBase;
 
 USTRUCT(BlueprintType)
 struct NR_API FNRWeaponInformationRow : public FTableRowBase
@@ -15,6 +16,9 @@ struct NR_API FNRWeaponInformationRow : public FTableRowBase
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="武器名称")
 	FText WeaponName;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="武器类")
+	TSoftClassPtr<ANRWeaponBase> WeaponClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="RowHandle-手臂动画")
 	FDataTableRowHandle RowHandle_ArmAnimSet; // FNRArmAnimSetRow

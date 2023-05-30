@@ -16,9 +16,6 @@ class NR_API ANRWeaponBase : public AActor
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<USkeletalMeshComponent> Mesh;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
-	FDataTableRowHandle WeaponInformation;
 	
 public:
 	ANRWeaponBase();
@@ -27,5 +24,10 @@ public:
 
 // This Class Func
 	void SetFPS_SeparateFOV(bool bEnable, bool bSeparate = false) const;
+
+	void SetWeaponInformation(FNRWeaponInformationRow* InWeaponInfo);
 	FNRWeaponInformationRow* GetWeaponInformation() const;
+	
+private:
+	FNRWeaponInformationRow* WeaponInformation;
 };

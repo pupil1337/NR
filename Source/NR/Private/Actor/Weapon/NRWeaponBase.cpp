@@ -33,12 +33,13 @@ void ANRWeaponBase::SetFPS_SeparateFOV(bool bEnable, bool bSeparate /* =false */
 	// Mesh->SetCastShadow(!bSeparate); TODO:引擎有bug bSelfShadowOnly暂不可用
 }
 
+void ANRWeaponBase::SetWeaponInformation(FNRWeaponInformationRow* InWeaponInfo)
+{
+	WeaponInformation = InWeaponInfo;
+}
+
 FNRWeaponInformationRow* ANRWeaponBase::GetWeaponInformation() const
 {
-	if (!WeaponInformation.IsNull())
-	{
-		return WeaponInformation.GetRow<FNRWeaponInformationRow>(TEXT("ANRWeapon::GetWeaponInformation()"));	
-	}
-	return nullptr;
+	return WeaponInformation;
 }
 
