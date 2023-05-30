@@ -3,8 +3,7 @@
 
 #include "Actor/Weapon/NRWeaponBase.h"
 
-const FName NAME_Separate_FOV_Alpha(TEXT("Separate_FOV Alpha"));
-const FName NAME_Separate_Alpha(TEXT("Separate Alpha"));
+#include "NRTypes.h"
 
 ANRWeaponBase::ANRWeaponBase()
 {

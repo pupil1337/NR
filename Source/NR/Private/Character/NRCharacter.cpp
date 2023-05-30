@@ -8,6 +8,7 @@
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "NRTypes.h"
 #include "Character/NRCharacterMovementComponent.h"
 #include "Character/Component/NRComponentBase.h"
 #include "Components/BoxComponent.h"
@@ -15,8 +16,6 @@
 
 const FName NAME_Socket_Camera(TEXT("SOCKET_Camera"));
 const FName NAME_Bone_Spine_01(TEXT("spine_01"));
-const FName NAME_Separate_FOV_Alpha(TEXT("Separate_FOV Alpha"));
-const FName NAME_Separate_Alpha(TEXT("Separate Alpha"));
 
 ANRCharacter::ANRCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UNRCharacterMovementComponent>(CharacterMovementComponentName))
