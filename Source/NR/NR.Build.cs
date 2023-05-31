@@ -8,12 +8,13 @@ public class NR : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[]
+		PrivateDependencyModuleNames.AddRange(new string[]
 		{
 			"Core", "CoreUObject", "Engine",
 			
-			"EnhancedInput",
 			"UMG",
+			
+			"EnhancedInput",
 			
 			"BaseModule"
 		});

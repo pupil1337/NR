@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Table/Weapon/NRWeaponInformation.h"
+#include "Types/NRWeaponTypes.h"
 #include "NRWeaponBase.generated.h"
 
 class USkeletalMeshComponent;
@@ -25,9 +26,18 @@ public:
 // This Class Func
 	void SetFPS_SeparateFOV(bool bEnable, bool bSeparate = false) const;
 
-	void SetWeaponInformation(FNRWeaponInformationRow* InWeaponInfo);
-	FNRWeaponInformationRow* GetWeaponInformation() const;
+	void SetWeaponInformation(FNRWeaponInformationRow* InWeaponInfo) { WeaponInformation = InWeaponInfo; }
+	FNRWeaponInformationRow* GetWeaponInformation() const { return WeaponInformation; }
+
+	void SetWeaponState(ENRWeaponState InWeaponState);
+
+protected:
+	UFUNCTION()
+	void OnRep_WeaponState(ENRWeaponState OldWeaponState);
 	
 private:
 	FNRWeaponInformationRow* WeaponInformation;
+
+	UPROPERTY(ReplicatedUsing=OnRep_WeaponState)
+	ENRWeaponState WeaponState = ENRWeaponState::EWS_None;
 };

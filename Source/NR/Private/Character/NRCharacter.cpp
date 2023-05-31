@@ -8,11 +8,11 @@
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
-#include "NRTypes.h"
 #include "Character/NRCharacterMovementComponent.h"
 #include "Character/Component/NRComponentBase.h"
 #include "Components/BoxComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "Types/NRWeaponTypes.h"
 
 const FName NAME_Socket_Camera(TEXT("SOCKET_Camera"));
 const FName NAME_Bone_Spine_01(TEXT("spine_01"));

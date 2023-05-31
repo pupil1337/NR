@@ -3,7 +3,7 @@
 
 #include "Actor/Weapon/NRWeaponBase.h"
 
-#include "NRTypes.h"
+#include "Types/NRWeaponTypes.h"
 
 ANRWeaponBase::ANRWeaponBase()
 {
@@ -20,6 +20,8 @@ ANRWeaponBase::ANRWeaponBase()
 void ANRWeaponBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	
 }
 
 void ANRWeaponBase::SetFPS_SeparateFOV(bool bEnable, bool bSeparate /* =false */) const
@@ -32,13 +34,29 @@ void ANRWeaponBase::SetFPS_SeparateFOV(bool bEnable, bool bSeparate /* =false */
 	// Mesh->SetCastShadow(!bSeparate); TODO:引擎有bug bSelfShadowOnly暂不可用
 }
 
-void ANRWeaponBase::SetWeaponInformation(FNRWeaponInformationRow* InWeaponInfo)
+void ANRWeaponBase::SetWeaponState(ENRWeaponState InWeaponState)
 {
-	WeaponInformation = InWeaponInfo;
+	const ENRWeaponState OldWeaponState = WeaponState;
+	WeaponState = InWeaponState;
+	OnRep_WeaponState(OldWeaponState);
 }
 
-FNRWeaponInformationRow* ANRWeaponBase::GetWeaponInformation() const
+void ANRWeaponBase::OnRep_WeaponState(ENRWeaponState OldWeaponState)
 {
-	return WeaponInformation;
+	if (GetNetMode() != NM_DedicatedServer)
+	{
+		switch (WeaponState)
+		{
+			case ENRWeaponState::EWS_Pickup:
+			{
+					
+			}
+
+			default:
+			{
+					
+			}
+		}
+	}
 }
 

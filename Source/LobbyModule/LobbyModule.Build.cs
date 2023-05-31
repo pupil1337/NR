@@ -10,15 +10,12 @@ public class LobbyModule : ModuleRules
         {
             "Core", "CoreUObject", "Engine",
             
+            "SlateCore",
             "UMG",
             
+            "OnlineSubsystem",
+            
             "BaseModule"
-        });
-        
-        PublicDependencyModuleNames.AddRange(new string[]
-        {
-            "SlateCore",
-            "OnlineSubsystem"
         });
     }
 }

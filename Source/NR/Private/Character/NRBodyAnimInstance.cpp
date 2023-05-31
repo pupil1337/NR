@@ -107,7 +107,7 @@ void FNRBodyAnimInstanceProxy::LoadAsset(const ANRWeaponBase* WeaponEquipped)
 		}
 
 		// 2.加载当前使用的武器相关资源
-		if (UNRGameSingleton* NRGameSingleton = GEngine ? Cast<UNRGameSingleton>(GEngine->GameSingleton) : nullptr)
+		if (UNRGameSingleton* NRGameSingleton = UNRGameSingleton::Get())
 		{
 			TArray<FSoftObjectPath> AssetsToLoad;
 			UNRGameSingleton::AddSoftObjectPathToArray(AnimSetting.IdlePose, AssetsToLoad);
