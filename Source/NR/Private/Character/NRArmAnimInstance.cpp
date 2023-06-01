@@ -4,6 +4,7 @@
 #include "Character/NRArmAnimInstance.h"
 
 #include "NRGameSingleton.h"
+#include "NRStatics.h"
 #include "Actor/Weapon/NRWeaponBase.h"
 #include "Character/NRCharacter.h"
 #include "Character/NRCharacterMovementComponent.h"
@@ -142,13 +143,13 @@ void FNRArmAnimInstanceProxy::LoadAsset(const ANRWeaponBase* WeaponEquipped)
 		if (UNRGameSingleton* NRGameSingleton = UNRGameSingleton::Get())
 		{
 			TArray<FSoftObjectPath> AssetsToLoad;
-			UNRGameSingleton::AddSoftObjectPathToArray(AnimSetting.IdlePose, AssetsToLoad);
-			UNRGameSingleton::AddSoftObjectPathToArray(AnimSetting.BreathingStandPose, AssetsToLoad);
-			UNRGameSingleton::AddSoftObjectPathToArray(AnimSetting.RunPose, AssetsToLoad);
-			UNRGameSingleton::AddSoftObjectPathToArray(AnimSetting.JumpOffsetCurveLocation, AssetsToLoad);
-			UNRGameSingleton::AddSoftObjectPathToArray(AnimSetting.JumpOffsetCurveRotation, AssetsToLoad);
-			UNRGameSingleton::AddSoftObjectPathToArray(AnimSetting.LandOffsetCurveLocation, AssetsToLoad);
-			UNRGameSingleton::AddSoftObjectPathToArray(AnimSetting.LandOffsetCurveRotation, AssetsToLoad);
+			UNRStatics::AddSoftObjectPathToArray(AnimSetting.IdlePose, AssetsToLoad);
+			UNRStatics::AddSoftObjectPathToArray(AnimSetting.BreathingStandPose, AssetsToLoad);
+			UNRStatics::AddSoftObjectPathToArray(AnimSetting.RunPose, AssetsToLoad);
+			UNRStatics::AddSoftObjectPathToArray(AnimSetting.JumpOffsetCurveLocation, AssetsToLoad);
+			UNRStatics::AddSoftObjectPathToArray(AnimSetting.JumpOffsetCurveRotation, AssetsToLoad);
+			UNRStatics::AddSoftObjectPathToArray(AnimSetting.LandOffsetCurveLocation, AssetsToLoad);
+			UNRStatics::AddSoftObjectPathToArray(AnimSetting.LandOffsetCurveRotation, AssetsToLoad);
 
 			StreamableHandlePair.Key = WeaponEquipped;
 			StreamableHandlePair.Value = NRGameSingleton->StreamableManager.RequestAsyncLoad(AssetsToLoad);

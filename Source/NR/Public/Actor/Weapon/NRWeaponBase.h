@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Interface/NRInteractionInterface.h"
 #include "Table/Weapon/NRWeaponInformation.h"
 #include "Types/NRWeaponTypes.h"
 #include "NRWeaponBase.generated.h"
@@ -13,7 +14,7 @@ class USkeletalMeshComponent;
 class UNiagaraComponent;
 
 UCLASS(Abstract, NotBlueprintable)
-class NR_API ANRWeaponBase : public AActor
+class NR_API ANRWeaponBase : public AActor, public INRInteractionInterface
 {
 	GENERATED_BODY()
 

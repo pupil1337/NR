@@ -20,6 +20,15 @@ struct BASEMODULE_API FNRCommonVFX
 	TSoftObjectPtr<UNiagaraSystem> PickupVFX;
 };
 
+USTRUCT(BlueprintType)
+struct FNRCommonSetting
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, DisplayName="交互距离")
+	float InteractionDistance = 200.0f;
+};
+
 /**
  * 
  */
@@ -36,13 +45,14 @@ public:
 	
 	FStreamableManager StreamableManager;
 
-	static void AddSoftObjectPathToArray(const TSoftObjectPtr<UObject>& SoftObjectPtr, TArray<FSoftObjectPath>& PathArray);
-
 	UPROPERTY(EditDefaultsOnly)
 	UDataTable* WeaponInformationDataTable;
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UNRUserWidgetBase> UIWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly)
+	FNRCommonSetting CommonSetting;
 	
 	UPROPERTY(EditDefaultsOnly)
 	FNRCommonVFX CommonVFX;

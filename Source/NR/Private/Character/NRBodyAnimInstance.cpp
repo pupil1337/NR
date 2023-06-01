@@ -4,6 +4,7 @@
 #include "Character/NRBodyAnimInstance.h"
 
 #include "NRGameSingleton.h"
+#include "NRStatics.h"
 #include "Actor/Weapon/NRWeaponBase.h"
 #include "Character/NRCharacter.h"
 #include "Character/NRCharacterMovementComponent.h"
@@ -110,8 +111,8 @@ void FNRBodyAnimInstanceProxy::LoadAsset(const ANRWeaponBase* WeaponEquipped)
 		if (UNRGameSingleton* NRGameSingleton = UNRGameSingleton::Get())
 		{
 			TArray<FSoftObjectPath> AssetsToLoad;
-			UNRGameSingleton::AddSoftObjectPathToArray(AnimSetting.IdlePose, AssetsToLoad);
-			UNRGameSingleton::AddSoftObjectPathToArray(AnimSetting.RunPose, AssetsToLoad);
+			UNRStatics::AddSoftObjectPathToArray(AnimSetting.IdlePose, AssetsToLoad);
+			UNRStatics::AddSoftObjectPathToArray(AnimSetting.RunPose, AssetsToLoad);
 
 			StreamableHandlePair.Key = WeaponEquipped;
 			StreamableHandlePair.Value = NRGameSingleton->StreamableManager.RequestAsyncLoad(AssetsToLoad);
