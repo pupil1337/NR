@@ -16,7 +16,9 @@ public class NR : ModuleRules
 			
 			"EnhancedInput",
 			
-			"BaseModule"
+			"BaseModule",
+			
+			"Niagara"
 		});
 	}
 }

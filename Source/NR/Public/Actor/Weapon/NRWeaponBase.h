@@ -8,7 +8,9 @@
 #include "Types/NRWeaponTypes.h"
 #include "NRWeaponBase.generated.h"
 
+struct FStreamableHandle;
 class USkeletalMeshComponent;
+class UNiagaraComponent;
 
 UCLASS(Abstract, NotBlueprintable)
 class NR_API ANRWeaponBase : public AActor
@@ -20,6 +22,8 @@ class NR_API ANRWeaponBase : public AActor
 	
 public:
 	ANRWeaponBase();
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	virtual void BeginPlay() override;
 
@@ -40,4 +44,9 @@ private:
 
 	UPROPERTY(ReplicatedUsing=OnRep_WeaponState)
 	ENRWeaponState WeaponState = ENRWeaponState::EWS_None;
+
+	UPROPERTY(Transient)
+	UNiagaraComponent* PickupNiagaraComp;
+
+	TSharedPtr<FStreamableHandle> PickupVfxStreamableHandle;
 };

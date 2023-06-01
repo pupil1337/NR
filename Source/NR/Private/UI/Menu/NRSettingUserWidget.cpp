@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Setting/NRSettingUserWidget.h"
+#include "UI/Menu/NRSettingUserWidget.h"
 
 #include "Components/Button.h"
 #include "Subsystem/SaveGame/NRSaveGameSubsystem.h"

@@ -7,6 +7,7 @@
 #include "Engine/StreamableManager.h"
 #include "NRGameSingleton.generated.h"
 
+class UNRUserWidgetBase;
 class UDataTable;
 class UNiagaraSystem;
 
@@ -40,6 +41,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	UDataTable* WeaponInformationDataTable;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UNRUserWidgetBase> UIWidgetClass;
+	
 	UPROPERTY(EditDefaultsOnly)
 	FNRCommonVFX CommonVFX;
 };

@@ -16,13 +16,15 @@ void UNRItemFactory::SpawnWeapon(UObject* ContextObject, const FVector& Location
 		{
 			if (const UDataTable* WeaponInformation = NRGameSingleton->WeaponInformationDataTable)
 			{
-				if (const FNRWeaponInformationRow* WeaponInfo = WeaponInformation->FindRow<FNRWeaponInformationRow>(TEXT("AR_01"), "111"))
+				if (FNRWeaponInformationRow* WeaponInfo = WeaponInformation->FindRow<FNRWeaponInformationRow>(TEXT("AR_01"), "111"))
 				{
 					if (!WeaponInfo->WeaponClass.IsNull())
 					{
 						TSharedPtr<FStreamableHandle> StreamableHandle = NRGameSingleton->StreamableManager.RequestSyncLoad(WeaponInfo->WeaponClass.ToSoftObjectPath());
 
-						World->SpawnActor<ANRWeaponBase>(WeaponInfo->WeaponClass.Get(), Location, FRotator::ZeroRotator);
+						ANRWeaponBase* Weapon = World->SpawnActor<ANRWeaponBase>(WeaponInfo->WeaponClass.Get(), Location, FRotator::ZeroRotator);
+						Weapon->SetWeaponState(ENRWeaponState::EWS_Pickup);
+						Weapon->SetWeaponInformation(WeaponInfo);
 						
 						StreamableHandle->ReleaseHandle();
 						StreamableHandle.Reset();

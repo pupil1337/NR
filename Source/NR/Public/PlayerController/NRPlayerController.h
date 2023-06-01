@@ -6,6 +6,8 @@
 #include "GameFramework/PlayerController.h"
 #include "NRPlayerController.generated.h"
 
+class UNRUIUserWidget;
+
 UCLASS()
 class NR_API ANRPlayerController : public APlayerController
 {
@@ -13,4 +15,11 @@ class NR_API ANRPlayerController : public APlayerController
 
 protected:
 	virtual void BeginPlay() override;
+
+//~ Begin This Class
+private:
+	void CreateUIUserWidget();
+	
+	UPROPERTY(Transient)
+	UNRUIUserWidget* UIUserWidget;
 };

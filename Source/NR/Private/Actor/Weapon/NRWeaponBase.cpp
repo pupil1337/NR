@@ -3,6 +3,10 @@
 
 #include "Actor/Weapon/NRWeaponBase.h"
 
+#include "NiagaraComponent.h"
+#include "NiagaraSystem.h"
+#include "NRGameSingleton.h"
+#include "Net/UnrealNetwork.h"
 #include "Types/NRWeaponTypes.h"
 
 ANRWeaponBase::ANRWeaponBase()
@@ -17,11 +21,16 @@ ANRWeaponBase::ANRWeaponBase()
 	SetRootComponent(Mesh);
 }
 
+void ANRWeaponBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION_NOTIFY(ANRWeaponBase, WeaponState, COND_None, REPNOTIFY_Always);
+}
+
 void ANRWeaponBase::BeginPlay()
 {
 	Super::BeginPlay();
-
-	
 }
 
 void ANRWeaponBase::SetFPS_SeparateFOV(bool bEnable, bool bSeparate /* =false */) const
@@ -49,7 +58,21 @@ void ANRWeaponBase::OnRep_WeaponState(ENRWeaponState OldWeaponState)
 		{
 			case ENRWeaponState::EWS_Pickup:
 			{
-					
+				if (UNRGameSingleton* NRGameSingleton = UNRGameSingleton::Get())
+				{
+					if (!NRGameSingleton->CommonVFX.PickupVFX.IsNull())
+					{
+						PickupVfxStreamableHandle = NRGameSingleton->StreamableManager.RequestAsyncLoad(NRGameSingleton->CommonVFX.PickupVFX.ToSoftObjectPath(),
+							FStreamableDelegate::CreateLambda([this, NRGameSingleton]()
+							{
+								PickupNiagaraComp = NewObject<UNiagaraComponent>(this);
+								PickupNiagaraComp->RegisterComponent();
+								PickupNiagaraComp->SetAsset(NRGameSingleton->CommonVFX.PickupVFX.Get());
+								PickupNiagaraComp->AttachToComponent(Mesh, FAttachmentTransformRules::KeepRelativeTransform);	
+							})
+						);
+					}
+				}
 			}
 
 			default:
