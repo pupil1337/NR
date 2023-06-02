@@ -37,7 +37,7 @@ void FNRBodyAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float De
 		// AnimSetting
 		if (const UNRBagComponent* BagComponent = Cast<UNRBagComponent>(NRCharacter->GetComponentByClass(UNRBagComponent::StaticClass())))
 		{
-			if (const ANRWeaponBase* Weapon = BagComponent->GetEquippedWeapon())
+			if (ANRWeaponBase* Weapon = BagComponent->GetEquippedWeapon())
 			{
 				if (const FNRWeaponInformationRow* WeaponInfo = Weapon->GetWeaponInformation())
 				{

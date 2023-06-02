@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "Types/NRInteractionTypes.h"
 #include "NRInteractionInterface.generated.h"
+
+class ANRCharacter;
 
 UINTERFACE()
 class UNRInteractionInterface : public UInterface
@@ -18,4 +21,7 @@ class UNRInteractionInterface : public UInterface
 class NR_API INRInteractionInterface
 {
 	GENERATED_BODY()
+
+public:
+	virtual ENRInteractionType GetInteractionType() const = 0;
 };

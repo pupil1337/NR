@@ -16,7 +16,7 @@ void UNRItemFactory::SpawnWeapon(UObject* ContextObject, const FVector& Location
 		{
 			if (const UDataTable* WeaponInformation = NRGameSingleton->WeaponInformationDataTable)
 			{
-				if (FNRWeaponInformationRow* WeaponInfo = WeaponInformation->FindRow<FNRWeaponInformationRow>(TEXT("AR_01"), "111"))
+				if (const FNRWeaponInformationRow* WeaponInfo = WeaponInformation->FindRow<FNRWeaponInformationRow>(TEXT("AR_01"), "AR_01"))
 				{
 					if (!WeaponInfo->WeaponClass.IsNull())
 					{
@@ -24,7 +24,6 @@ void UNRItemFactory::SpawnWeapon(UObject* ContextObject, const FVector& Location
 
 						ANRWeaponBase* Weapon = World->SpawnActor<ANRWeaponBase>(WeaponInfo->WeaponClass.Get(), Location, FRotator::ZeroRotator);
 						Weapon->SetWeaponState(ENRWeaponState::EWS_Pickup);
-						Weapon->SetWeaponInformation(WeaponInfo);
 						
 						StreamableHandle->ReleaseHandle();
 						StreamableHandle.Reset();

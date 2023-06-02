@@ -20,6 +20,9 @@ class NR_API ANRWeaponBase : public AActor, public INRInteractionInterface
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<USkeletalMeshComponent> Mesh;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
+	FDataTableRowHandle WeaponInformationRowHandle;
 	
 public:
 	ANRWeaponBase();
@@ -28,13 +31,16 @@ public:
 	
 	virtual void BeginPlay() override;
 
+	// INRInteractionInterface
+	virtual ENRInteractionType GetInteractionType() const override { return ENRInteractionType::EIT_Weapon; }
+
 // This Class Func
 	void SetFPS_SeparateFOV(bool bEnable, bool bSeparate = false) const;
 
-	void SetWeaponInformation(FNRWeaponInformationRow* InWeaponInfo) { WeaponInformation = InWeaponInfo; }
-	FNRWeaponInformationRow* GetWeaponInformation() const { return WeaponInformation; }
+	FNRWeaponInformationRow* GetWeaponInformation();
 
 	void SetWeaponState(ENRWeaponState InWeaponState);
+	ENRWeaponState GetWeaponState() const { return WeaponState; }
 
 protected:
 	UFUNCTION()

@@ -1,3 +1,6 @@
 网络:
-NetEmulation.PktLag XX
-p.NetShowCorrections XX
+NetEmulation.PktLag XX	(设置网络延迟)
+p.NetShowCorrections XX	(展示服务器矫正移动)
+
+输入:
+ShowDebug EnhancedInput	(增强输入Debug)

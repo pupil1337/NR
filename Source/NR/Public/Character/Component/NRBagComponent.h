@@ -43,17 +43,22 @@ protected:
 
 //~Begin This Class
 public:
+	/** Server Only */
+	void GetItemInWorld(AActor* Actor);
+
+	// Weapon ================================================================================
+	bool GetCanUseWeaponSlot(uint8& Slot) const;
+	
 	UFUNCTION()
 	void TryEquipWeaponInSlot(uint8 Slot);
-
-	// Getter
+	
 	FORCEINLINE ANRWeaponBase* GetEquippedWeapon() const { return EquippedWeapon; }
 
 private:
 	UFUNCTION()
 	void OnRep_EquippedWeapon(const ANRWeaponBase* OldEquippedWeapon) const;
 	
-	UPROPERTY(Transient, Replicated)
+	UPROPERTY(Transient)
 	ANRWeaponBase* WeaponSlot[5]; // 武器插槽 0为空手, 1~4为武器
 	UPROPERTY(Transient, ReplicatedUsing=OnRep_EquippedWeapon)
 	ANRWeaponBase* EquippedWeapon;

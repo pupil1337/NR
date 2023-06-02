@@ -43,6 +43,19 @@ void ANRWeaponBase::SetFPS_SeparateFOV(bool bEnable, bool bSeparate /* =false */
 	// Mesh->SetCastShadow(!bSeparate); TODO:引擎有bug bSelfShadowOnly暂不可用
 }
 
+FNRWeaponInformationRow* ANRWeaponBase::GetWeaponInformation()
+{
+	if (!WeaponInformation)
+	{
+		if (!WeaponInformationRowHandle.IsNull())
+		{
+			WeaponInformation = WeaponInformationRowHandle.GetRow<FNRWeaponInformationRow>(TEXT("ANRWeapon::GetWeaponInformation()"));	
+		}
+	}
+
+	return WeaponInformation;
+}
+
 void ANRWeaponBase::SetWeaponState(ENRWeaponState InWeaponState)
 {
 	const ENRWeaponState OldWeaponState = WeaponState;
@@ -77,7 +90,16 @@ void ANRWeaponBase::OnRep_WeaponState(ENRWeaponState OldWeaponState)
 
 			default:
 			{
-					
+				if (PickupVfxStreamableHandle)
+				{
+					PickupVfxStreamableHandle->ReleaseHandle();
+					PickupVfxStreamableHandle->ReleaseHandle();
+				}
+				if (PickupNiagaraComp)
+				{
+					PickupNiagaraComp->DestroyComponent();
+					PickupNiagaraComp = nullptr;
+				}
 			}
 		}
 	}

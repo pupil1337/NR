@@ -7,8 +7,6 @@
 #include "Character/NRCharacter.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
-#include "NRGameSingleton.h"
-#include "Engine/AssetManager.h"
 #include "Net/UnrealNetwork.h"
 
 const FName NAME_Socket_Weapon(TEXT("SOCKET_Weapon"));
@@ -25,7 +23,6 @@ void UNRBagComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(UNRBagComponent, EquippedWeapon, COND_None)
-	DOREPLIFETIME_CONDITION(UNRBagComponent, WeaponSlot, COND_None)
 }
 
 void UNRBagComponent::BeginPlay()
@@ -41,7 +38,6 @@ void UNRBagComponent::BeginPlay()
 			Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 			Params.Owner = NRCharacter;
 			WeaponSlot[0] = GetWorld()->SpawnActor<ANRWeaponBase>(DefaultWeaponClass, Params);
-			WeaponSlot[0]->SetWeaponInformation(Cast<UNRGameSingleton>(GEngine->GameSingleton)->WeaponInformationDataTable->FindRow<FNRWeaponInformationRow>(TEXT("Box"), "Box"));
 			EquippedWeapon = WeaponSlot[0];
 			OnRep_EquippedWeapon(nullptr);
 		}
@@ -89,6 +85,39 @@ void UNRBagComponent::InitLocallyControlledInputEvent(UInputComponent* PlayerInp
 	}
 }
 
+void UNRBagComponent::GetItemInWorld(AActor* Actor)
+{
+	if (NRCharacter)
+	{
+		if (ANRWeaponBase* Weapon = Cast<ANRWeaponBase>(Actor))
+		{
+			if (Weapon->GetWeaponState() == ENRWeaponState::EWS_Pickup)
+			{
+				Weapon->SetWeaponState(ENRWeaponState::EWS_Equip);
+			}
+			// TODO
+			// uint8 Slot;
+			// if (GetCanUseWeaponSlot(Slot))
+			// {
+			// 	
+			// }
+		}	
+	}
+}
+
+bool UNRBagComponent::GetCanUseWeaponSlot(uint8& Slot) const
+{
+	for (int i = 1; i <= 4; ++i)
+	{
+		if (!WeaponSlot[i])
+		{
+			Slot = i;
+			return true;
+		}
+	}
+	return false;
+}
+
 void UNRBagComponent::TryEquipWeaponInSlot(uint8 Slot)
 {
 	if (Slot < 1 || Slot > 4)
@@ -108,13 +137,16 @@ void UNRBagComponent::OnRep_EquippedWeapon(const ANRWeaponBase* OldEquippedWeapo
 		}
 
 		// NewEquip
-		if (NRCharacter->IsLocallyControlled())
+		if (EquippedWeapon)
 		{
-			EquippedWeapon->AttachToComponent(NRCharacter->GetMeshArm(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, NAME_Socket_Weapon);
-		}
-		else
-		{
-			EquippedWeapon->AttachToComponent(NRCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, NAME_Socket_VB_SOCKET_hand_r_ik_hand_gun);
+			if (NRCharacter->IsLocallyControlled())
+			{
+				EquippedWeapon->AttachToComponent(NRCharacter->GetMeshArm(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, NAME_Socket_Weapon);
+			}
+			else
+			{
+				EquippedWeapon->AttachToComponent(NRCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, NAME_Socket_VB_SOCKET_hand_r_ik_hand_gun);
+			}
 		}
 	}
 }

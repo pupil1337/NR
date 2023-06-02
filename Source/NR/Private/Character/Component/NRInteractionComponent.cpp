@@ -3,9 +3,13 @@
 
 #include "Character/Component/NRInteractionComponent.h"
 
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 #include "NRGameSingleton.h"
 #include "NRStatics.h"
+#include "Actor/Weapon/NRWeaponBase.h"
 #include "Character/NRCharacter.h"
+#include "Character/Component/NRBagComponent.h"
 #include "Interface/NRInteractionInterface.h"
 
 
@@ -20,23 +24,107 @@ void UNRInteractionComponent::BeginPlay()
 	Super::BeginPlay();
 }
 
-void UNRInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UNRInteractionComponent::InitLocallyControlledInputEvent(UInputComponent* PlayerInputComponent)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	Super::InitLocallyControlledInputEvent(PlayerInputComponent);
 
 	if (NRCharacter)
 	{
 		if (const APlayerController* PlayerController = NRCharacter->GetController<APlayerController>())
 		{
-			FHitResult HitResult;
-			if (UNRStatics::CrosshairTrace(PlayerController, UNRGameSingleton::Get()->CommonSetting.InteractionDistance, HitResult))
+			if (const ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer())
 			{
-				if (INRInteractionInterface* HitActor = Cast<INRInteractionInterface>(HitResult.GetActor()))
+				if (UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
 				{
-					UE_LOG(LogTemp, Log, TEXT("Can Interact Actor: %s"), *HitActor->GetName());
+					if (IMC_Interaction)
+					{
+						EnhancedInputLocalPlayerSubsystem->AddMappingContext(IMC_Interaction, 0);
+						if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+						{
+							if (IA_E)
+							{
+								EnhancedInputComponent->BindAction(IA_E, ETriggerEvent::Started, this, &ThisClass::StartInteractInput);
+							}
+						}
+					}
 				}
 			}
 		}
 	}
 }
 
+void UNRInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (NRCharacter && NRCharacter->IsLocallyControlled() )
+	{
+		if (const APlayerController* PlayerController = NRCharacter->GetController<APlayerController>())
+		{
+			FHitResult HitResult;
+			if (UNRStatics::CrosshairTrace(PlayerController, UNRGameSingleton::Get()->CommonSetting.InteractionDistance, HitResult))
+			{
+				if (AActor* HitActor = HitResult.GetActor())
+				{
+					if (const INRInteractionInterface* Interaction = Cast<INRInteractionInterface>(HitActor))
+					{
+						switch (Interaction->GetInteractionType())
+						{
+							case ENRInteractionType::EIT_Weapon:
+								LookWeapon(HitActor);
+								break;
+							default:
+								UE_LOG(LogTemp, Log, TEXT("Unknow Interact Actor Type, Actor: %s"), *HitActor->GetName());
+								break;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+void UNRInteractionComponent::LookWeapon(AActor* HitActor)
+{
+	const AActor* OldActor = LookingActor;
+	if (OldActor && OldActor != HitActor)
+	{
+		// TODO
+	}
+
+	LookingActor = HitActor;
+	// TODO
+}
+
+void UNRInteractionComponent::StartInteractInput()
+{
+	if (LookingActor)
+	{
+		Server_Interact(LookingActor);
+	}
+}
+
+void UNRInteractionComponent::Server_Interact_Implementation(AActor* Actor)
+{
+	if (const INRInteractionInterface* Interaction = Cast<INRInteractionInterface>(Actor))
+	{
+		switch (Interaction->GetInteractionType())
+		{
+		case ENRInteractionType::EIT_Weapon:
+			if (ANRWeaponBase* Weapon = Cast<ANRWeaponBase>(Actor))
+			{
+				if (NRCharacter)
+				{
+					if (UNRBagComponent* BagComponent = Cast<UNRBagComponent>(NRCharacter->GetComponentByClass(UNRBagComponent::StaticClass())))
+					{
+						BagComponent->GetItemInWorld(Weapon);
+					}	
+				}
+			}
+			break;
+		default:
+			UE_LOG(LogTemp, Log, TEXT("Unknow Interact Actor Type, Actor: %s"), *Actor->GetName());
+			break;
+		}
+	}
+}
