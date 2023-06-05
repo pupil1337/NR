@@ -59,10 +59,15 @@ void ANRCharacter::OnConstruction(const FTransform& Transform)
 void ANRCharacter::PreInitializeComponents()
 {
 	// Components
-	for (TSubclassOf<UNRComponentBase> tClass: NRComponentClasses)
+	if (GetLocalRole() == ROLE_Authority)
 	{
-		UNRComponentBase* tComp = NewObject<UNRComponentBase>(this, tClass);
-		tComp->RegisterComponent();
+		for (TSubclassOf<UNRComponentBase> tClass: NRComponentClasses)
+		{
+			UNRComponentBase* tComp = NewObject<UNRComponentBase>(this, tClass);
+			tComp->RegisterComponent();
+			// TODO 目前所有组件都是同步的, 非常没必要. (要分: 同步组件、仅服务器组件、仅本地控制组件、仅所有客户端组件)
+			tComp->SetIsReplicated(true);
+		}	
 	}
 	
 	Super::PreInitializeComponents();
