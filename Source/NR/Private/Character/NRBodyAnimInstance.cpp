@@ -14,6 +14,15 @@
 
 const FName NAME_Curve_Feet_Crossing(TEXT("Feet_Crossing"));
 
+FNRBodyAnimInstanceProxy::~FNRBodyAnimInstanceProxy()
+{
+	if (StreamableHandlePair.Value)
+	{
+		StreamableHandlePair.Value.Get()->ReleaseHandle();
+		StreamableHandlePair.Value.Reset();
+	}
+}
+
 void FNRBodyAnimInstanceProxy::Initialize(UAnimInstance* InAnimInstance)
 {
 	FAnimInstanceProxy::Initialize(InAnimInstance);

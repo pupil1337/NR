@@ -41,6 +41,8 @@ struct NR_API FNRArmAnimInstanceProxy : public FAnimInstanceProxy
 		LandOffset_Location(FVector::ZeroVector),
 		LandOffset_Rotation(FRotator::ZeroRotator)
 	{}
+
+	virtual ~FNRArmAnimInstanceProxy() override;
 	
 protected:
 	//~Begin FAnimInstanceProxy

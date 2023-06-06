@@ -12,6 +12,10 @@ void UNRStatics::AddSoftObjectPathToArray(const TSoftObjectPtr<>& SoftObjectPtr,
 	{
 		PathArray.AddUnique(SoftObjectPtr.ToSoftObjectPath());
 	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Assets: %s加载失败. [1]a live UObject:%d, [2]a Object:%d"), *SoftObjectPtr.GetAssetName(), SoftObjectPtr.IsValid(), SoftObjectPtr.IsNull())
+	}
 }
 
 bool UNRStatics::CrosshairTrace(const APlayerController* PlayerController, float TraceDistance, FHitResult& HitResult)

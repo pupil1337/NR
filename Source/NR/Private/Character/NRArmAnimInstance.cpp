@@ -14,6 +14,15 @@
 const FName NAME_Track_Location(TEXT("Location"));
 const FName NAME_Track_Rotation(TEXT("Rotation"));
 
+FNRArmAnimInstanceProxy::~FNRArmAnimInstanceProxy()
+{
+	if (StreamableHandlePair.Value)
+	{
+		StreamableHandlePair.Value.Get()->ReleaseHandle();
+		StreamableHandlePair.Value.Reset();
+	}
+}
+
 void FNRArmAnimInstanceProxy::Initialize(UAnimInstance* InAnimInstance)
 {
 	FAnimInstanceProxy::Initialize(InAnimInstance);

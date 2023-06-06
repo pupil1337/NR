@@ -112,6 +112,8 @@ struct NR_API FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 		AO_Pitch_Negate(0.0f)
 	{}
 
+	virtual ~FNRBodyAnimInstanceProxy() override;
+
 	//~Begin FAnimInstanceProxy
 	virtual void Initialize(UAnimInstance* InAnimInstance) override;
 	virtual void PreUpdate(UAnimInstance* InAnimInstance, float DeltaSeconds) override;
