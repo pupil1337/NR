@@ -35,7 +35,7 @@ public:
 	virtual ENRInteractionType GetInteractionType() const override { return ENRInteractionType::EIT_Weapon; }
 
 // This Class Func
-	void SetFPS_SeparateFOV(bool bEnable, bool bSeparate = false) const;
+	USkeletalMeshComponent* GetMesh() const { return Mesh; }
 
 	FNRWeaponInformationRow* GetWeaponInformation();
 

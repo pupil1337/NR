@@ -7,6 +7,7 @@
 #include "NiagaraSystem.h"
 #include "NRGameSingleton.h"
 #include "Net/UnrealNetwork.h"
+#include "Types/NRCollisionTypes.h"
 #include "Types/NRWeaponTypes.h"
 
 ANRWeaponBase::ANRWeaponBase()
@@ -25,22 +26,12 @@ void ANRWeaponBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION_NOTIFY(ANRWeaponBase, WeaponState, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION(ANRWeaponBase, WeaponState, COND_None);
 }
 
 void ANRWeaponBase::BeginPlay()
 {
 	Super::BeginPlay();
-}
-
-void ANRWeaponBase::SetFPS_SeparateFOV(bool bEnable, bool bSeparate /* =false */) const
-{
-	const float SeparateFOVAlpha = bEnable ? 1.0f : 0.0f;
-	const float SeparateAlpha = bSeparate ? 0.1f : 1.0f;
-
-	Mesh->SetScalarParameterValueOnMaterials(NAME_Separate_FOV_Alpha, SeparateFOVAlpha);
-	Mesh->SetScalarParameterValueOnMaterials(NAME_Separate_Alpha, SeparateAlpha);
-	// Mesh->SetCastShadow(!bSeparate); TODO:引擎有bug bSelfShadowOnly暂不可用
 }
 
 FNRWeaponInformationRow* ANRWeaponBase::GetWeaponInformation()
@@ -65,43 +56,61 @@ void ANRWeaponBase::SetWeaponState(ENRWeaponState InWeaponState)
 
 void ANRWeaponBase::OnRep_WeaponState(ENRWeaponState OldWeaponState)
 {
-	if (GetNetMode() != NM_DedicatedServer)
+	switch (WeaponState)
 	{
-		switch (WeaponState)
-		{
-			case ENRWeaponState::EWS_Pickup:
-			{
-				if (UNRGameSingleton* NRGameSingleton = UNRGameSingleton::Get())
-				{
-					if (!NRGameSingleton->CommonVFX.PickupVFX.IsNull())
-					{
-						PickupVfxStreamableHandle = NRGameSingleton->StreamableManager.RequestAsyncLoad(NRGameSingleton->CommonVFX.PickupVFX.ToSoftObjectPath(),
-							FStreamableDelegate::CreateLambda([this, NRGameSingleton]()
-							{
-								PickupNiagaraComp = NewObject<UNiagaraComponent>(this);
-								PickupNiagaraComp->RegisterComponent();
-								PickupNiagaraComp->SetAsset(NRGameSingleton->CommonVFX.PickupVFX.Get());
-								PickupNiagaraComp->AttachToComponent(Mesh, FAttachmentTransformRules::KeepRelativeTransform);	
-							})
-						);
-					}
-				}
-			}
+		case ENRWeaponState::EWS_None: break;
 
-			default:
-			{
-				if (PickupVfxStreamableHandle)
+		case ENRWeaponState::EWS_Pickup:
+		{
+				// 打开碰撞
+				Mesh->SetCollisionProfileName(NRCollisionProfile::Pickup_ProfileName);
+				Mesh->SetSimulatePhysics(true);
+				
+				if (GetNetMode() != NM_DedicatedServer)
 				{
-					PickupVfxStreamableHandle->ReleaseHandle();
-					PickupVfxStreamableHandle->ReleaseHandle();
+					// 打开拾取提示特效
+					if (UNRGameSingleton* NRGameSingleton = UNRGameSingleton::Get())
+					{
+						if (!NRGameSingleton->CommonVFX.PickupVFX.IsNull())
+						{
+							PickupVfxStreamableHandle = NRGameSingleton->StreamableManager.RequestAsyncLoad(NRGameSingleton->CommonVFX.PickupVFX.ToSoftObjectPath(),
+								FStreamableDelegate::CreateLambda([this, NRGameSingleton]()
+								{
+									PickupNiagaraComp = NewObject<UNiagaraComponent>(this);
+									PickupNiagaraComp->RegisterComponent();
+									PickupNiagaraComp->SetAsset(NRGameSingleton->CommonVFX.PickupVFX.Get());
+									PickupNiagaraComp->AttachToComponent(Mesh, FAttachmentTransformRules::KeepRelativeTransform);	
+								})
+							);
+						}
+					}	
 				}
-				if (PickupNiagaraComp)
-				{
-					PickupNiagaraComp->DestroyComponent();
-					PickupNiagaraComp = nullptr;
-				}
-			}
+				break;
 		}
+
+		case ENRWeaponState::EWS_Equip:
+		{
+				// 关闭碰撞
+				Mesh->SetSimulatePhysics(false);
+				Mesh->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
+				
+				if (GetNetMode() != NM_DedicatedServer)
+				{
+					// 关闭拾取提示特效
+					if (PickupVfxStreamableHandle)
+					{
+						PickupVfxStreamableHandle->ReleaseHandle();
+						PickupVfxStreamableHandle->ReleaseHandle();
+					}
+					if (PickupNiagaraComp)
+					{
+						PickupNiagaraComp->DestroyComponent();
+						PickupNiagaraComp = nullptr;
+					}	
+				}
+				break;
+		}
+	default: ;
 	}
 }
 

@@ -8,7 +8,10 @@
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "NRStatics.h"
+#include "Actor/Weapon/NRWeaponBase.h"
 #include "Character/NRCharacterMovementComponent.h"
+#include "Character/Component/NRBagComponent.h"
 #include "Character/Component/NRComponentBase.h"
 #include "Components/BoxComponent.h"
 #include "Net/UnrealNetwork.h"
@@ -85,14 +88,14 @@ void ANRCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (GetLocalRole() == ROLE_SimulatedProxy)
-	{
-		Spring->DestroyComponent();
-		MeshArm->DestroyComponent();
-		MeshLeg->DestroyComponent();
-		Camera->DestroyComponent();
-		SeparateFOVCheckBox->DestroyComponent();
-	}
+	// if (GetLocalRole() == ROLE_SimulatedProxy)
+	// {
+	// 	Spring->DestroyComponent();
+	// 	MeshArm->DestroyComponent();
+	// 	MeshLeg->DestroyComponent();
+	// 	Camera->DestroyComponent();
+	// 	SeparateFOVCheckBox->DestroyComponent();
+	// }
 }
 
 void ANRCharacter::PawnClientRestart()
@@ -161,7 +164,7 @@ void ANRCharacter::Tick(float DeltaSeconds)
 	if (IsLocallyControlled())
 	{
 		UpdateSpringLocation(DeltaSeconds);
-		UpdateWhetherSeparateFOV();
+		UpdateWhetherFixSeparate();
 	}
 }
 
@@ -199,15 +202,15 @@ void ANRCharacter::UpdateSpringLocation(float DeltaSeconds) const
 	Spring->SetRelativeLocation(FMath::VInterpTo(Spring->GetRelativeLocation(), FVector(0.0f, 0.0f, BaseEyeHeight) + SpringOffsetFPS, DeltaSeconds, 10));
 }
 
-void ANRCharacter::UpdateWhetherSeparateFOV() const
+void ANRCharacter::UpdateWhetherFixSeparate() const
 {
-	bool bNeedFixed = false;
+	bool bNeedFixSeparate = false;
 	if (UNRCharacterMovementComponent* NRCharacterMovementComponent = GetCharacterMovement<UNRCharacterMovementComponent>())
 	{
-		bNeedFixed = NRCharacterMovementComponent->IsCrouching();
+		bNeedFixSeparate = NRCharacterMovementComponent->IsCrouching();
 	}
 
-	if (!bNeedFixed)
+	if (!bNeedFixSeparate)
 	{
 		FCollisionQueryParams QueryParams;
 		QueryParams.AddIgnoredActor(this);
@@ -221,23 +224,18 @@ void ANRCharacter::UpdateWhetherSeparateFOV() const
 			QueryParams
 			))
 		{
-			bNeedFixed = true;
-			//if (EquippedWeapon) EquippedWeapon->SetFPS_SeparateFOV(true, true); TODO
-			SetFPS_SeparateFOV(true, true);
+			bNeedFixSeparate = true;
 		}
 	}
 
-	//if (EquippedWeapon) EquippedWeapon->SetFPS_SeparateFOV(true, bNeedFixed);TODO
-	SetFPS_SeparateFOV(true, bNeedFixed);
-}
-
-void ANRCharacter::SetFPS_SeparateFOV(bool bEnable, bool bSeparate /** =false */) const
-{
-	const float SeparateFOVAlpha = bEnable ? 1.0f : 0.0f;
-	const float SeparateAlpha = bSeparate ? 0.1f : 1.0f;
-	MeshArm->SetScalarParameterValueOnMaterials(NAME_Separate_FOV_Alpha, SeparateFOVAlpha);
-	MeshArm->SetScalarParameterValueOnMaterials(NAME_Separate_Alpha, SeparateAlpha);
-	// MeshArm->SetCastShadow(!bSeparate); TODO:引擎有bug bSelfShadowOnly暂不可用
+	UNRStatics::SetFPS_SeparateFOV(MeshArm, true, bNeedFixSeparate);
+	if (UNRBagComponent* BagComponent = Cast<UNRBagComponent>(GetComponentByClass(UNRBagComponent::StaticClass())))
+	{
+		if (ANRWeaponBase* EquippedWeapon = BagComponent->GetEquippedWeapon())
+		{
+			UNRStatics::SetFPS_SeparateFOV(EquippedWeapon->GetMesh(), true, bNeedFixSeparate);
+		}
+	}
 }
 
 // Inputs ===================================================================================

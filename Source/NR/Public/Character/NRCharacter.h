@@ -103,8 +103,7 @@ private:
 	// LocallyControlled
 	void SetMeshesVisibility() const;
 	void UpdateSpringLocation(float DeltaSeconds) const;
-	void UpdateWhetherSeparateFOV() const;
-	void SetFPS_SeparateFOV(bool bEnable, bool bSeparate = false) const;
+	void UpdateWhetherFixSeparate() const;
 	
 	// Inputs
 	void OnMoveInput(const FInputActionValue& Value);

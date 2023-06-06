@@ -22,6 +22,8 @@ void UNRItemFactory::SpawnWeapon(UObject* ContextObject, const FVector& Location
 					{
 						TSharedPtr<FStreamableHandle> StreamableHandle = NRGameSingleton->StreamableManager.RequestSyncLoad(WeaponInfo->WeaponClass.ToSoftObjectPath());
 
+						FActorSpawnParameters Params;
+						Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 						ANRWeaponBase* Weapon = World->SpawnActor<ANRWeaponBase>(WeaponInfo->WeaponClass.Get(), Location, FRotator::ZeroRotator);
 						Weapon->SetWeaponState(ENRWeaponState::EWS_Pickup);
 						

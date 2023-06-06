@@ -4,6 +4,7 @@
 #include "NRStatics.h"
 
 #include "Kismet/GameplayStatics.h"
+#include "Types/NRWeaponTypes.h"
 
 
 void UNRStatics::AddSoftObjectPathToArray(const TSoftObjectPtr<>& SoftObjectPtr, TArray<FSoftObjectPath>& PathArray)
@@ -15,6 +16,18 @@ void UNRStatics::AddSoftObjectPathToArray(const TSoftObjectPtr<>& SoftObjectPtr,
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Assets: %s加载失败. [1]a live UObject:%d, [2]a Object:%d"), *SoftObjectPtr.GetAssetName(), SoftObjectPtr.IsValid(), SoftObjectPtr.IsNull())
+	}
+}
+
+void UNRStatics::SetFPS_SeparateFOV(USkeletalMeshComponent* Mesh, bool bEnable, bool bSeparate)
+{
+	if (Mesh)
+	{
+		const float SeparateFOVAlpha = bEnable ? 1.0f : 0.0f;
+		const float SeparateAlpha = bSeparate ? 0.1f : 1.0f;
+		Mesh->SetScalarParameterValueOnMaterials(NAME_Separate_FOV_Alpha, SeparateFOVAlpha);
+		Mesh->SetScalarParameterValueOnMaterials(NAME_Separate_Alpha, SeparateAlpha);
+		Mesh->SetCastShadow(false/* !bSeparate TODO:引擎有bug bSelfShadowOnly暂不可用 */);
 	}
 }
 

@@ -91,16 +91,10 @@ void UNRBagComponent::GetItemInWorld(AActor* Actor)
 	{
 		if (ANRWeaponBase* Weapon = Cast<ANRWeaponBase>(Actor))
 		{
-			if (Weapon->GetWeaponState() == ENRWeaponState::EWS_Pickup)
-			{
-				Weapon->SetWeaponState(ENRWeaponState::EWS_Equip);
-			}
 			// TODO
-			// uint8 Slot;
-			// if (GetCanUseWeaponSlot(Slot))
-			// {
-			// 	
-			// }
+			const ANRWeaponBase* OldWeapon = EquippedWeapon;
+			EquippedWeapon = Weapon;
+			OnRep_EquippedWeapon(OldWeapon);
 		}	
 	}
 }
@@ -139,6 +133,9 @@ void UNRBagComponent::OnRep_EquippedWeapon(const ANRWeaponBase* OldEquippedWeapo
 		// NewEquip
 		if (EquippedWeapon)
 		{
+			EquippedWeapon->SetWeaponState(ENRWeaponState::EWS_Equip);
+
+			// TODO SceneComponent的Attach是同步的🤡
 			if (NRCharacter->IsLocallyControlled())
 			{
 				EquippedWeapon->AttachToComponent(NRCharacter->GetMeshArm(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, NAME_Socket_Weapon);
