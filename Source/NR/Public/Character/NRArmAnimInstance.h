@@ -52,7 +52,7 @@ protected:
 	//~End   FAnimInstanceProxy
 
 //~Begin This Class
-	void LoadAsset(const ANRWeaponBase* WeaponEquipped);
+	void LoadAsset(const ANRWeaponBase* WeaponEquipped, bool bForce = false);
 	float GetCurrMoveModeMaxSpeed() const;
 	// Temp
 	float MaxWalkSpeed = 0.0f;

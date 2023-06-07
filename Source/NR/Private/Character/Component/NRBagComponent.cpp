@@ -135,12 +135,7 @@ void UNRBagComponent::OnRep_EquippedWeapon(const ANRWeaponBase* OldEquippedWeapo
 		{
 			EquippedWeapon->SetWeaponState(ENRWeaponState::EWS_Equip);
 
-			// TODO SceneComponent的Attach是同步的🤡
-			if (NRCharacter->IsLocallyControlled())
-			{
-				EquippedWeapon->AttachToComponent(NRCharacter->GetMeshArm(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, NAME_Socket_Weapon);
-			}
-			else
+			if (NRCharacter->HasAuthority())
 			{
 				EquippedWeapon->AttachToComponent(NRCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, NAME_Socket_VB_SOCKET_hand_r_ik_hand_gun);
 			}

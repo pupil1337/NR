@@ -121,7 +121,7 @@ struct NR_API FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 	//~End FAnimInstanceProxy
 
 //~ Begin This Class
-	void LoadAsset(const ANRWeaponBase* WeaponEquipped);
+	void LoadAsset(const ANRWeaponBase* WeaponEquipped, bool bForce = false);
 	void CalculateMoveDirAndAlpha(const FVector& V, float MoveAngle, float DeltaSeconds);
 	void UpdateAimOffset(const FRotator& BaseAimRotation, bool bLocallyControlled, float DeltaSeconds);
 	float GetCurrMoveModeMaxSpeed() const;

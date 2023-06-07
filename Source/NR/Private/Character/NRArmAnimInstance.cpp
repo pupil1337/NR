@@ -35,6 +35,10 @@ void FNRArmAnimInstanceProxy::Initialize(UAnimInstance* InAnimInstance)
 		MaxCrouchSpeed = NRCharacterCDO->GetCharacterMovement<UNRCharacterMovementComponent>()->MaxWalkSpeedCrouched;
 		MaxRunSpeed = NRCharacterCDO->GetCharacterMovement<UNRCharacterMovementComponent>()->Run_MaxWalkSpeed;
 	}
+
+#ifdef WITH_EDITORONLY_DATA
+	LoadAsset(nullptr, true);
+#endif
 }
 
 void FNRArmAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float DeltaSeconds)
@@ -136,10 +140,10 @@ void FNRArmAnimInstanceProxy::Update(float DeltaSeconds)
 	}
 }
 
-void FNRArmAnimInstanceProxy::LoadAsset(const ANRWeaponBase* WeaponEquipped)
+void FNRArmAnimInstanceProxy::LoadAsset(const ANRWeaponBase* WeaponEquipped, bool bForce /* = false */)
 {
 	// 如果当前装备的武器不是已经缓存的资源
-	if (StreamableHandlePair.Key != WeaponEquipped)
+	if (StreamableHandlePair.Key != WeaponEquipped || bForce)
 	{
 		// 1.GC旧的武器相关资源
 		if (StreamableHandlePair.Value)
