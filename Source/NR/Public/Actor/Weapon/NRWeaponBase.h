@@ -35,12 +35,12 @@ public:
 	virtual ENRInteractionType GetInteractionType() const override { return ENRInteractionType::EIT_Weapon; }
 
 // This Class Func
-	USkeletalMeshComponent* GetMesh() const { return Mesh; }
-
 	FNRWeaponInformationRow* GetWeaponInformation();
 
 	void SetWeaponState(ENRWeaponState InWeaponState);
 	ENRWeaponState GetWeaponState() const { return WeaponState; }
+
+	void SetRenderInMainPass(bool bRender) const;
 
 protected:
 	UFUNCTION()

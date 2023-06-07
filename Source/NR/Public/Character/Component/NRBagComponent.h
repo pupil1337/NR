@@ -57,6 +57,8 @@ public:
 private:
 	UFUNCTION()
 	void OnRep_EquippedWeapon(const ANRWeaponBase* OldEquippedWeapon) const;
+
+	void OnLocallyControlledEquipWeapon() const;
 	
 	UPROPERTY(Transient)
 	ANRWeaponBase* WeaponSlot[5]; // 武器插槽 0为空手, 1~4为武器

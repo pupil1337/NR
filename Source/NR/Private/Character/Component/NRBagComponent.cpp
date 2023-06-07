@@ -134,11 +134,17 @@ void UNRBagComponent::OnRep_EquippedWeapon(const ANRWeaponBase* OldEquippedWeapo
 		if (EquippedWeapon)
 		{
 			EquippedWeapon->SetWeaponState(ENRWeaponState::EWS_Equip);
-
-			if (NRCharacter->HasAuthority())
+			EquippedWeapon->AttachToComponent(NRCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, NAME_HandR_IkHandGun);
+			
+			if (NRCharacter->IsLocallyControlled())
 			{
-				EquippedWeapon->AttachToComponent(NRCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, NAME_HandR_IkHandGun);
+				OnLocallyControlledEquipWeapon();
 			}
 		}
 	}
+}
+
+void UNRBagComponent::OnLocallyControlledEquipWeapon() const
+{
+	EquippedWeapon->SetRenderInMainPass(false);
 }

@@ -54,6 +54,11 @@ void ANRWeaponBase::SetWeaponState(ENRWeaponState InWeaponState)
 	OnRep_WeaponState(OldWeaponState);
 }
 
+void ANRWeaponBase::SetRenderInMainPass(bool bRender) const
+{
+	Mesh->SetRenderInMainPass(bRender);
+}
+
 void ANRWeaponBase::OnRep_WeaponState(ENRWeaponState OldWeaponState)
 {
 	switch (WeaponState)

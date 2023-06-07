@@ -15,7 +15,6 @@
 #include "Character/Component/NRComponentBase.h"
 #include "Components/BoxComponent.h"
 #include "Net/UnrealNetwork.h"
-#include "Types/NRWeaponTypes.h"
 
 const FName NAME_Socket_Camera(TEXT("SOCKET_Camera"));
 const FName NAME_Bone_Spine_01(TEXT("spine_01"));
@@ -229,13 +228,6 @@ void ANRCharacter::UpdateWhetherFixSeparate() const
 	}
 
 	UNRStatics::SetFPS_SeparateFOV(MeshArm, true, bNeedFixSeparate);
-	if (UNRBagComponent* BagComponent = Cast<UNRBagComponent>(GetComponentByClass(UNRBagComponent::StaticClass())))
-	{
-		if (ANRWeaponBase* EquippedWeapon = BagComponent->GetEquippedWeapon())
-		{
-			UNRStatics::SetFPS_SeparateFOV(EquippedWeapon->GetMesh(), true, bNeedFixSeparate);
-		}
-	}
 }
 
 // Inputs ===================================================================================
