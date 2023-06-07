@@ -10,7 +10,7 @@
 #include "Net/UnrealNetwork.h"
 
 const FName NAME_Socket_Weapon(TEXT("SOCKET_Weapon"));
-const FName NAME_Socket_VB_SOCKET_hand_r_ik_hand_gun(TEXT("VB SOCKET_hand_r_ik_hand_gun"));
+const FName NAME_HandR_IkHandGun(TEXT("VB HandR_IkHandGun"));
 
 UNRBagComponent::UNRBagComponent()
 {
@@ -137,7 +137,7 @@ void UNRBagComponent::OnRep_EquippedWeapon(const ANRWeaponBase* OldEquippedWeapo
 
 			if (NRCharacter->HasAuthority())
 			{
-				EquippedWeapon->AttachToComponent(NRCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, NAME_Socket_VB_SOCKET_hand_r_ik_hand_gun);
+				EquippedWeapon->AttachToComponent(NRCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, NAME_HandR_IkHandGun);
 			}
 		}
 	}
