@@ -9,9 +9,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "NRStatics.h"
-#include "Actor/Weapon/NRWeaponBase.h"
 #include "Character/NRCharacterMovementComponent.h"
-#include "Character/Component/NRBagComponent.h"
 #include "Character/Component/NRComponentBase.h"
 #include "Components/BoxComponent.h"
 #include "Net/UnrealNetwork.h"
@@ -247,11 +245,11 @@ void ANRCharacter::OnLookInput(const FInputActionValue& Value)
 	AddControllerPitchInput(Value.Get<FInputActionValue::Axis2D>().Y);
 	AddControllerYawInput(Value.Get<FInputActionValue::Axis2D>().X);
 
-	// 限制角色俯仰角 上下80°
+	// 限制角色俯仰角 上85° 下75°
 	if (APlayerController* PlayerController = GetController<APlayerController>())
 	{
 		if (const float NewRotationPitch = PlayerController->RotationInput.Pitch + PlayerController->GetControlRotation().Pitch;
-			NewRotationPitch > 80.0f && NewRotationPitch < 360.0f - 80.0f)
+			NewRotationPitch > 85.0f && NewRotationPitch < 360.0f - 75.0f)
 		{
 			PlayerController->RotationInput.Pitch = 0.0f;
 		}
