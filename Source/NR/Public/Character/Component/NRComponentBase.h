@@ -19,6 +19,10 @@ public:
 	virtual void InitializeComponent() override;
 
 //~Begin This Class
+	/** Character执行 Restart后立即执行 (仅在本地控制端调用) */
+	virtual void PawnClientRestart() {}
+	
+	/** Character初始化InputComponent立即执行 (仅在本地控制端调用) */
 	virtual void InitLocallyControlledInputEvent(UInputComponent* PlayerInputComponent) {}
 
 protected:

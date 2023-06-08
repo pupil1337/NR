@@ -38,10 +38,12 @@ public:
 	FNRWeaponInformationRow* GetWeaponInformation();
 
 	void SetWeaponState(ENRWeaponState InWeaponState);
-	ENRWeaponState GetWeaponState() const { return WeaponState; }
 
 	void SetRenderInMainPass(bool bRender) const;
 
+	FORCEINLINE ENRWeaponState GetWeaponState() const { return WeaponState; }
+	FORCEINLINE USkeletalMeshComponent* GetMesh() const { return Mesh; }
+	
 protected:
 	UFUNCTION()
 	void OnRep_WeaponState(ENRWeaponState OldWeaponState);

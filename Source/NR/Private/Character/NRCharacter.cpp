@@ -42,10 +42,6 @@ ANRCharacter::ANRCharacter(const FObjectInitializer& ObjectInitializer)
 	// Camera
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("摄像机"));
 	Camera->SetupAttachment(MeshArm, NAME_Socket_Camera);
-
-	// SeparateFOVCheckBox
-	SeparateFOVCheckBox = CreateDefaultSubobject<UBoxComponent>(TEXT("穿模检测盒"));
-	SeparateFOVCheckBox->SetupAttachment(MeshArm, NAME_Socket_Camera);
 }
 
 void ANRCharacter::OnConstruction(const FTransform& Transform)
@@ -81,25 +77,20 @@ void ANRCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	DOREPLIFETIME_CONDITION(ANRCharacter, bSkiing, COND_SimulatedOnly)
 }
 
-void ANRCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// if (GetLocalRole() == ROLE_SimulatedProxy)
-	// {
-	// 	Spring->DestroyComponent();
-	// 	MeshArm->DestroyComponent();
-	// 	MeshLeg->DestroyComponent();
-	// 	Camera->DestroyComponent();
-	// 	SeparateFOVCheckBox->DestroyComponent();
-	// }
-}
-
 void ANRCharacter::PawnClientRestart()
 {
 	Super::PawnClientRestart();
 	
 	SetMeshesVisibility();
+
+	// Components本地控制端初始化
+	for (UActorComponent* it: GetComponents())
+	{
+		if (UNRComponentBase* tNRComp = Cast<UNRComponentBase>(it))
+		{
+			tNRComp->PawnClientRestart();
+		}
+	}
 }
 
 void ANRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -140,7 +131,7 @@ void ANRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 						}
 					}
 				}
-			}		
+			}
 		}
 	}
 
@@ -161,7 +152,6 @@ void ANRCharacter::Tick(float DeltaSeconds)
 	if (IsLocallyControlled())
 	{
 		UpdateSpringLocation(DeltaSeconds);
-		UpdateWhetherFixSeparate();
 	}
 }
 
@@ -192,40 +182,12 @@ void ANRCharacter::SetMeshesVisibility() const
 {
 	GetMesh()->SetRenderInMainPass(false);
 	MeshLeg->HideBoneByName(NAME_Bone_Spine_01, PBO_None);
+	UNRStatics::SetFPS_SeparateFOV(MeshArm, true, true);
 }
 
 void ANRCharacter::UpdateSpringLocation(float DeltaSeconds) const
 {
 	Spring->SetRelativeLocation(FMath::VInterpTo(Spring->GetRelativeLocation(), FVector(0.0f, 0.0f, BaseEyeHeight) + SpringOffsetFPS, DeltaSeconds, 10));
-}
-
-void ANRCharacter::UpdateWhetherFixSeparate() const
-{
-	bool bNeedFixSeparate = false;
-	if (UNRCharacterMovementComponent* NRCharacterMovementComponent = GetCharacterMovement<UNRCharacterMovementComponent>())
-	{
-		bNeedFixSeparate = NRCharacterMovementComponent->IsCrouching();
-	}
-
-	if (!bNeedFixSeparate)
-	{
-		FCollisionQueryParams QueryParams;
-		QueryParams.AddIgnoredActor(this);
-		if (FHitResult Res; GetWorld()->SweepSingleByChannel(
-			Res,
-			SeparateFOVCheckBox->GetComponentLocation(),
-			SeparateFOVCheckBox->GetComponentLocation() + SeparateFOVCheckBox->GetComponentRotation().Vector() * 10.0f,
-			FQuat(FRotator(0.0f)),
-			ECC_Camera,
-			SeparateFOVCheckBox->GetCollisionShape(),
-			QueryParams
-			))
-		{
-			bNeedFixSeparate = true;
-		}
-	}
-
-	UNRStatics::SetFPS_SeparateFOV(MeshArm, true, bNeedFixSeparate);
 }
 
 // Inputs ===================================================================================

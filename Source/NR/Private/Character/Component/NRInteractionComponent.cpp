@@ -117,7 +117,8 @@ void UNRInteractionComponent::Server_Interact_Implementation(AActor* Actor)
 				{
 					if (UNRBagComponent* BagComponent = Cast<UNRBagComponent>(NRCharacter->GetComponentByClass(UNRBagComponent::StaticClass())))
 					{
-						BagComponent->GetItemInWorld(Weapon);
+						// TODO
+						// BagComponent->GetItemInWorld(Weapon);
 					}	
 				}
 			}

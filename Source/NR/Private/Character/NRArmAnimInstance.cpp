@@ -52,7 +52,7 @@ void FNRArmAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float Del
 			// AnimSetting
 			if (const UNRBagComponent* BagComponent = Cast<UNRBagComponent>(NRCharacter->GetComponentByClass(UNRBagComponent::StaticClass())))
 			{
-				if (ANRWeaponBase* Weapon = BagComponent->GetEquippedWeapon())
+				if (ANRWeaponBase* Weapon = BagComponent->GetFPSWeapon())
 				{
 					if (const FNRWeaponInformationRow* WeaponInfo = Weapon->GetWeaponInformation())
 					{

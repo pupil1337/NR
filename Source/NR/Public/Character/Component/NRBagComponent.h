@@ -30,38 +30,35 @@ class NR_API UNRBagComponent : public UNRComponentBase
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="配置|输入")
 	TObjectPtr<UInputAction> IA_4;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="配置|空手")
-	TSubclassOf<ANRWeaponBase> DefaultWeaponClass;
-	
 public:
 	UNRBagComponent();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 protected:
-	virtual void BeginPlay() override;
+	virtual void PawnClientRestart() override;
 	virtual void InitLocallyControlledInputEvent(UInputComponent* PlayerInputComponent) override;
 
 //~Begin This Class
 public:
-	/** Server Only */
-	void GetItemInWorld(AActor* Actor);
-
-	// Weapon ================================================================================
-	bool GetCanUseWeaponSlot(uint8& Slot) const;
+	/** LocallyControlled Only */
+	void EquipFPSWeapon(FName WeaponRowName);
 	
+	UFUNCTION(Server, Reliable)
+	void Server_EquipTPSWeapon(FName WeaponRowName);
+
 	UFUNCTION()
+	void OnRep_TPSWeapon(ANRWeaponBase* OldWeapon);
+
 	void TryEquipWeaponInSlot(uint8 Slot);
 	
-	FORCEINLINE ANRWeaponBase* GetEquippedWeapon() const { return EquippedWeapon; }
+	FORCEINLINE ANRWeaponBase* GetFPSWeapon() const { return FPSWeapon; }
+	FORCEINLINE ANRWeaponBase* GetTPSWeapon() const { return TPSWeapon; }
 
 private:
-	UFUNCTION()
-	void OnRep_EquippedWeapon(const ANRWeaponBase* OldEquippedWeapon) const;
-
-	void OnLocallyControlledEquipWeapon() const;
-	
 	UPROPERTY(Transient)
 	ANRWeaponBase* WeaponSlot[5]; // 武器插槽 0为空手, 1~4为武器
-	UPROPERTY(Transient, ReplicatedUsing=OnRep_EquippedWeapon)
-	ANRWeaponBase* EquippedWeapon;
+	UPROPERTY(Transient)
+	ANRWeaponBase* FPSWeapon; // 1P武器 仅在本地控制端
+	UPROPERTY(Transient, ReplicatedUsing=OnRep_TPSWeapon)
+	ANRWeaponBase* TPSWeapon; // 3P武器 在服务端生成同步给客户端
 };

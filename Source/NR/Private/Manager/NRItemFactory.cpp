@@ -8,6 +8,37 @@
 #include "Engine/DataTable.h"
 #include "Table/Weapon/NRWeaponInformation.h"
 
+ANRWeaponBase* UNRItemFactory::SpawnWeapon(const UObject* ContextObject, FName WeaponRowName)
+{
+	if (UWorld* World = ContextObject ? ContextObject->GetWorld() : nullptr)
+	{
+		if (UNRGameSingleton* NRGameSingleton = Cast<UNRGameSingleton>(GEngine ? GEngine->GameSingleton : nullptr))
+		{
+			if (const UDataTable* WeaponInformation = NRGameSingleton->WeaponInformationDataTable)
+			{
+				if (const FNRWeaponInformationRow* WeaponInfo = WeaponInformation->FindRow<FNRWeaponInformationRow>(WeaponRowName, WeaponRowName.ToString()))
+				{
+					if (!WeaponInfo->WeaponClass.IsNull())
+					{
+						TSharedPtr<FStreamableHandle> StreamableHandle = NRGameSingleton->StreamableManager.RequestSyncLoad(WeaponInfo->WeaponClass.ToSoftObjectPath());
+
+						FActorSpawnParameters Params;
+						Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+						ANRWeaponBase* Weapon = World->SpawnActor<ANRWeaponBase>(WeaponInfo->WeaponClass.Get());
+						
+						StreamableHandle->ReleaseHandle();
+						StreamableHandle.Reset();
+
+						return Weapon;
+					}
+				}
+			}
+		}
+	}
+
+	return nullptr;
+}
+
 void UNRItemFactory::SpawnWeapon(UObject* ContextObject, const FVector& Location)
 {
 	if (UWorld* World = ContextObject ? ContextObject->GetWorld() : nullptr)

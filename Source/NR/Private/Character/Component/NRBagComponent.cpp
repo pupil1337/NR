@@ -7,6 +7,8 @@
 #include "Character/NRCharacter.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "NRStatics.h"
+#include "Manager/NRItemFactory.h"
 #include "Net/UnrealNetwork.h"
 
 const FName NAME_Socket_Weapon(TEXT("SOCKET_Weapon"));
@@ -22,26 +24,14 @@ void UNRBagComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION(UNRBagComponent, EquippedWeapon, COND_None)
+	DOREPLIFETIME_CONDITION(UNRBagComponent, TPSWeapon, COND_None)
 }
 
-void UNRBagComponent::BeginPlay()
+void UNRBagComponent::PawnClientRestart()
 {
-	Super::BeginPlay();
+	Super::PawnClientRestart();
 
-	// TODO:换成从存档中读取武器数据,然后生成武器
-	if (NRCharacter && NRCharacter->HasAuthority())
-	{
-		if (DefaultWeaponClass)
-		{
-			FActorSpawnParameters Params;
-			Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-			Params.Owner = NRCharacter;
-			WeaponSlot[0] = GetWorld()->SpawnActor<ANRWeaponBase>(DefaultWeaponClass, Params);
-			EquippedWeapon = WeaponSlot[0];
-			OnRep_EquippedWeapon(nullptr);
-		}
-	}
+	EquipFPSWeapon(TEXT("AR_01"));
 }
 
 void UNRBagComponent::InitLocallyControlledInputEvent(UInputComponent* PlayerInputComponent)
@@ -85,31 +75,57 @@ void UNRBagComponent::InitLocallyControlledInputEvent(UInputComponent* PlayerInp
 	}
 }
 
-void UNRBagComponent::GetItemInWorld(AActor* Actor)
+void UNRBagComponent::EquipFPSWeapon(FName WeaponRowName)
 {
 	if (NRCharacter)
 	{
-		if (ANRWeaponBase* Weapon = Cast<ANRWeaponBase>(Actor))
+		if (ANRWeaponBase* Weapon = UNRItemFactory::SpawnWeapon(this, WeaponRowName))
 		{
-			// TODO
-			const ANRWeaponBase* OldWeapon = EquippedWeapon;
-			EquippedWeapon = Weapon;
-			OnRep_EquippedWeapon(OldWeapon);
-		}	
+			Weapon->SetOwner(NRCharacter);
+			Weapon->SetReplicates(false); // 房主生成本地控制的fps武器不同步
+			Weapon->SetWeaponState(ENRWeaponState::EWS_Equip);
+			Weapon->AttachToComponent(NRCharacter->GetMeshArm(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, NAME_Socket_Weapon);
+			UNRStatics::SetFPS_SeparateFOV(Weapon->GetMesh(), true, true);
+
+			if (FPSWeapon)
+			{
+				FPSWeapon->Destroy();
+			}
+			FPSWeapon = Weapon;
+			Server_EquipTPSWeapon(WeaponRowName);
+		}
 	}
 }
 
-bool UNRBagComponent::GetCanUseWeaponSlot(uint8& Slot) const
+void UNRBagComponent::Server_EquipTPSWeapon_Implementation(FName WeaponRowName)
 {
-	for (int i = 1; i <= 4; ++i)
+	if (NRCharacter)
 	{
-		if (!WeaponSlot[i])
+		if (ANRWeaponBase* Weapon = UNRItemFactory::SpawnWeapon(this, WeaponRowName))
 		{
-			Slot = i;
-			return true;
+			Weapon->SetOwner(NRCharacter);
+			Weapon->SetReplicates(true);
+			Weapon->SetWeaponState(ENRWeaponState::EWS_Equip);
+			Weapon->AttachToComponent(NRCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, NAME_HandR_IkHandGun);
+
+			ANRWeaponBase* OldWeapon = TPSWeapon;
+			TPSWeapon = Weapon;
+			OnRep_TPSWeapon(OldWeapon);
 		}
 	}
-	return false;
+}
+
+void UNRBagComponent::OnRep_TPSWeapon(ANRWeaponBase* OldWeapon)
+{
+	if (OldWeapon)
+	{
+		OldWeapon->Destroy();
+	}
+
+	if (NRCharacter && TPSWeapon && NRCharacter->IsLocallyControlled())
+	{
+		TPSWeapon->SetRenderInMainPass(false);
+	}
 }
 
 void UNRBagComponent::TryEquipWeaponInSlot(uint8 Slot)
@@ -118,33 +134,4 @@ void UNRBagComponent::TryEquipWeaponInSlot(uint8 Slot)
 	{
 		return;
 	}
-}
-
-void UNRBagComponent::OnRep_EquippedWeapon(const ANRWeaponBase* OldEquippedWeapon) const
-{
-	if (NRCharacter)
-	{
-		// OldEquip
-		if (OldEquippedWeapon)
-		{
-			// ....
-		}
-
-		// NewEquip
-		if (EquippedWeapon)
-		{
-			EquippedWeapon->SetWeaponState(ENRWeaponState::EWS_Equip);
-			EquippedWeapon->AttachToComponent(NRCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, NAME_HandR_IkHandGun);
-			
-			if (NRCharacter->IsLocallyControlled())
-			{
-				OnLocallyControlledEquipWeapon();
-			}
-		}
-	}
-}
-
-void UNRBagComponent::OnLocallyControlledEquipWeapon() const
-{
-	EquippedWeapon->SetRenderInMainPass(false);
 }
