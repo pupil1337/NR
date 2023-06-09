@@ -14,16 +14,16 @@ struct NR_API FNRWeaponInformationRow : public FTableRowBase
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="武器名称")
+	UPROPERTY(EditDefaultsOnly, DisplayName="武器名称")
 	FText WeaponName;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="武器类")
+	UPROPERTY(EditDefaultsOnly, DisplayName="武器类")
 	TSoftClassPtr<ANRWeaponBase> WeaponClass;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="RowHandle-手臂动画")
+	UPROPERTY(EditDefaultsOnly, DisplayName="RowHandle-手臂动画")
 	FDataTableRowHandle RowHandle_ArmAnimSet; // FNRArmAnimSetRow
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="RowHandle-全身动画")
+	UPROPERTY(EditDefaultsOnly, DisplayName="RowHandle-全身动画")
 	FDataTableRowHandle RowHandle_BodyAnimSet; // FNRBodyAnimSetRow
 
 	// Getter-手臂动画

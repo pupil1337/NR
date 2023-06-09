@@ -18,10 +18,10 @@ class NR_API ANRWeaponBase : public AActor, public INRInteractionInterface
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
+	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<USkeletalMeshComponent> Mesh;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
+	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"))
 	FDataTableRowHandle WeaponInformationRowHandle;
 	
 public:

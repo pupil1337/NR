@@ -16,23 +16,23 @@ struct NR_API FNRArmAnimSetRow : public FTableRowBase
 	GENERATED_BODY()
 
 	/** 动画SequenceBase */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="静止")
+	UPROPERTY(EditDefaultsOnly, DisplayName="静止")
 	TSoftObjectPtr<UAnimSequenceBase> IdlePose;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="呼吸")
+	UPROPERTY(EditDefaultsOnly, DisplayName="呼吸")
 	TSoftObjectPtr<UAnimSequenceBase> BreathingStandPose;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="奔跑")
+	UPROPERTY(EditDefaultsOnly, DisplayName="奔跑")
 	TSoftObjectPtr<UAnimSequenceBase> RunPose;
 
 	/** 跳跃动画曲线 */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="曲线", DisplayName="跳跃Offset Location ")
+	UPROPERTY(EditDefaultsOnly, Category="曲线", DisplayName="跳跃Offset Location ")
 	TSoftObjectPtr<UCurveVector> JumpOffsetCurveLocation;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="曲线", DisplayName="跳跃Offset Rotation ")
+	UPROPERTY(EditDefaultsOnly, Category="曲线", DisplayName="跳跃Offset Rotation ")
 	TSoftObjectPtr<UCurveVector> JumpOffsetCurveRotation;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="曲线", DisplayName="着陆Offset Location ")
+	UPROPERTY(EditDefaultsOnly, Category="曲线", DisplayName="着陆Offset Location ")
 	TSoftObjectPtr<UCurveVector> LandOffsetCurveLocation;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="曲线", DisplayName="着陆Offset Rotation ")
+	UPROPERTY(EditDefaultsOnly, Category="曲线", DisplayName="着陆Offset Rotation ")
 	TSoftObjectPtr<UCurveVector> LandOffsetCurveRotation;
 };
 
@@ -45,9 +45,9 @@ struct NR_API FNRBodyAnimSetRow : public FTableRowBase
 	GENERATED_BODY()
 	
 	/** 动画SequenceBase */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="全身-静止")
+	UPROPERTY(EditDefaultsOnly, DisplayName="全身-静止")
 	TSoftObjectPtr<UAnimSequenceBase> IdlePose;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="全身-奔跑")
+	UPROPERTY(EditDefaultsOnly, DisplayName="全身-奔跑")
 	TSoftObjectPtr<UAnimSequenceBase> RunPose;
 };
