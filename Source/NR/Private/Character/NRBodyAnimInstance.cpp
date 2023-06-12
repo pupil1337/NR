@@ -9,6 +9,7 @@
 #include "Character/NRCharacter.h"
 #include "Character/NRCharacterMovementComponent.h"
 #include "Character/Component/NRBagComponent.h"
+#include "Character/Component/NRCombatComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Table/Weapon/NRWeaponInformation.h"
 
@@ -86,13 +87,18 @@ void FNRBodyAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float De
 			// 7. bRunning
 			bRunning = NRCharacter->bRunning;
 
-			// 8. bSkiing
+			// 9. bSkiing
 			bSkiing = NRCharacter->bSkiing;
 		}
 
-		// 9.  AO_Yaw
-		// 10.  AO_Pitch
-		// 11. TurnDir
+		if (UNRCombatComponent* CombatComponent = Cast<UNRCombatComponent>(NRCharacter->GetComponentByClass(UNRCombatComponent::StaticClass())))
+		{
+			bAiming = CombatComponent->GetIsAiming();
+		}
+
+		// 10.  AO_Yaw
+		// 11.  AO_Pitch
+		// 12. TurnDir
 		UpdateAimOffset(NRCharacter->GetBaseAimRotation(), NRCharacter->IsLocallyControlled(), DeltaSeconds);
 	}
 
@@ -124,7 +130,10 @@ void FNRBodyAnimInstanceProxy::LoadAsset(const ANRWeaponBase* WeaponEquipped, bo
 		if (UNRGameSingleton* NRGameSingleton = UNRGameSingleton::Get())
 		{
 			TArray<FSoftObjectPath> AssetsToLoad;
-			UNRStatics::AddSoftObjectPathToArray(AnimSetting.IdlePose, AssetsToLoad);
+			UNRStatics::AddSoftObjectPathToArray(AnimSetting.StandIdlePose, AssetsToLoad);
+			UNRStatics::AddSoftObjectPathToArray(AnimSetting.StandAimPose, AssetsToLoad);
+			UNRStatics::AddSoftObjectPathToArray(AnimSetting.CrouchIdlePose, AssetsToLoad);
+			UNRStatics::AddSoftObjectPathToArray(AnimSetting.CrouchAimPose, AssetsToLoad);
 			UNRStatics::AddSoftObjectPathToArray(AnimSetting.RunPose, AssetsToLoad);
 
 			StreamableHandlePair.Key = WeaponEquipped;

@@ -167,6 +167,10 @@ struct NR_API FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 	/** 7. 是否在奔跑 */
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	uint8 bRunning: 1;
+
+	/** 8. 是否在瞄准 */
+	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
+	uint8 bAiming: 1;
 	
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	uint8 bCrouchingAndMoving: 1;
@@ -174,22 +178,22 @@ struct NR_API FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	uint8 bNotCrouchingAndMoving: 1;
 
-	/** 8. 是否在滑铲 */
+	/** 9. 是否在滑铲 */
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	uint8 bSkiing: 1;
 	
-	/** 9. 瞄准偏移 Yaw */
+	/** 10. 瞄准偏移 Yaw */
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	float AO_Yaw;
 	
-	/** 10. 瞄准偏移 Pitch */
+	/** 11. 瞄准偏移 Pitch */
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	float AO_Pitch;
 
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	float AO_Pitch_Negate;
 
-	/** 11. 转身方向 */
+	/** 12. 转身方向 */
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	FTurnDir TurnDir;
 

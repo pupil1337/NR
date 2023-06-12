@@ -6,12 +6,20 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Character/NRCharacter.h"
+#include "Net/UnrealNetwork.h"
 
 
 UNRCombatComponent::UNRCombatComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 	PrimaryComponentTick.bStartWithTickEnabled = false;
+}
+
+void UNRCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(UNRCombatComponent, bAiming, COND_SkipOwner)
 }
 
 void UNRCombatComponent::InitLocallyControlledInputEvent(UInputComponent* PlayerInputComponent)
@@ -59,9 +67,34 @@ void UNRCombatComponent::EndFireInput()
 
 void UNRCombatComponent::StartAimInput()
 {
+	// TODO
+	OnAim(true);
+	if (NRCharacter && NRCharacter->GetLocalRole() == ROLE_AutonomousProxy)
+	{
+		Server_OnAim(true);
+	}
 }
 
 void UNRCombatComponent::EndAimInput()
 {
+	// TODO
+	OnAim(false);
+	if (NRCharacter && NRCharacter->GetLocalRole() == ROLE_AutonomousProxy)
+	{
+		Server_OnAim(false);
+	}
 }
+
+void UNRCombatComponent::OnAim(bool bAim)
+{
+	// TODO
+	bAiming = bAim;
+}
+
+void UNRCombatComponent::Server_OnAim_Implementation(bool bAim)
+{
+	// TODO
+	OnAim(bAim);
+}
+
 

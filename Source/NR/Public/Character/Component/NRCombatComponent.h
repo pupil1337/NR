@@ -24,21 +24,37 @@ class NR_API UNRCombatComponent : public UNRComponentBase
 	
 public:
 	UNRCombatComponent();
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:
 	virtual void InitLocallyControlledInputEvent(UInputComponent* PlayerInputComponent) override;
 
 //~Begin This Class
+public:
+	FORCEINLINE bool GetIsAiming() const { return bAiming; }
+	
 private:
+	// Fire
 	UFUNCTION()
 	void StartFireInput();
 	
 	UFUNCTION()
 	void EndFireInput();
 
+	// Aim
 	UFUNCTION()
 	void StartAimInput();
-
+	
 	UFUNCTION()
 	void EndAimInput();
+
+	// TODO
+	void OnAim(bool bAim);
+
+	// TODO
+	UFUNCTION(Server, Reliable)
+	void Server_OnAim(bool bAim);
+
+	UPROPERTY(Replicated)
+	bool bAiming;
 };
