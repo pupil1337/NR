@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "NRCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "NRCharacterMovementComponent.generated.h"
 
@@ -91,6 +92,9 @@ public:
 	void Run(bool bRun);
 
 	bool GetSkiSurface(FHitResult& Hit) const;
+
+	FORCEINLINE bool IsRunning() const { return NRCharacterOwner && NRCharacterOwner->bRunning; }
+	FORCEINLINE bool IsSkiing() const { return NRCharacterOwner && NRCharacterOwner->bSkiing; }
 	
 private:
 	void EnterSki(const FHitResult& PotentialSkiSurface);

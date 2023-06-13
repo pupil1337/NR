@@ -3,8 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Animation/AnimInstanceProxy.h"
-#include "Engine/StreamableManager.h"
+#include "NRAnimInstanceProxyBase.h"
 #include "Table/Weapon/NRAnimSetting.h"
 #include "NRBodyAnimInstance.generated.h"
 
@@ -80,35 +79,25 @@ struct NR_API FNRAnimCurves
 class ANRWeaponBase;
 
 USTRUCT(BlueprintType)
-struct NR_API FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
+struct NR_API FNRBodyAnimInstanceProxy : public FNRAnimInstanceProxyBase
 {
 	GENERATED_BODY()
 
+	using Super = FNRAnimInstanceProxyBase;
+	
 	FNRBodyAnimInstanceProxy():
-		VelocityPlayRate(1.0f),
 		bMoving(false),
-		bJumping(false),
-		bCrouching(false),
-		bRunning(false),
-		bAiming(false),
 		bCrouchingAndMoving(false),
 		bNotCrouchingAndMoving(false),
-		bSkiing(false),
 		AO_Yaw(0.0f),
 		AO_Pitch(0.0f),
 		AO_Pitch_Negate(0.0f)
 	{}
 	
-	FNRBodyAnimInstanceProxy(UAnimInstance* Instance): FAnimInstanceProxy(Instance),
-		VelocityPlayRate(1.0f),
+	FNRBodyAnimInstanceProxy(UAnimInstance* Instance): Super(Instance),
 		bMoving(false),
-		bJumping(false),
-		bCrouching(false),
-		bRunning(false),
-		bAiming(false),
 		bCrouchingAndMoving(false),
 		bNotCrouchingAndMoving(false),
-		bSkiing(false),
 		AO_Yaw(0.0f),
 		AO_Pitch(0.0f),
 		AO_Pitch_Negate(0.0f)
@@ -116,86 +105,59 @@ struct NR_API FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 
 	virtual ~FNRBodyAnimInstanceProxy() override;
 
+protected:
 	//~Begin FAnimInstanceProxy
 	virtual void Initialize(UAnimInstance* InAnimInstance) override;
 	virtual void PreUpdate(UAnimInstance* InAnimInstance, float DeltaSeconds) override;
 	virtual void Update(float DeltaSeconds) override;
 	//~End FAnimInstanceProxy
 
+	//~Begin FNRAnimInstanceProxyBase
+	virtual void AddSoftObjectPathToArray(TArray<FSoftObjectPath>& AssetsToLoad) override;
+	//~End   FNRAnimInstanceProxyBase
+	
 //~ Begin This Class
-	void LoadAsset(const ANRWeaponBase* WeaponEquipped, bool bForce = false);
 	void CalculateMoveDirAndAlpha(const FVector& V, float MoveAngle, float DeltaSeconds);
 	void UpdateAimOffset(const FRotator& BaseAimRotation, bool bLocallyControlled, float DeltaSeconds);
-	float GetCurrMoveModeMaxSpeed() const;
 	void UpdateCurvesValue(const UAnimInstance* InAnimInstance);
 	void UpdateOtherValues();
-	
-	// Temp
-	float MaxWalkSpeed = 0.0f;
-	float MaxCrouchSpeed = 0.0f;
-	float MaxRunSpeed = 0.0f;
 
 	/** AnimSetting */
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	FNRBodyAnimSetRow AnimSetting;
-
-	/** 动画缓存 */
-	TPair<const ANRWeaponBase*, TSharedPtr<FStreamableHandle>> StreamableHandlePair;
 	
-	/** 1. 四个方向输入的值 */
+	/** 四个方向输入的值 */
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	FNRMoveDirAlpha MoveDirAlpha;
 	
-	/** 2. 移动方向 */
+	/** 移动方向 */
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	FNRMoveDir MoveDir;
 	
-	/** 3. 动画播放速率 */
-	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
-	float VelocityPlayRate;
-	
-	/** 4. 是否在移动 */
+	/** 是否在移动 */
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	uint8 bMoving: 1;
-	
-	/** 5. 是否在跳跃 */
-	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
-	uint8 bJumping: 1;
-	
-	/** 6. 是否在下蹲 */
-	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
-	uint8 bCrouching: 1;
-	
-	/** 7. 是否在奔跑 */
-	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
-	uint8 bRunning: 1;
 
-	/** 8. 是否在瞄准 */
-	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
-	uint8 bAiming: 1;
-	
+	/** 蹲伏&&移动 */
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	uint8 bCrouchingAndMoving: 1;
 
+	/** !蹲伏&&移动 */
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	uint8 bNotCrouchingAndMoving: 1;
-
-	/** 9. 是否在滑铲 */
-	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
-	uint8 bSkiing: 1;
 	
-	/** 10. 瞄准偏移 Yaw */
+	/** 瞄准偏移 Yaw */
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	float AO_Yaw;
 	
-	/** 11. 瞄准偏移 Pitch */
+	/** 瞄准偏移 Pitch */
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	float AO_Pitch;
 
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	float AO_Pitch_Negate;
 
-	/** 12. 转身方向 */
+	/** 转身方向 */
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	FTurnDir TurnDir;
 
@@ -203,7 +165,7 @@ struct NR_API FNRBodyAnimInstanceProxy : public FAnimInstanceProxy
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	FNRAnimCurves Curves;
 
-	// 临时值
+	// Temp
 	FRotator StartAimRotation = FRotator::ZeroRotator;
 	float InterpAO_Yaw = 0.0f;
 };
