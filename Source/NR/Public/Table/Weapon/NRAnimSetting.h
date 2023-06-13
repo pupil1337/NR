@@ -19,8 +19,17 @@ struct NR_API FNRArmAnimSetRow : public FTableRowBase
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="静止")
 	TSoftObjectPtr<UAnimSequenceBase> IdlePose;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="呼吸")
-	TSoftObjectPtr<UAnimSequenceBase> BreathingStandPose;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="静止呼吸")
+	TSoftObjectPtr<UAnimSequenceBase> IdleBreath;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="瞄准")
+	TSoftObjectPtr<UAnimSequenceBase> AimPose;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="瞄准呼吸")
+	TSoftObjectPtr<UAnimSequenceBase> AimBreath;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="瞄准向前移动")
+	TSoftObjectPtr<UAnimSequenceBase> AimWalkF;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="奔跑")
 	TSoftObjectPtr<UAnimSequenceBase> RunPose;

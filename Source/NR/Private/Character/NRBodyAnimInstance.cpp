@@ -91,8 +91,9 @@ void FNRBodyAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float De
 			bSkiing = NRCharacter->bSkiing;
 		}
 
-		if (UNRCombatComponent* CombatComponent = Cast<UNRCombatComponent>(NRCharacter->GetComponentByClass(UNRCombatComponent::StaticClass())))
+		if (const UNRCombatComponent* CombatComponent = Cast<UNRCombatComponent>(NRCharacter->GetComponentByClass(UNRCombatComponent::StaticClass())))
 		{
+			// 8. bAiming
 			bAiming = CombatComponent->GetIsAiming();
 		}
 

@@ -19,6 +19,7 @@ struct NR_API FNRArmAnimInstanceProxy : public FAnimInstanceProxy
 		bCrouching(false),
 		bJumping(false),
 		bRunning(false),
+		bAiming(false),
 		bSkiing(false),
 		VelocityAlpha(0.0f),
 		VelocityNormalized(FVector::ZeroVector),
@@ -32,6 +33,7 @@ struct NR_API FNRArmAnimInstanceProxy : public FAnimInstanceProxy
 		bCrouching(false),
 		bJumping(false),
 		bRunning(false),
+		bAiming(false),
 		bSkiing(false),
 		VelocityAlpha(0.0f),
 		VelocityNormalized(FVector::ZeroVector),
@@ -85,35 +87,39 @@ protected:
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	uint8 bRunning: 1;
 
-	/** 4. 是否在滑铲 */
+	/** 4. 是否瞄准 */
+	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
+	uint8 bAiming: 1;
+
+	/** 5. 是否在滑铲 */
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	uint8 bSkiing: 1;
 
-	/** 5. 与当前最大移动速度比率 (clamp 0 1) 0:idle不混合移动 1:idle混合移动 */
+	/** 6. 与当前最大移动速度比率 (clamp 0 1) 0:idle不混合移动 1:idle混合移动 */
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	float VelocityAlpha;
 
-	/** 6. 速度归一化后 */
+	/** 7. 速度归一化后 */
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	FVector VelocityNormalized;
 
-	/** 7. 移动动画播放速率 (不 clamp) jump/ski 时为0 */
+	/** 8. 移动动画播放速率 (不 clamp) jump/ski 时为0 */
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	float VelocityPlayRate;
 
-	/** 8. 跳跃时应用曲线值来修改ik_hand_gun位置 */
+	/** 9. 跳跃时应用曲线值来修改ik_hand_gun位置 */
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	FVector JumpOffset_Location;
 
-	/** 9. 跳跃时应用曲线值来修改ik_hand_gun旋转 */
+	/** 10. 跳跃时应用曲线值来修改ik_hand_gun旋转 */
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	FRotator JumpOffset_Rotation;
 
-	/** 10. 着陆时应用曲线值来修改ik_hand_gun位置 */
+	/** 11. 着陆时应用曲线值来修改ik_hand_gun位置 */
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	FVector LandOffset_Location;
 
-	/** 11. 着陆时应用曲线值来修改ik_hand_gun旋转 */
+	/** 12. 着陆时应用曲线值来修改ik_hand_gun旋转 */
 	UPROPERTY(Transient, EditDefaultsOnly, BlueprintReadOnly)
 	FRotator LandOffset_Rotation;
 };

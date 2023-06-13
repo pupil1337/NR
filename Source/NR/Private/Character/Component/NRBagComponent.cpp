@@ -84,7 +84,7 @@ void UNRBagComponent::EquipFPSWeapon(FName WeaponRowName)
 			Weapon->SetOwner(NRCharacter);
 			Weapon->SetReplicates(false); // 房主生成本地控制的fps武器不同步
 			Weapon->SetWeaponState(ENRWeaponState::EWS_Equip);
-			Weapon->AttachToComponent(NRCharacter->GetMeshArm(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, NAME_Socket_Weapon);
+			Weapon->AttachToComponent(NRCharacter->GetMeshArm(), FAttachmentTransformRules::SnapToTargetIncludingScale, NAME_Socket_Weapon);
 			UNRStatics::SetFPS_SeparateFOV(Weapon->GetMesh(), true, true);
 
 			if (FPSWeapon)
@@ -106,7 +106,7 @@ void UNRBagComponent::Server_EquipTPSWeapon_Implementation(FName WeaponRowName)
 			Weapon->SetOwner(NRCharacter);
 			Weapon->SetReplicates(true);
 			Weapon->SetWeaponState(ENRWeaponState::EWS_Equip);
-			Weapon->AttachToComponent(NRCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, NAME_HandR_IkHandGun);
+			Weapon->AttachToComponent(NRCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, NAME_HandR_IkHandGun);
 
 			ANRWeaponBase* OldWeapon = TPSWeapon;
 			TPSWeapon = Weapon;

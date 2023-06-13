@@ -9,6 +9,7 @@
 #include "Character/NRCharacter.h"
 #include "Character/NRCharacterMovementComponent.h"
 #include "Character/Component/NRBagComponent.h"
+#include "Character/Component/NRCombatComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
 const FName NAME_Track_Location(TEXT("Location"));
@@ -70,19 +71,25 @@ void FNRArmAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float Del
 				bJumping = NRCharacterMovementComponent->IsFalling();
 				// 3. bRunning
 				bRunning = NRCharacter->bRunning;
-				// 4. bSkiing
+				// 5. bSkiing
 				bSkiing = NRCharacter->bSkiing;
+			}
+			
+			if (const UNRCombatComponent* CombatComponent = Cast<UNRCombatComponent>(NRCharacter->GetComponentByClass(UNRCombatComponent::StaticClass())))
+			{
+				// 4. bAiming
+				bAiming = CombatComponent->GetIsAiming();
 			}
 			
 			const FVector Velocity = UKismetMathLibrary::InverseTransformDirection(NRCharacter->GetActorTransform(), NRCharacter->GetVelocity());
 			const FVector VelocityXY = FVector(Velocity.X, Velocity.Y, 0.0f);
 			
 			const float MaxSpeed = GetCurrMoveModeMaxSpeed();
-			// 5. VelocityAlpha
+			// 6. VelocityAlpha
 			VelocityAlpha = FMath::Clamp<float>(VelocityXY.Size() / MaxSpeed, 0.0f, 1.0f);
-			// 6. VelocityNormalized
+			// 7. VelocityNormalized
 			VelocityNormalized = VelocityXY.GetSafeNormal() * VelocityAlpha;
-			// 7. VelocityPlayRate
+			// 8. VelocityPlayRate
 			VelocityPlayRate = bJumping || bSkiing ? 0.0f : VelocityXY.Size() / MaxSpeed;
 
 			// Jump Offset
@@ -118,12 +125,12 @@ void FNRArmAnimInstanceProxy::Update(float DeltaSeconds)
 	{
 		if (CurveLocation)
 		{
-			// 8. JumpOffset_Location
+			// 9. JumpOffset_Location
 			JumpOffset_Location += CurveLocation->GetVectorValue(InTime);
 		}
 		if (CurveRotation)
 		{
-			// 9. JumpOffset_Rotation
+			// 10. JumpOffset_Rotation
 			const FVector RotationV = CurveRotation->GetVectorValue(InTime);
 			JumpOffset_Rotation += FRotator(RotationV.Y, RotationV.Z, RotationV.X);
 		}
@@ -157,7 +164,10 @@ void FNRArmAnimInstanceProxy::LoadAsset(const ANRWeaponBase* WeaponEquipped, boo
 		{
 			TArray<FSoftObjectPath> AssetsToLoad;
 			UNRStatics::AddSoftObjectPathToArray(AnimSetting.IdlePose, AssetsToLoad);
-			UNRStatics::AddSoftObjectPathToArray(AnimSetting.BreathingStandPose, AssetsToLoad);
+			UNRStatics::AddSoftObjectPathToArray(AnimSetting.IdleBreath, AssetsToLoad);
+			UNRStatics::AddSoftObjectPathToArray(AnimSetting.AimPose, AssetsToLoad);
+			UNRStatics::AddSoftObjectPathToArray(AnimSetting.AimBreath, AssetsToLoad);
+			UNRStatics::AddSoftObjectPathToArray(AnimSetting.AimWalkF, AssetsToLoad);
 			UNRStatics::AddSoftObjectPathToArray(AnimSetting.RunPose, AssetsToLoad);
 			UNRStatics::AddSoftObjectPathToArray(AnimSetting.JumpOffsetCurveLocation, AssetsToLoad);
 			UNRStatics::AddSoftObjectPathToArray(AnimSetting.JumpOffsetCurveRotation, AssetsToLoad);
