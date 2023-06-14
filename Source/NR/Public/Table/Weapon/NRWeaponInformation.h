@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
 #include "NRAnimSetting.h"
+#include "NRWeaponSetting.h"
 #include "NRWeaponInformation.generated.h"
 
 class ANRWeaponBase;
@@ -26,6 +27,12 @@ struct NR_API FNRWeaponInformationRow : public FTableRowBase
 	UPROPERTY(EditDefaultsOnly, DisplayName="RowHandle-全身动画")
 	FDataTableRowHandle RowHandle_BodyAnimSet; // FNRBodyAnimSetRow
 
+	UPROPERTY(EditDefaultsOnly, DisplayName="RowHandle-武器属性")
+	FDataTableRowHandle RowHandle_WeaponSetting; // FNRWeaponSettingRow
+
+	UPROPERTY(EditDefaultsOnly, DisplayName="RowHandle-手臂蒙太奇")
+	FDataTableRowHandle RowHandle_ArmMontage;
+
 	// Getter-手臂动画
 	FNRArmAnimSetRow* GetArmAnimSet() const
 	{
@@ -45,5 +52,17 @@ struct NR_API FNRWeaponInformationRow : public FTableRowBase
 		}
 		return nullptr;
 	}
+
+	// Getter-武器属性
+	FNRWeaponSettingRow* GetWeaponSetting() const
+	{
+		if (!RowHandle_WeaponSetting.IsNull())
+		{
+			return RowHandle_WeaponSetting.GetRow<FNRWeaponSettingRow>(TEXT("FNRWeaponInformationRow::FNRWeaponSettingRow()"));
+		}
+		return nullptr;
+	}
+
+	// Getter-手臂蒙太奇
 };
 

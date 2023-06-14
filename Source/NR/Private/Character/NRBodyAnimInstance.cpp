@@ -38,10 +38,13 @@ void FNRBodyAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float De
 		{
 			if (ANRWeaponBase* Weapon = BagComponent->GetTPSWeapon())
 			{
-				if (const FNRWeaponInformationRow* WeaponInfo = Weapon->GetWeaponInformation())
+				if (Weapon != StreamableHandlePair.Key)
 				{
-					AnimSetting = *WeaponInfo->GetBodyAnimSet();
-					LoadAsset(Weapon);
+					if (const FNRWeaponInformationRow* WeaponInfo = Weapon->GetWeaponInformation())
+					{
+						AnimSetting = *WeaponInfo->GetBodyAnimSet();
+						LoadAsset(Weapon);
+					}	
 				}
 			}
 		}

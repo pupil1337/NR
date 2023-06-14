@@ -30,10 +30,13 @@ void FNRArmAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float Del
 			{
 				if (ANRWeaponBase* Weapon = BagComponent->GetFPSWeapon())
 				{
-					if (const FNRWeaponInformationRow* WeaponInfo = Weapon->GetWeaponInformation())
+					if (Weapon != StreamableHandlePair.Key)
 					{
-						AnimSetting = *WeaponInfo->GetArmAnimSet();
-						LoadAsset(Weapon);
+						if (const FNRWeaponInformationRow* WeaponInfo = Weapon->GetWeaponInformation())
+						{
+							AnimSetting = *WeaponInfo->GetArmAnimSet();
+							LoadAsset(Weapon);
+						}	
 					}
 				}
 			}

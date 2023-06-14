@@ -4,9 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "NRComponentBase.h"
+#include "Table/Weapon/NRWeaponSetting.h"
 #include "NRCombatComponent.generated.h"
 
 
+class ANRWeaponBase;
 class UInputAction;
 class UInputMappingContext;
 
@@ -25,6 +27,7 @@ class NR_API UNRCombatComponent : public UNRComponentBase
 public:
 	UNRCombatComponent();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 protected:
 	virtual void InitLocallyControlledInputEvent(UInputComponent* PlayerInputComponent) override;
@@ -34,6 +37,15 @@ public:
 	FORCEINLINE bool GetIsAiming() const { return bAiming; }
 	
 private:
+	bool UpdateWeaponAndWeaponSettingRaw();
+
+	/** 武器开枪间隔大于上次开火时间 */
+	bool IsRatePassed(uint32 FireRate) const;
+
+	void OnFire();
+	
+	void FireTicking(float DeltaTime);
+	
 	// Fire
 	UFUNCTION()
 	void StartFireInput();
@@ -55,6 +67,20 @@ private:
 	UFUNCTION(Server, Reliable)
 	void Server_OnAim(bool bAim);
 
-	UPROPERTY(Replicated)
+	UPROPERTY(Transient, Replicated)
 	bool bAiming;
+
+	UPROPERTY(Transient)
+	bool bFireTicking;
+	
+	UPROPERTY(Transient)
+	bool bHoldingFireKey;
+
+	UPROPERTY(Transient)
+	float PreShootTime;
+	
+	UPROPERTY(Transient)
+	ANRWeaponBase* Weapon;
+	UPROPERTY(Transient)
+	FNRWeaponSettingRow WeaponSettingRaw;
 };
