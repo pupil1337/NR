@@ -31,10 +31,10 @@ void FNRAnimInstanceProxyBase::Initialize(UAnimInstance* InAnimInstance)
 		MaxCrouchSpeed = NRCharacterCDO->GetCharacterMovement<UNRCharacterMovementComponent>()->MaxWalkSpeedCrouched;
 		MaxRunSpeed = NRCharacterCDO->GetCharacterMovement<UNRCharacterMovementComponent>()->Run_MaxWalkSpeed;
 	}
-
-#ifdef WITH_EDITORONLY_DATA
-	LoadAsset(nullptr, true);
-#endif
+	else // 不是NRCharacter则当前是动画Instance编辑页面
+	{
+		LoadAsset(nullptr, true);
+	}
 }
 
 void FNRAnimInstanceProxyBase::PreUpdate(UAnimInstance* InAnimInstance, float DeltaSeconds)
@@ -59,7 +59,7 @@ void FNRAnimInstanceProxyBase::PreUpdate(UAnimInstance* InAnimInstance, float De
 		const FVector VelocityXY = FVector(Velocity.X, Velocity.Y, 0.0f);
 		
 		// VelocityAlpha
-		VelocityAlpha = VelocityXY.Size() / GetCurrMoveModeMaxSpeed();
+		VelocityAlpha = bJumping || bSkiing ? 0.0f : VelocityXY.Size() / GetCurrMoveModeMaxSpeed();
 		
 		if (const UNRCombatComponent* CombatComponent = Cast<UNRCombatComponent>(NRCharacter->GetComponentByClass(UNRCombatComponent::StaticClass())))
 		{

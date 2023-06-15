@@ -5,10 +5,14 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Interface/NRInteractionInterface.h"
-#include "Table/Weapon/NRWeaponInformation.h"
 #include "Types/NRWeaponTypes.h"
 #include "NRWeaponBase.generated.h"
 
+class UDataTable;
+struct FNRWeaponSettingRow;
+struct FNRArmAnimSetRow;
+struct FNRWeaponInformationRow;
+struct FNRBodyAnimSetRow;
 struct FStreamableHandle;
 class USkeletalMeshComponent;
 class UNiagaraComponent;
@@ -22,7 +26,7 @@ class NR_API ANRWeaponBase : public AActor, public INRInteractionInterface
 	TObjectPtr<USkeletalMeshComponent> Mesh;
 
 	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"))
-	FDataTableRowHandle WeaponInformationRowHandle;
+	ENRWeaponType WeaponType = ENRWeaponType::EWT_None;
 	
 public:
 	ANRWeaponBase();
@@ -35,12 +39,16 @@ public:
 	virtual ENRInteractionType GetInteractionType() const override { return ENRInteractionType::EIT_Weapon; }
 
 // This Class Func
-	FNRWeaponInformationRow* GetWeaponInformation();
-
 	void SetWeaponState(ENRWeaponState InWeaponState);
-
 	void SetRenderInMainPass(bool bRender) const;
 
+	FNRArmAnimSetRow* GetWeaponArmAnimSetRow();
+	FNRBodyAnimSetRow* GetWeaponBodyAnimSetRow();
+	FNRWeaponSettingRow* GetWeaponSettingRow();
+	UDataTable* GetWeaponMontageDT(); // FNRMontageRow
+	UAnimMontage* GetWeaponMontage(bool bFPS, const FName& RowName);
+
+	FORCEINLINE ENRWeaponType GetWeaponType() const { return WeaponType; }
 	FORCEINLINE ENRWeaponState GetWeaponState() const { return WeaponState; }
 	FORCEINLINE USkeletalMeshComponent* GetMesh() const { return Mesh; }
 	
@@ -49,7 +57,11 @@ protected:
 	void OnRep_WeaponState(ENRWeaponState OldWeaponState);
 	
 private:
+	FNRWeaponInformationRow* GetWeaponInformation();
 	FNRWeaponInformationRow* WeaponInformation;
+	FNRArmAnimSetRow* WeaponArmAnimSet;
+	FNRBodyAnimSetRow* WeaponBodyAnimSet;
+	FNRWeaponSettingRow* WeaponSetting;
 
 	UPROPERTY(ReplicatedUsing=OnRep_WeaponState)
 	ENRWeaponState WeaponState = ENRWeaponState::EWS_None;

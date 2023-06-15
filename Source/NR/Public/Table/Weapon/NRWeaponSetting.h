@@ -16,11 +16,11 @@ struct NR_API FNRWeaponSettingRow : public FTableRowBase
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, DisplayName="开火模式")
-	ENRWeaponFireMode FireMode;
+	ENRWeaponFireMode FireMode = ENRWeaponFireMode::EWFM_Safe;
 
 	UPROPERTY(EditDefaultsOnly, DisplayName="连发弹药数", meta=(EditCondition="FireMode == ENRWeaponFireMode::EWFM_Burst", ClampMin="0", UIMin="0"))
-	uint32 BurstCount;
+	uint32 BurstCount = 3;
 
-	UPROPERTY(EditDefaultsOnly, DisplayName="射速", meta=(ClampMin="0", UIMin="0", ForceUnits="rpm"))
-	uint32 FireRate;
+	UPROPERTY(EditDefaultsOnly, DisplayName="射速", meta=(EditCondition="FireMode != ENRWeaponFireMode::EWFM_Safe", ClampMin="0", UIMin="0", ForceUnits="rpm"))
+	uint32 FireRate = 600;
 };

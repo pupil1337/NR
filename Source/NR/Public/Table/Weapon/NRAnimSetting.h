@@ -72,13 +72,16 @@ struct NR_API FNRBodyAnimSetRow : public FTableRowBase
 
 
 /**
- * 手臂 动画Montage
+ * 动画Montage
  */
 USTRUCT(BlueprintType)
-struct NR_API FNRArmMontageRow : public FTableRowBase
+struct NR_API FNRMontageRow : public FTableRowBase
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="开火")
-	TSoftObjectPtr<UAnimMontage> Fire;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSoftObjectPtr<UAnimMontage> FPS;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSoftObjectPtr<UAnimMontage> TPS;
 };

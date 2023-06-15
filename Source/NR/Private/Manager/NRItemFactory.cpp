@@ -4,33 +4,31 @@
 #include "Manager/NRItemFactory.h"
 
 #include "NRGameSingleton.h"
+#include "Static/NRStatics.h"
 #include "Actor/Weapon/NRWeaponBase.h"
 #include "Engine/DataTable.h"
 #include "Table/Weapon/NRWeaponInformation.h"
 
-ANRWeaponBase* UNRItemFactory::SpawnWeapon(const UObject* ContextObject, FName WeaponRowName)
+ANRWeaponBase* UNRItemFactory::SpawnWeapon(const UObject* ContextObject, ENRWeaponType WeaponType)
 {
 	if (UWorld* World = ContextObject ? ContextObject->GetWorld() : nullptr)
 	{
 		if (UNRGameSingleton* NRGameSingleton = Cast<UNRGameSingleton>(GEngine ? GEngine->GameSingleton : nullptr))
 		{
-			if (const UDataTable* WeaponInformation = NRGameSingleton->WeaponInformationDataTable)
+			if (const FNRWeaponInformationRow* WeaponInfo = UNRStatics::GetWeaponInformationRow(WeaponType))
 			{
-				if (const FNRWeaponInformationRow* WeaponInfo = WeaponInformation->FindRow<FNRWeaponInformationRow>(WeaponRowName, WeaponRowName.ToString()))
+				if (!WeaponInfo->WeaponClass.IsNull())
 				{
-					if (!WeaponInfo->WeaponClass.IsNull())
-					{
-						TSharedPtr<FStreamableHandle> StreamableHandle = NRGameSingleton->StreamableManager.RequestSyncLoad(WeaponInfo->WeaponClass.ToSoftObjectPath());
+					TSharedPtr<FStreamableHandle> StreamableHandle = NRGameSingleton->StreamableManager.RequestSyncLoad(WeaponInfo->WeaponClass.ToSoftObjectPath());
 
-						FActorSpawnParameters Params;
-						Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-						ANRWeaponBase* Weapon = World->SpawnActor<ANRWeaponBase>(WeaponInfo->WeaponClass.Get());
-						
-						StreamableHandle->ReleaseHandle();
-						StreamableHandle.Reset();
+					FActorSpawnParameters Params;
+					Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+					ANRWeaponBase* Weapon = World->SpawnActor<ANRWeaponBase>(WeaponInfo->WeaponClass.Get());
+					
+					StreamableHandle->ReleaseHandle();
+					StreamableHandle.Reset();
 
-						return Weapon;
-					}
+					return Weapon;
 				}
 			}
 		}

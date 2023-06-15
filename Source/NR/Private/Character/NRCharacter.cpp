@@ -8,10 +8,9 @@
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
-#include "NRStatics.h"
+#include "Static/NRStatics.h"
 #include "Character/NRCharacterMovementComponent.h"
 #include "Character/Component/NRComponentBase.h"
-#include "Components/BoxComponent.h"
 #include "Net/UnrealNetwork.h"
 
 const FName NAME_Socket_Camera(TEXT("SOCKET_Camera"));
@@ -75,6 +74,19 @@ void ANRCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	
 	DOREPLIFETIME_CONDITION(ANRCharacter, bRunning, COND_SimulatedOnly)
 	DOREPLIFETIME_CONDITION(ANRCharacter, bSkiing, COND_SimulatedOnly)
+}
+
+void ANRCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		Spring->DestroyComponent();
+		MeshArm->DestroyComponent();
+		MeshLeg->DestroyComponent();
+		Camera->DestroyComponent();
+	}
 }
 
 void ANRCharacter::PawnClientRestart()

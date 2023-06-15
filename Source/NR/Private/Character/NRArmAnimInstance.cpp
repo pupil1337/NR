@@ -3,7 +3,7 @@
 
 #include "Character/NRArmAnimInstance.h"
 
-#include "NRStatics.h"
+#include "Static/NRStatics.h"
 #include "Actor/Weapon/NRWeaponBase.h"
 #include "Character/NRCharacter.h"
 #include "Character/Component/NRBagComponent.h"
@@ -32,11 +32,8 @@ void FNRArmAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float Del
 				{
 					if (Weapon != StreamableHandlePair.Key)
 					{
-						if (const FNRWeaponInformationRow* WeaponInfo = Weapon->GetWeaponInformation())
-						{
-							AnimSetting = *WeaponInfo->GetArmAnimSet();
-							LoadAsset(Weapon);
-						}	
+						AnimSetting = *Weapon->GetWeaponArmAnimSetRow();
+						LoadAsset(Weapon);
 					}
 				}
 			}

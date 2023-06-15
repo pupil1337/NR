@@ -19,10 +19,19 @@ enum class ENRWeaponState : uint8
 };
 
 UENUM()
+enum class ENRWeaponType : uint8
+{
+	EWT_None = 0,
+	EWT_Box = 1,
+	EWT_AR_01 = 2
+};
+
+UENUM()
 enum class ENRWeaponFireMode : uint8
 {
 	EWFM_Semi = 0		UMETA(DisplayName="半自动"),
 	EWFM_Automatic = 1	UMETA(DisplayName="全自动"),
-	EWFM_Burst = 2		UMETA(DisplayName="连发")
+	EWFM_Burst = 2		UMETA(DisplayName="连发"),
+	EWFM_Safe = 3		UMETA(DisplayName="保险")
 };
 

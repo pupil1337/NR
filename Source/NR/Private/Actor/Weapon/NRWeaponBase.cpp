@@ -6,6 +6,7 @@
 #include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
 #include "NRGameSingleton.h"
+#include "Static/NRStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "Types/NRCollisionTypes.h"
 #include "Types/NRWeaponTypes.h"
@@ -32,19 +33,6 @@ void ANRWeaponBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 void ANRWeaponBase::BeginPlay()
 {
 	Super::BeginPlay();
-}
-
-FNRWeaponInformationRow* ANRWeaponBase::GetWeaponInformation()
-{
-	if (!WeaponInformation)
-	{
-		if (!WeaponInformationRowHandle.IsNull())
-		{
-			WeaponInformation = WeaponInformationRowHandle.GetRow<FNRWeaponInformationRow>(TEXT("ANRWeapon::GetWeaponInformation()"));	
-		}
-	}
-
-	return WeaponInformation;
 }
 
 void ANRWeaponBase::SetWeaponState(ENRWeaponState InWeaponState)
@@ -117,5 +105,75 @@ void ANRWeaponBase::OnRep_WeaponState(ENRWeaponState OldWeaponState)
 		}
 	default: ;
 	}
+}
+
+FNRWeaponInformationRow* ANRWeaponBase::GetWeaponInformation()
+{
+	if (!WeaponInformation)
+	{
+		WeaponInformation = UNRStatics::GetWeaponInformationRow(WeaponType);
+	}
+
+	return WeaponInformation;
+}
+
+FNRArmAnimSetRow* ANRWeaponBase::GetWeaponArmAnimSetRow()
+{
+	if (!WeaponArmAnimSet)
+	{
+		if (const FNRWeaponInformationRow* WeaponInfo = GetWeaponInformation())
+		{
+			WeaponArmAnimSet = WeaponInfo->GetArmAnimSet();
+		}
+	}
+
+	return WeaponArmAnimSet;
+}
+
+FNRBodyAnimSetRow* ANRWeaponBase::GetWeaponBodyAnimSetRow()
+{
+	if (!WeaponBodyAnimSet)
+	{
+		if (const FNRWeaponInformationRow* WeaponInfo = GetWeaponInformation())
+		{
+			WeaponBodyAnimSet = WeaponInfo->GetBodyAnimSet();
+		}
+	}
+
+	return WeaponBodyAnimSet;
+}
+
+FNRWeaponSettingRow* ANRWeaponBase::GetWeaponSettingRow()
+{
+	if (!WeaponSetting)
+	{
+		if (const FNRWeaponInformationRow* WeaponInfo = GetWeaponInformation())
+		{
+			WeaponSetting = WeaponInfo->GetWeaponSetting();
+		}
+	}
+
+	return WeaponSetting;
+}
+
+UDataTable* ANRWeaponBase::GetWeaponMontageDT()
+{
+	if (const FNRWeaponInformationRow* WeaponInfo = GetWeaponInformation())
+	{
+		return WeaponInfo->DT_Montage;
+	}
+	return nullptr;
+}
+
+UAnimMontage* ANRWeaponBase::GetWeaponMontage(bool bFPS, const FName& RowName)
+{
+	if (const UDataTable* DT = GetWeaponMontageDT())
+	{
+		if (const FNRMontageRow* MontageRow = DT->FindRow<FNRMontageRow>(RowName, RowName.ToString()))
+		{
+			return bFPS ? MontageRow->FPS.Get() : MontageRow->TPS.Get();	
+		}
+	}
+	return nullptr;
 }
 

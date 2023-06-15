@@ -41,10 +41,10 @@ protected:
 //~Begin This Class
 public:
 	/** LocallyControlled Only */
-	void EquipFPSWeapon(FName WeaponRowName);
+	void EquipFPSWeapon(ENRWeaponType WeaponType);
 	
 	UFUNCTION(Server, Reliable)
-	void Server_EquipTPSWeapon(FName WeaponRowName);
+	void Server_EquipTPSWeapon(ENRWeaponType WeaponType);
 
 	UFUNCTION()
 	void OnRep_TPSWeapon(ANRWeaponBase* OldWeapon);

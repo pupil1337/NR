@@ -1,8 +1,10 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "NRStatics.h"
+#include "Static/NRStatics.h"
 
+#include "NRGameSingleton.h"
+#include "Engine/DataTable.h"
 #include "Kismet/GameplayStatics.h"
 #include "Types/NRWeaponTypes.h"
 
@@ -15,7 +17,7 @@ void UNRStatics::AddSoftObjectPathToArray(const TSoftObjectPtr<>& SoftObjectPtr,
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Assets: %s加载失败. [1]a live UObject:%d, [2]a Object:%d"), *SoftObjectPtr.GetAssetName(), SoftObjectPtr.IsValid(), SoftObjectPtr.IsNull())
+		UE_LOG(LogTemp, Warning, TEXT("Assets: %s加载失败. [1]a live UObject:%d, [2]not a Object:%d"), *SoftObjectPtr.GetAssetName(), SoftObjectPtr.IsValid(), SoftObjectPtr.IsNull())
 	}
 }
 
@@ -67,4 +69,18 @@ bool UNRStatics::CrosshairTrace(const APlayerController* PlayerController, float
 	}
 	
 	return false;
+}
+
+FNRWeaponInformationRow* UNRStatics::GetWeaponInformationRow(ENRWeaponType WeaponType)
+{
+	if (UNRGameSingleton* NRGameSingleton = UNRGameSingleton::Get())
+	{
+		if (NRGameSingleton->WeaponType2InfoRowName.Contains(WeaponType))
+		{
+			const FName& RowName = NRGameSingleton->WeaponType2InfoRowName[WeaponType];
+			return NRGameSingleton->WeaponInformationDataTable->FindRow<FNRWeaponInformationRow>(RowName, RowName.ToString());
+		}
+	}
+
+	return nullptr;
 }

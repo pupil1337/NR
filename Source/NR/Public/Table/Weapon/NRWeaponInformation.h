@@ -30,8 +30,8 @@ struct NR_API FNRWeaponInformationRow : public FTableRowBase
 	UPROPERTY(EditDefaultsOnly, DisplayName="RowHandle-武器属性")
 	FDataTableRowHandle RowHandle_WeaponSetting; // FNRWeaponSettingRow
 
-	UPROPERTY(EditDefaultsOnly, DisplayName="RowHandle-手臂蒙太奇")
-	FDataTableRowHandle RowHandle_ArmMontage;
+	UPROPERTY(EditDefaultsOnly, DisplayName="DataTable-蒙太奇")
+	TObjectPtr<UDataTable> DT_Montage; // FNRMontageRow
 
 	// Getter-手臂动画
 	FNRArmAnimSetRow* GetArmAnimSet() const
@@ -62,7 +62,5 @@ struct NR_API FNRWeaponInformationRow : public FTableRowBase
 		}
 		return nullptr;
 	}
-
-	// Getter-手臂蒙太奇
 };
 

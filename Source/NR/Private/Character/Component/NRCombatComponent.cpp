@@ -5,11 +5,14 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "NRGameSingleton.h"
 #include "Actor/Weapon/NRWeaponBase.h"
 #include "Character/NRCharacter.h"
 #include "Character/Component/NRBagComponent.h"
+#include "Engine/StreamableManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
+#include "Static/NRStatics.h"
 
 
 UNRCombatComponent::UNRCombatComponent()
@@ -60,6 +63,43 @@ void UNRCombatComponent::InitLocallyControlledInputEvent(UInputComponent* Player
 	}
 }
 
+void UNRCombatComponent::SetEquippedWeapon(ANRWeaponBase* InWeapon)
+{
+	EquippedWeapon = InWeapon;
+	
+	// 删除旧的资源
+	if (StreamableHandle)
+	{
+		StreamableHandle.Get()->ReleaseHandle();
+		StreamableHandle.Reset();
+	}
+
+	if (NRCharacter && EquippedWeapon)
+	{
+		// 缓存动画蒙太奇资源
+		if (const UDataTable* DT_Montage = EquippedWeapon->GetWeaponMontageDT())
+		{
+			TArray<FSoftObjectPath> AssetsToLoad;
+			
+			TArray<FNRMontageRow*> MontageRows;
+			DT_Montage->GetAllRows<FNRMontageRow>(TEXT("FNRMontageRow"), MontageRows);
+			for (const FNRMontageRow* it: MontageRows)
+			{
+				if (it)
+				{
+					UNRStatics::AddSoftObjectPathToArray(it->TPS, AssetsToLoad);// 加载TP动画
+					if (NRCharacter->IsLocallyControlled())
+					{
+						UNRStatics::AddSoftObjectPathToArray(it->FPS, AssetsToLoad); // 本地控制端加载FP动画
+					}
+				}
+			}
+
+			StreamableHandle = UNRGameSingleton::Get()->StreamableManager.RequestAsyncLoad(AssetsToLoad);
+		}
+	}
+}
+
 void UNRCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -70,66 +110,62 @@ void UNRCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 	}
 }
 
-bool UNRCombatComponent::UpdateWeaponAndWeaponSettingRaw()
-{
-	if (NRCharacter)
-	{
-		if (const UNRBagComponent* BagComponent = Cast<UNRBagComponent>(NRCharacter->GetComponentByClass(UNRBagComponent::StaticClass())))
-		{
-			if (ANRWeaponBase* FPSWeapon = BagComponent->GetFPSWeapon())
-			{
-				if (Weapon != FPSWeapon)
-				{
-					if (const FNRWeaponInformationRow* WeaponInformation = FPSWeapon->GetWeaponInformation())
-					{
-						if (const FNRWeaponSettingRow* WeaponSetting = WeaponInformation->GetWeaponSetting())
-						{
-							Weapon = FPSWeapon;
-							WeaponSettingRaw = *WeaponSetting;
-							return true;
-						}
-					}
-				}
-				else
-				{
-					return Weapon != nullptr;
-				}
-			}
-		}	
-	}
-	return false;
-}
-
 bool UNRCombatComponent::IsRatePassed(uint32 FireRate) const
 {
 	return PreShootTime + 60.0f / FireRate <= UGameplayStatics::GetTimeSeconds(this);
 }
 
-void UNRCombatComponent::OnFire()
+void UNRCombatComponent::PlayMontageByName(bool bFPS, const FName& RowName) const
 {
-	PreShootTime = UGameplayStatics::GetTimeSeconds(this);
-}
-
-void UNRCombatComponent::FireTicking(float DeltaTime)
-{
-	if (IsRatePassed(WeaponSettingRaw.FireRate))
+	if (EquippedWeapon)
 	{
-		if (WeaponSettingRaw.FireMode == ENRWeaponFireMode::EWFM_Automatic)
+		if (UAnimMontage* Montage = EquippedWeapon->GetWeaponMontage(bFPS, RowName))
 		{
-			if (bHoldingFireKey)
+			if (NRCharacter)
 			{
-				
+				if (const USkeletalMeshComponent* MeshToPlay = bFPS ? NRCharacter->GetMeshArm() : NRCharacter->GetMesh())
+				{
+					if (UAnimInstance* AnimInstance = MeshToPlay->GetAnimInstance())
+					{
+						AnimInstance->Montage_Play(Montage);
+					}
+				}
 			}
 		}
 	}
 }
 
+void UNRCombatComponent::OnFire()
+{
+	PreShootTime = UGameplayStatics::GetTimeSeconds(this);
+	PlayMontageByName(true, TEXT("Fire"));
+	// PlayMontageByName(false, TEXT("Fire"));
+}
+
+void UNRCombatComponent::FireTicking(float DeltaTime)
+{
+	if (EquippedWeapon)
+	{
+		if (IsRatePassed(EquippedWeapon->GetWeaponSettingRow()->FireRate))
+        {
+        	if (EquippedWeapon->GetWeaponSettingRow()->FireMode == ENRWeaponFireMode::EWFM_Automatic)
+        	{
+        		if (bHoldingFireKey)
+        		{
+        			OnFire();
+        		}
+        	}
+        }
+	}
+	
+}
+
 void UNRCombatComponent::StartFireInput()
 {
 	bHoldingFireKey = true;
-	if (UpdateWeaponAndWeaponSettingRaw())
+	if (EquippedWeapon)
 	{
-		if (WeaponSettingRaw.FireMode == ENRWeaponFireMode::EWFM_Automatic)
+		if (EquippedWeapon->GetWeaponSettingRow()->FireMode == ENRWeaponFireMode::EWFM_Automatic)
 		{
 			bFireTicking = true;
 			FireTicking(0.0f);

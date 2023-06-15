@@ -7,7 +7,8 @@
 #include "Character/NRCharacter.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
-#include "NRStatics.h"
+#include "Character/Component/NRCombatComponent.h"
+#include "Static/NRStatics.h"
 #include "Manager/NRItemFactory.h"
 #include "Net/UnrealNetwork.h"
 
@@ -31,7 +32,7 @@ void UNRBagComponent::PawnClientRestart()
 {
 	Super::PawnClientRestart();
 
-	EquipFPSWeapon(TEXT("AR_01"));
+	EquipFPSWeapon(ENRWeaponType::EWT_AR_01);
 }
 
 void UNRBagComponent::InitLocallyControlledInputEvent(UInputComponent* PlayerInputComponent)
@@ -75,33 +76,42 @@ void UNRBagComponent::InitLocallyControlledInputEvent(UInputComponent* PlayerInp
 	}
 }
 
-void UNRBagComponent::EquipFPSWeapon(FName WeaponRowName)
+void UNRBagComponent::EquipFPSWeapon(ENRWeaponType WeaponType)
 {
 	if (NRCharacter)
 	{
-		if (ANRWeaponBase* Weapon = UNRItemFactory::SpawnWeapon(this, WeaponRowName))
+		if (ANRWeaponBase* Weapon = UNRItemFactory::SpawnWeapon(this, WeaponType))
 		{
-			Weapon->SetOwner(NRCharacter);
-			Weapon->SetReplicates(false); // 房主生成本地控制的fps武器不同步
-			Weapon->SetWeaponState(ENRWeaponState::EWS_Equip);
-			Weapon->AttachToComponent(NRCharacter->GetMeshArm(), FAttachmentTransformRules::SnapToTargetIncludingScale, NAME_Socket_Weapon);
-			UNRStatics::SetFPS_SeparateFOV(Weapon->GetMesh(), true, true);
-
+			// 销毁旧的武器
 			if (FPSWeapon)
 			{
 				FPSWeapon->Destroy();
 			}
+
+			// 设置新武器
 			FPSWeapon = Weapon;
-			Server_EquipTPSWeapon(WeaponRowName);
+			FPSWeapon->SetOwner(NRCharacter);
+			FPSWeapon->SetReplicates(false); // 房主生成本地控制的fps武器不同步
+			FPSWeapon->SetWeaponState(ENRWeaponState::EWS_Equip);
+			FPSWeapon->AttachToComponent(NRCharacter->GetMeshArm(), FAttachmentTransformRules::SnapToTargetIncludingScale, NAME_Socket_Weapon);
+			UNRStatics::SetFPS_SeparateFOV(Weapon->GetMesh(), true, true);
+			
+			if (UNRCombatComponent* CombatComponent = NRCharacter->GetComponentByClass<UNRCombatComponent>())
+			{
+				CombatComponent->SetEquippedWeapon(FPSWeapon);
+			}
+			
+			// 通知服务器生成3p武器
+			Server_EquipTPSWeapon(WeaponType);
 		}
 	}
 }
 
-void UNRBagComponent::Server_EquipTPSWeapon_Implementation(FName WeaponRowName)
+void UNRBagComponent::Server_EquipTPSWeapon_Implementation(ENRWeaponType WeaponType)
 {
 	if (NRCharacter)
 	{
-		if (ANRWeaponBase* Weapon = UNRItemFactory::SpawnWeapon(this, WeaponRowName))
+		if (ANRWeaponBase* Weapon = UNRItemFactory::SpawnWeapon(this, WeaponType))
 		{
 			Weapon->SetOwner(NRCharacter);
 			Weapon->SetReplicates(true);
@@ -122,9 +132,19 @@ void UNRBagComponent::OnRep_TPSWeapon(ANRWeaponBase* OldWeapon)
 		OldWeapon->Destroy();
 	}
 
-	if (NRCharacter && TPSWeapon && NRCharacter->IsLocallyControlled())
+	if (NRCharacter && TPSWeapon)
 	{
-		TPSWeapon->SetRenderInMainPass(false);
+		if (NRCharacter->IsLocallyControlled())
+		{
+			TPSWeapon->SetRenderInMainPass(false);	
+		}
+		else
+		{
+			if (UNRCombatComponent* CombatComponent = NRCharacter->GetComponentByClass<UNRCombatComponent>())
+			{
+				CombatComponent->SetEquippedWeapon(TPSWeapon);
+			}
+		}
 	}
 }
 

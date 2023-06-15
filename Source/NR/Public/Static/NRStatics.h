@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Types/NRWeaponTypes.h"
+#include "Table/Weapon/NRWeaponInformation.h"
 #include "NRStatics.generated.h"
 
 class APlayerController;
@@ -11,7 +13,7 @@ class APlayerController;
  * 
  */
 UCLASS()
-class BASEMODULE_API UNRStatics : public UObject
+class NR_API UNRStatics : public UObject
 {
 	GENERATED_BODY()
 
@@ -39,4 +41,11 @@ public:
 	 * @return 是否完成射线检测
 	 */
 	static bool CrosshairTrace(const APlayerController* PlayerController, float TraceDistance, FHitResult& HitResult);
+
+	/**
+	 * @brief 根据武器型号获取武器信息
+	 * @param WeaponType 武器型号
+	 * @return 武器信息表行
+	 */
+	static FNRWeaponInformationRow* GetWeaponInformationRow(ENRWeaponType WeaponType);
 };

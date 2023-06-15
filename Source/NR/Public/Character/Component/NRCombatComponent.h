@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "NRComponentBase.h"
-#include "Table/Weapon/NRWeaponSetting.h"
 #include "NRCombatComponent.generated.h"
 
 
+struct FStreamableHandle;
 class ANRWeaponBase;
 class UInputAction;
 class UInputMappingContext;
@@ -34,14 +34,16 @@ protected:
 
 //~Begin This Class
 public:
+	void SetEquippedWeapon(ANRWeaponBase* InWeapon);
+	
 	FORCEINLINE bool GetIsAiming() const { return bAiming; }
 	
 private:
-	bool UpdateWeaponAndWeaponSettingRaw();
-
 	/** 武器开枪间隔大于上次开火时间 */
 	bool IsRatePassed(uint32 FireRate) const;
 
+	void PlayMontageByName(bool bFPS, const FName& RowName) const;
+	
 	void OnFire();
 	
 	void FireTicking(float DeltaTime);
@@ -80,7 +82,7 @@ private:
 	float PreShootTime;
 	
 	UPROPERTY(Transient)
-	ANRWeaponBase* Weapon;
-	UPROPERTY(Transient)
-	FNRWeaponSettingRow WeaponSettingRaw;
+	ANRWeaponBase* EquippedWeapon;
+
+	TSharedPtr<FStreamableHandle> StreamableHandle;
 };

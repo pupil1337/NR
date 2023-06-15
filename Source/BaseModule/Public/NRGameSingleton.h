@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
 #include "Engine/StreamableManager.h"
+#include "Types/NRWeaponTypes.h"
 #include "NRGameSingleton.generated.h"
 
 class UNRUserWidgetBase;
@@ -46,7 +47,10 @@ public:
 	FStreamableManager StreamableManager;
 
 	UPROPERTY(EditDefaultsOnly)
-	UDataTable* WeaponInformationDataTable;
+	TObjectPtr<UDataTable> WeaponInformationDataTable;
+
+	UPROPERTY(EditDefaultsOnly)
+	TMap<ENRWeaponType, FName> WeaponType2InfoRowName;
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UNRUserWidgetBase> UIWidgetClass;

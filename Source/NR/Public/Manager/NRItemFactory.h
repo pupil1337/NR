@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
+#include "Types/NRWeaponTypes.h"
 #include "NRItemFactory.generated.h"
 
 class ANRWeaponBase;
@@ -21,10 +22,10 @@ public:
 	/**
 	 * @brief 通过武器RowName生成模板武器
 	 * @param ContextObject Context
-	 * @param WeaponRowName 武器RowName
+	 * @param WeaponType 武器型号
 	 * @return 生成的武器
 	 */
-	static ANRWeaponBase* SpawnWeapon(const UObject* ContextObject, FName WeaponRowName);
+	static ANRWeaponBase* SpawnWeapon(const UObject* ContextObject, ENRWeaponType WeaponType);
 	
 	// Weapon Factory
 	// todo
