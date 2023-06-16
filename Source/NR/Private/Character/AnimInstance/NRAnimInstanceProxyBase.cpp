@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/NRAnimInstanceProxyBase.h"
+#include "Character/AnimInstance/NRAnimInstanceProxyBase.h"
 
 #include "NRGameSingleton.h"
 #include "Character/NRCharacter.h"

@@ -1,15 +1,14 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/NRBodyAnimInstance.h"
+#include "Character/AnimInstance/NRBodyAnimInstance.h"
 
-#include "NRGameSingleton.h"
 #include "Static/NRStatics.h"
 #include "Actor/Weapon/NRWeaponBase.h"
 #include "Character/NRCharacter.h"
 #include "Character/Component/NRBagComponent.h"
+#include "Engine/StreamableManager.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Table/Weapon/NRWeaponInformation.h"
 
 const FName NAME_Curve_Feet_Crossing(TEXT("Feet_Crossing"));
 

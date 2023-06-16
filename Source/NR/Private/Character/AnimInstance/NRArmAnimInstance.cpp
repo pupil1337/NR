@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/NRArmAnimInstance.h"
+#include "Character/AnimInstance/NRArmAnimInstance.h"
 
 #include "Static/NRStatics.h"
 #include "Actor/Weapon/NRWeaponBase.h"
