@@ -43,6 +43,11 @@ private:
 	bool IsRatePassed(uint32 FireRate) const;
 
 	void PlayMontageByName(bool bFPS, const FName& RowName) const;
+
+	UFUNCTION(Server, Reliable)
+	void Server_PlayBodyMontageByName(const FName& RowName) const;
+	UFUNCTION(NetMulticast, Reliable)
+	void Multi_PlayerBodyMontageByName(const FName& RowName) const;
 	
 	void OnFire();
 	

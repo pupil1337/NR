@@ -135,11 +135,26 @@ void UNRCombatComponent::PlayMontageByName(bool bFPS, const FName& RowName) cons
 	}
 }
 
+void UNRCombatComponent::Server_PlayBodyMontageByName_Implementation(const FName& RowName) const
+{
+	Multi_PlayerBodyMontageByName(RowName);
+}
+
+void UNRCombatComponent::Multi_PlayerBodyMontageByName_Implementation(const FName& RowName) const
+{
+	if (NRCharacter && !NRCharacter->IsLocallyControlled())
+	{
+		PlayMontageByName(false, RowName);
+	}
+}
+
 void UNRCombatComponent::OnFire()
 {
 	PreShootTime = UGameplayStatics::GetTimeSeconds(this);
-	PlayMontageByName(true, TEXT("Fire"));
-	// PlayMontageByName(false, TEXT("Fire"));
+	// 播放动画
+	PlayMontageByName(true, "Fire");
+	PlayMontageByName(false, "Fire");
+	Server_PlayBodyMontageByName("Fire");
 }
 
 void UNRCombatComponent::FireTicking(float DeltaTime)
