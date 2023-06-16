@@ -191,7 +191,7 @@ void ANRCharacter::OnJumped_Implementation()
 // FuncType-LocallyControlled ===================================================================================
 void ANRCharacter::SetMeshesVisibility() const
 {
-	GetMesh()->SetRenderInMainPass(false);
+	GetMesh()->SetVisibility(false);
 	MeshLeg->HideBoneByName(NAME_Bone_Spine_01, PBO_None);
 	UNRStatics::SetFPS_SeparateFOV(MeshArm, true, true);
 }

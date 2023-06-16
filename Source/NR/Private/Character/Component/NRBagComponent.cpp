@@ -136,7 +136,7 @@ void UNRBagComponent::OnRep_TPSWeapon(ANRWeaponBase* OldWeapon)
 	{
 		if (NRCharacter->IsLocallyControlled())
 		{
-			TPSWeapon->SetRenderInMainPass(false);	
+			TPSWeapon->SetVisibility(false);	
 		}
 		else
 		{

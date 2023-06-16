@@ -43,7 +43,7 @@ public:
 
 // This Class Func
 	void SetWeaponState(ENRWeaponState InWeaponState);
-	void SetRenderInMainPass(bool bRender) const;
+	void SetVisibility(bool bRender) const;
 	void SetFPS_SeparateFOV(bool bEnable, bool bSeparate) const;
 
 	FNRArmAnimSetRow* GetWeaponArmAnimSetRow();

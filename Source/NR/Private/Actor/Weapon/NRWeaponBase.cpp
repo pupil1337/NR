@@ -46,10 +46,10 @@ void ANRWeaponBase::SetWeaponState(ENRWeaponState InWeaponState)
 	OnRep_WeaponState(OldWeaponState);
 }
 
-void ANRWeaponBase::SetRenderInMainPass(bool bRender) const
+void ANRWeaponBase::SetVisibility(bool bNewVisibility) const
 {
-	Mesh->SetRenderInMainPass(bRender);
-	Magazine->SetRenderInMainPass(bRender);
+	Mesh->SetVisibility(bNewVisibility);
+	Magazine->SetVisibility(bNewVisibility);
 }
 
 void ANRWeaponBase::SetFPS_SeparateFOV(bool bEnable, bool bSeparate) const
