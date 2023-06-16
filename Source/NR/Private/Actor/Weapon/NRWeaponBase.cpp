@@ -19,8 +19,12 @@ ANRWeaponBase::ANRWeaponBase()
 	bReplicates = true;
 
 	// Mesh
-	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("骨骼网格体"));
+	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("枪身"));
 	SetRootComponent(Mesh);
+
+	// Magazine
+	Magazine = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("弹夹"));
+	Magazine->SetupAttachment(Mesh, NAME_Socket_Magazine);
 }
 
 void ANRWeaponBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -45,6 +49,13 @@ void ANRWeaponBase::SetWeaponState(ENRWeaponState InWeaponState)
 void ANRWeaponBase::SetRenderInMainPass(bool bRender) const
 {
 	Mesh->SetRenderInMainPass(bRender);
+	Magazine->SetRenderInMainPass(bRender);
+}
+
+void ANRWeaponBase::SetFPS_SeparateFOV(bool bEnable, bool bSeparate) const
+{
+	UNRStatics::SetFPS_SeparateFOV(Mesh, bEnable, bSeparate);
+	UNRStatics::SetFPS_SeparateFOV(Magazine, bEnable, bSeparate);
 }
 
 void ANRWeaponBase::OnRep_WeaponState(ENRWeaponState OldWeaponState)

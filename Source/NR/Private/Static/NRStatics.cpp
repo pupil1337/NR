@@ -21,7 +21,7 @@ void UNRStatics::AddSoftObjectPathToArray(const TSoftObjectPtr<>& SoftObjectPtr,
 	}
 }
 
-void UNRStatics::SetFPS_SeparateFOV(USkeletalMeshComponent* Mesh, bool bEnable, bool bSeparate)
+void UNRStatics::SetFPS_SeparateFOV(UMeshComponent* Mesh, bool bEnable, bool bSeparate)
 {
 	if (Mesh)
 	{

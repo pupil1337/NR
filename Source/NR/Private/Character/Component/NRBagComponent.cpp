@@ -94,7 +94,7 @@ void UNRBagComponent::EquipFPSWeapon(ENRWeaponType WeaponType)
 			FPSWeapon->SetReplicates(false); // 房主生成本地控制的fps武器不同步
 			FPSWeapon->SetWeaponState(ENRWeaponState::EWS_Equip);
 			FPSWeapon->AttachToComponent(NRCharacter->GetMeshArm(), FAttachmentTransformRules::SnapToTargetIncludingScale, NAME_Socket_Weapon);
-			UNRStatics::SetFPS_SeparateFOV(Weapon->GetMesh(), true, true);
+			FPSWeapon->SetFPS_SeparateFOV(true, true);
 			
 			if (UNRCombatComponent* CombatComponent = NRCharacter->GetComponentByClass<UNRCombatComponent>())
 			{

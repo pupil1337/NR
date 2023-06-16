@@ -31,7 +31,7 @@ public:
 	 * @param bEnable 是否开启第一人称修复 (开启则默认需要FOV修复)
 	 * @param bSeparate 是否开启穿模修复
 	 */
-	static void SetFPS_SeparateFOV(USkeletalMeshComponent* Mesh, bool bEnable, bool bSeparate = false);
+	static void SetFPS_SeparateFOV(UMeshComponent* Mesh, bool bEnable, bool bSeparate = false);
 	
 	/**
 	 * @brief 仅客户端函数, 从屏幕中心做射线检测

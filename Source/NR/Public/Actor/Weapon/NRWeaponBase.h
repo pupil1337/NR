@@ -26,6 +26,9 @@ class NR_API ANRWeaponBase : public AActor, public INRInteractionInterface
 	TObjectPtr<USkeletalMeshComponent> Mesh;
 
 	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"))
+	TObjectPtr<UStaticMeshComponent> Magazine;
+
+	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"))
 	ENRWeaponType WeaponType = ENRWeaponType::EWT_None;
 	
 public:
@@ -41,6 +44,7 @@ public:
 // This Class Func
 	void SetWeaponState(ENRWeaponState InWeaponState);
 	void SetRenderInMainPass(bool bRender) const;
+	void SetFPS_SeparateFOV(bool bEnable, bool bSeparate) const;
 
 	FNRArmAnimSetRow* GetWeaponArmAnimSetRow();
 	FNRBodyAnimSetRow* GetWeaponBodyAnimSetRow();

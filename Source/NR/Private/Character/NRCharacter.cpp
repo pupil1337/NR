@@ -36,7 +36,6 @@ ANRCharacter::ANRCharacter(const FObjectInitializer& ObjectInitializer)
 	// MeshLeg
 	MeshLeg = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("腿"));
 	MeshLeg->SetupAttachment(GetMesh());
-	MeshLeg->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
 
 	// Camera
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("摄像机"));
