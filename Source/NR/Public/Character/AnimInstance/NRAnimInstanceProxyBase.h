@@ -46,7 +46,7 @@ protected:
 //~ Begin This Class
 	/** 动画缓存 */
 	TPair<const ANRWeaponBase*, TSharedPtr<FStreamableHandle>> StreamableHandlePair;
-	virtual void AddSoftObjectPathToArray(TArray<FSoftObjectPath>& AssetsToLoad) {  }
+	virtual void AddSoftObjectPathToArray(TArray<FSoftObjectPath>& TargetsToStream) {  }
 	void LoadAsset(const ANRWeaponBase* WeaponEquipped, bool bForce = false);
 	
 	/** 是否蹲伏 */

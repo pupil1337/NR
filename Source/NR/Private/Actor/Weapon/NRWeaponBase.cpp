@@ -13,8 +13,8 @@
 
 ANRWeaponBase::ANRWeaponBase()
 {
-	PrimaryActorTick.bCanEverTick = false;
-	PrimaryActorTick.bStartWithTickEnabled = false;
+	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = true;
 
 	bReplicates = true;
 
@@ -25,6 +25,33 @@ ANRWeaponBase::ANRWeaponBase()
 	// Magazine
 	Magazine = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("弹夹"));
 	Magazine->SetupAttachment(Mesh, NAME_Socket_Magazine);
+
+	// IronSight
+	IronSight = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("机瞄"));
+	IronSight->SetupAttachment(Mesh, NAME_Socket_Default);
+}
+
+void ANRWeaponBase::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+	
+	TArray<FSoftObjectPath> TargetsToStream;
+	if (GetMagazineSettingRow()) UNRStatics::AddSoftObjectPathToArray(MagazineSetting->Mesh, TargetsToStream);
+	if (GetIronSightSettingRow()) UNRStatics::AddSoftObjectPathToArray(IronSightSetting->Mesh, TargetsToStream);
+
+	const TDelegate<void()> DelegateToCall = FStreamableDelegate::CreateLambda([this]()
+		{
+			if (MagazineSetting && MagazineSetting->Mesh.IsValid())
+			{
+				Magazine->SetStaticMesh(MagazineSetting->Mesh.Get());
+			}
+			if (IronSightSetting && IronSightSetting->Mesh.IsValid())
+			{
+				IronSight->SetStaticMesh(IronSightSetting->Mesh.Get());
+			}
+		}
+	);
+	UNRStatics::RequestAsyncLoad(AttachmentStreamableHandle, TargetsToStream, DelegateToCall);
 }
 
 void ANRWeaponBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -39,6 +66,28 @@ void ANRWeaponBase::BeginPlay()
 	Super::BeginPlay();
 }
 
+void ANRWeaponBase::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	TickFPS_SeparateFOVDirty();
+}
+
+void ANRWeaponBase::Destroyed()
+{
+	if (PickupVfxStreamableHandle.IsValid())
+	{
+		PickupVfxStreamableHandle->ReleaseHandle();
+		PickupVfxStreamableHandle.Reset();
+	}
+	if (AttachmentStreamableHandle.IsValid())
+	{
+		AttachmentStreamableHandle->ReleaseHandle();
+		AttachmentStreamableHandle.Reset();
+	}
+	Super::Destroyed();
+}
+
 void ANRWeaponBase::SetWeaponState(ENRWeaponState InWeaponState)
 {
 	const ENRWeaponState OldWeaponState = WeaponState;
@@ -46,16 +95,48 @@ void ANRWeaponBase::SetWeaponState(ENRWeaponState InWeaponState)
 	OnRep_WeaponState(OldWeaponState);
 }
 
-void ANRWeaponBase::SetVisibility(bool bNewVisibility) const
+void ANRWeaponBase::SetOnlySeeShadow(bool bOnlyShadow) const
 {
-	Mesh->SetVisibility(bNewVisibility);
-	Magazine->SetVisibility(bNewVisibility);
+	Mesh->SetRenderInMainPass(!bOnlyShadow);
+	
+	Magazine->SetVisibility(!bOnlyShadow);
+	Magazine->SetCastHiddenShadow(bOnlyShadow);
+	
+	IronSight->SetVisibility(!bOnlyShadow);
+	IronSight->SetCastHiddenShadow(bOnlyShadow);
 }
 
-void ANRWeaponBase::SetFPS_SeparateFOV(bool bEnable, bool bSeparate) const
+void ANRWeaponBase::SetSelfShadowOnly(bool bSelfShadowOnly) const
 {
-	UNRStatics::SetFPS_SeparateFOV(Mesh, bEnable, bSeparate);
-	UNRStatics::SetFPS_SeparateFOV(Magazine, bEnable, bSeparate);
+	Mesh->bSelfShadowOnly = bSelfShadowOnly;
+	Mesh->MarkRenderStateDirty();
+	
+	Magazine->bSelfShadowOnly = bSelfShadowOnly;
+	Magazine->MarkRenderStateDirty();
+	
+	IronSight->bSelfShadowOnly = bSelfShadowOnly;
+	IronSight->MarkRenderStateDirty();
+}
+
+void ANRWeaponBase::SetFPS_SeparateFOV(bool bInSeparateFOV, bool bInSeparate)
+{
+	bFPS_SeparateFOVDirty = true;
+	
+	bSeparateFOV = bInSeparateFOV;
+	bSeparate = bInSeparate;
+}
+
+void ANRWeaponBase::TickFPS_SeparateFOVDirty()
+{
+	if (bFPS_SeparateFOVDirty)
+	{
+		UNRStatics::SetFPS_SeparateFOV(Mesh, bSeparateFOV, bSeparate);
+		UNRStatics::SetFPS_SeparateFOV(Magazine, bSeparateFOV, bSeparate);
+		UNRStatics::SetFPS_SeparateFOV(IronSight, bSeparateFOV, bSeparate);
+		bFPS_SeparateFOVDirty = Mesh->GetMaterials().Num() == 0 ||
+								Magazine->GetMaterials().Num() == 0 ||
+								IronSight->GetMaterials().Num() == 0;
+	}
 }
 
 void ANRWeaponBase::OnRep_WeaponState(ENRWeaponState OldWeaponState)
@@ -77,15 +158,21 @@ void ANRWeaponBase::OnRep_WeaponState(ENRWeaponState OldWeaponState)
 					{
 						if (!NRGameSingleton->CommonVFX.PickupVFX.IsNull())
 						{
-							PickupVfxStreamableHandle = NRGameSingleton->StreamableManager.RequestAsyncLoad(NRGameSingleton->CommonVFX.PickupVFX.ToSoftObjectPath(),
-								FStreamableDelegate::CreateLambda([this, NRGameSingleton]()
+							const TDelegate<void()> DelegateToCall = FStreamableDelegate::CreateLambda([this, &NRGameSingleton]()
 								{
-									PickupNiagaraComp = NewObject<UNiagaraComponent>(this);
-									PickupNiagaraComp->RegisterComponent();
-									PickupNiagaraComp->SetAsset(NRGameSingleton->CommonVFX.PickupVFX.Get());
-									PickupNiagaraComp->AttachToComponent(Mesh, FAttachmentTransformRules::KeepRelativeTransform);	
-								})
+									if (NRGameSingleton->CommonVFX.PickupVFX.IsValid())
+									{
+										PickupNiagaraComp = NewObject<UNiagaraComponent>(this);
+										PickupNiagaraComp->RegisterComponent();
+										PickupNiagaraComp->SetAsset(NRGameSingleton->CommonVFX.PickupVFX.Get());
+										PickupNiagaraComp->AttachToComponent(Mesh, FAttachmentTransformRules::KeepRelativeTransform);		
+									}
+								}
 							);
+
+							TArray<FSoftObjectPath> TargetsToStream;
+							UNRStatics::AddSoftObjectPathToArray(NRGameSingleton->CommonVFX.PickupVFX, TargetsToStream);
+							UNRStatics::RequestAsyncLoad(PickupVfxStreamableHandle, TargetsToStream, DelegateToCall);
 						}
 					}	
 				}
@@ -104,7 +191,7 @@ void ANRWeaponBase::OnRep_WeaponState(ENRWeaponState OldWeaponState)
 					if (PickupVfxStreamableHandle)
 					{
 						PickupVfxStreamableHandle->ReleaseHandle();
-						PickupVfxStreamableHandle->ReleaseHandle();
+						PickupVfxStreamableHandle.Reset();
 					}
 					if (PickupNiagaraComp)
 					{
@@ -186,5 +273,29 @@ UAnimMontage* ANRWeaponBase::GetWeaponMontage(bool bFPS, const FName& RowName)
 		}
 	}
 	return nullptr;
+}
+
+FNRMagazineSettingRow* ANRWeaponBase::GetMagazineSettingRow()
+{
+	if (!MagazineSetting)
+	{
+		if (const FNRWeaponInformationRow* WeaponInfo = GetWeaponInformation())
+		{
+			MagazineSetting = WeaponInfo->GetMagazineSetting();
+		}
+	}
+	return MagazineSetting;
+}
+
+FNRIronSightSettingRow* ANRWeaponBase::GetIronSightSettingRow()
+{
+	if (!IronSightSetting)
+	{
+		if (const FNRWeaponInformationRow* WeaponInfo = GetWeaponInformation())
+		{
+			IronSightSetting = WeaponInfo->GetIronSightSetting();
+		}
+	}
+	return IronSightSetting;
 }
 

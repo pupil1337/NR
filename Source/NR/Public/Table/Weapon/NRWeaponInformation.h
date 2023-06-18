@@ -6,6 +6,8 @@
 #include "Engine/DataTable.h"
 #include "NRAnimSetting.h"
 #include "NRWeaponSetting.h"
+#include "NRMagazineSetting.h"
+#include "NRIronSightSetting.h"
 #include "NRWeaponInformation.generated.h"
 
 class ANRWeaponBase;
@@ -29,6 +31,12 @@ struct NR_API FNRWeaponInformationRow : public FTableRowBase
 
 	UPROPERTY(EditDefaultsOnly, DisplayName="RowHandle-武器属性")
 	FDataTableRowHandle RowHandle_WeaponSetting; // FNRWeaponSettingRow
+
+	UPROPERTY(EditDefaultsOnly, DisplayName="RowHandle-弹夹")
+	FDataTableRowHandle RowHandle_MagazineSetting; // FNRMagazineSettingRow
+
+	UPROPERTY(EditDefaultsOnly, DisplayName="RowHandle-机瞄")
+	FDataTableRowHandle RowHandle_IronSightSetting; // FNRIronSightSettingRow
 
 	UPROPERTY(EditDefaultsOnly, DisplayName="DataTable-蒙太奇")
 	TObjectPtr<UDataTable> DT_Montage; // FNRMontageRow
@@ -58,7 +66,27 @@ struct NR_API FNRWeaponInformationRow : public FTableRowBase
 	{
 		if (!RowHandle_WeaponSetting.IsNull())
 		{
-			return RowHandle_WeaponSetting.GetRow<FNRWeaponSettingRow>(TEXT("FNRWeaponInformationRow::FNRWeaponSettingRow()"));
+			return RowHandle_WeaponSetting.GetRow<FNRWeaponSettingRow>(TEXT("FNRWeaponInformationRow::GetWeaponSetting()"));
+		}
+		return nullptr;
+	}
+
+	// Getter-弹夹
+	FNRMagazineSettingRow* GetMagazineSetting() const
+	{
+		if (!RowHandle_MagazineSetting.IsNull())
+		{
+			return RowHandle_MagazineSetting.GetRow<FNRMagazineSettingRow>(TEXT("FNRWeaponInformationRow::GetMagazineSetting()"));
+		}
+		return nullptr;
+	}
+
+	// Getter-机瞄
+	FNRIronSightSettingRow* GetIronSightSetting() const
+	{
+		if (!RowHandle_IronSightSetting.IsNull())
+		{
+			return RowHandle_IronSightSetting.GetRow<FNRIronSightSettingRow>(TEXT("FNRWeaponInformationRow::GetIronSightSetting()"));
 		}
 		return nullptr;
 	}

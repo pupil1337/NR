@@ -71,13 +71,13 @@ void FNRBodyAnimInstanceProxy::Update(float DeltaSeconds)
 	Super::Update(DeltaSeconds);
 }
 
-void FNRBodyAnimInstanceProxy::AddSoftObjectPathToArray(TArray<FSoftObjectPath>& AssetsToLoad)
+void FNRBodyAnimInstanceProxy::AddSoftObjectPathToArray(TArray<FSoftObjectPath>& OutTargetsToStream)
 {
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.StandIdlePose, AssetsToLoad);
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.StandAimPose, AssetsToLoad);
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.CrouchIdlePose, AssetsToLoad);
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.CrouchAimPose, AssetsToLoad);
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.RunPose, AssetsToLoad);
+	UNRStatics::AddSoftObjectPathToArray(AnimSetting.StandIdlePose, OutTargetsToStream);
+	UNRStatics::AddSoftObjectPathToArray(AnimSetting.StandAimPose, OutTargetsToStream);
+	UNRStatics::AddSoftObjectPathToArray(AnimSetting.CrouchIdlePose, OutTargetsToStream);
+	UNRStatics::AddSoftObjectPathToArray(AnimSetting.CrouchAimPose, OutTargetsToStream);
+	UNRStatics::AddSoftObjectPathToArray(AnimSetting.RunPose, OutTargetsToStream);
 }
 
 void FNRBodyAnimInstanceProxy::CalculateMoveDirAndAlpha(const FVector& V, float MoveAngle, float DeltaSeconds)

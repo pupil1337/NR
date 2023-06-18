@@ -10,6 +10,10 @@ const FName NAME_Separate_FOV_Alpha(TEXT("Separate_FOV Alpha"));
 /** 穿模修复 */
 const FName NAME_Separate_Alpha(TEXT("Separate Alpha"));
 
+
+/** 武器- 默认插槽 */
+const FName NAME_Socket_Default(TEXT("SOCKET_Default"));
+
 /** 武器- 弹夹插槽 */
 const FName NAME_Socket_Magazine(TEXT("SOCKET_Magazine"));
 

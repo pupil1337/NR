@@ -98,18 +98,18 @@ void FNRArmAnimInstanceProxy::Update(float DeltaSeconds)
 	}
 }
 
-void FNRArmAnimInstanceProxy::AddSoftObjectPathToArray(TArray<FSoftObjectPath>& AssetsToLoad)
+void FNRArmAnimInstanceProxy::AddSoftObjectPathToArray(TArray<FSoftObjectPath>& OutTargetsToStream)
 {
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.IdlePose, AssetsToLoad);
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.IdleBreath, AssetsToLoad);
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.AimPose, AssetsToLoad);
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.AimBreath, AssetsToLoad);
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.AimWalkF, AssetsToLoad);
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.RunPose, AssetsToLoad);
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.JumpOffsetCurveLocation, AssetsToLoad);
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.JumpOffsetCurveRotation, AssetsToLoad);
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.LandOffsetCurveLocation, AssetsToLoad);
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.LandOffsetCurveRotation, AssetsToLoad);
+	UNRStatics::AddSoftObjectPathToArray(AnimSetting.IdlePose, OutTargetsToStream);
+	UNRStatics::AddSoftObjectPathToArray(AnimSetting.IdleBreath, OutTargetsToStream);
+	UNRStatics::AddSoftObjectPathToArray(AnimSetting.AimPose, OutTargetsToStream);
+	UNRStatics::AddSoftObjectPathToArray(AnimSetting.AimBreath, OutTargetsToStream);
+	UNRStatics::AddSoftObjectPathToArray(AnimSetting.AimWalkF, OutTargetsToStream);
+	UNRStatics::AddSoftObjectPathToArray(AnimSetting.RunPose, OutTargetsToStream);
+	UNRStatics::AddSoftObjectPathToArray(AnimSetting.JumpOffsetCurveLocation, OutTargetsToStream);
+	UNRStatics::AddSoftObjectPathToArray(AnimSetting.JumpOffsetCurveRotation, OutTargetsToStream);
+	UNRStatics::AddSoftObjectPathToArray(AnimSetting.LandOffsetCurveLocation, OutTargetsToStream);
+	UNRStatics::AddSoftObjectPathToArray(AnimSetting.LandOffsetCurveRotation, OutTargetsToStream);
 }
 
 // UNRArmAnimInstance===================================================================================================

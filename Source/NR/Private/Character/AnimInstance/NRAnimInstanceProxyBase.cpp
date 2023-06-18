@@ -3,16 +3,16 @@
 
 #include "Character/AnimInstance/NRAnimInstanceProxyBase.h"
 
-#include "NRGameSingleton.h"
 #include "Character/NRCharacter.h"
 #include "Character/NRCharacterMovementComponent.h"
 #include "Character/Component/NRCombatComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Static/NRStatics.h"
 
 
 FNRAnimInstanceProxyBase::~FNRAnimInstanceProxyBase()
 {
-	if (StreamableHandlePair.Value)
+	if (StreamableHandlePair.Value.IsValid())
 	{
 		StreamableHandlePair.Value.Get()->ReleaseHandle();
 		StreamableHandlePair.Value.Reset();
@@ -76,25 +76,14 @@ void FNRAnimInstanceProxyBase::Update(float DeltaSeconds)
 
 void FNRAnimInstanceProxyBase::LoadAsset(const ANRWeaponBase* WeaponEquipped, bool bForce)
 {
-	// 如果当前装备的武器不是已经缓存的资源
+	// 当前装备的武器不是已经缓存的资源
 	if (StreamableHandlePair.Key != WeaponEquipped || bForce)
 	{
-		// 1.GC旧的武器相关资源
-		if (StreamableHandlePair.Value)
-		{
-			StreamableHandlePair.Value.Get()->ReleaseHandle();
-			StreamableHandlePair.Value.Reset();
-		}
+		TArray<FSoftObjectPath> TargetsToStream;
+		AddSoftObjectPathToArray(TargetsToStream);
 
-		// 2.加载当前使用的武器相关资源
-		if (UNRGameSingleton* NRGameSingleton = UNRGameSingleton::Get())
-		{
-			TArray<FSoftObjectPath> AssetsToLoad;
-			AddSoftObjectPathToArray(AssetsToLoad);
-
-			StreamableHandlePair.Key = WeaponEquipped;
-			StreamableHandlePair.Value = NRGameSingleton->StreamableManager.RequestAsyncLoad(AssetsToLoad);
-		}
+		StreamableHandlePair.Key = WeaponEquipped;
+		UNRStatics::RequestAsyncLoad(StreamableHandlePair.Value, TargetsToStream);
 	}
 }
 

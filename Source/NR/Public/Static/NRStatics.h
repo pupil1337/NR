@@ -3,10 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/StreamableManager.h"
 #include "Types/NRWeaponTypes.h"
 #include "Table/Weapon/NRWeaponInformation.h"
 #include "NRStatics.generated.h"
 
+struct FStreamableHandle;
 class APlayerController;
 
 /**
@@ -21,9 +23,11 @@ public:
 	/**
 	 * @brief 增加某个资源的路径到数组中
 	 * @param SoftObjectPtr 需要加载的资源软引用
-	 * @param PathArray out 路径数组
+	 * @param OutTargetsToStream out路径数组
 	 */
-	static void AddSoftObjectPathToArray(const TSoftObjectPtr<UObject>& SoftObjectPtr, TArray<FSoftObjectPath>& PathArray);
+	static void AddSoftObjectPathToArray(const TSoftObjectPtr<UObject>& SoftObjectPtr, TArray<FSoftObjectPath>& OutTargetsToStream);
+
+	static void RequestAsyncLoad(TSharedPtr<FStreamableHandle>& OutStreamableHandle, const TArray<FSoftObjectPath>& TargetsToStream, const FStreamableDelegate& DelegateToCall = FStreamableDelegate());
 
 	/**
 	 * @brief 设置骨骼网格体是否开启第一人称FOV+穿模修复

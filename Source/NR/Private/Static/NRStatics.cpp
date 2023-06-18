@@ -9,15 +9,27 @@
 #include "Types/NRWeaponTypes.h"
 
 
-void UNRStatics::AddSoftObjectPathToArray(const TSoftObjectPtr<>& SoftObjectPtr, TArray<FSoftObjectPath>& PathArray)
+void UNRStatics::AddSoftObjectPathToArray(const TSoftObjectPtr<>& SoftObjectPtr, TArray<FSoftObjectPath>& OutTargetsToStream)
 {
-	if (SoftObjectPtr.IsPending())
-	{
-		PathArray.AddUnique(SoftObjectPtr.ToSoftObjectPath());
-	}
-	else
+	OutTargetsToStream.AddUnique(SoftObjectPtr.ToSoftObjectPath());
+	
+	if (!SoftObjectPtr.IsPending())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Assets: %s加载失败. [1]a live UObject:%d, [2]not a Object:%d"), *SoftObjectPtr.GetAssetName(), SoftObjectPtr.IsValid(), SoftObjectPtr.IsNull())
+	}
+}
+
+void UNRStatics::RequestAsyncLoad(TSharedPtr<FStreamableHandle>& OutStreamableHandle, const TArray<FSoftObjectPath>& TargetsToStream, const FStreamableDelegate& DelegateToCall)
+{
+	if (UNRGameSingleton* NRGameSingleton = UNRGameSingleton::Get())
+	{
+		if (OutStreamableHandle.IsValid())
+		{
+			OutStreamableHandle->ReleaseHandle();
+			OutStreamableHandle.Reset();
+		}
+
+		OutStreamableHandle = NRGameSingleton->StreamableManager.RequestAsyncLoad(TargetsToStream, DelegateToCall);
 	}
 }
 
@@ -29,7 +41,6 @@ void UNRStatics::SetFPS_SeparateFOV(UMeshComponent* Mesh, bool bEnable, bool bSe
 		const float SeparateAlpha = bSeparate ? 0.1f : 1.0f;
 		Mesh->SetScalarParameterValueOnMaterials(NAME_Separate_FOV_Alpha, SeparateFOVAlpha);
 		Mesh->SetScalarParameterValueOnMaterials(NAME_Separate_Alpha, SeparateAlpha);
-		Mesh->SetCastShadow(false/* !bSeparate TODO:引擎有bug bSelfShadowOnly暂不可用 */);
 	}
 }
 

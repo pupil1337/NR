@@ -28,6 +28,16 @@ void UNRCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME_CONDITION(UNRCombatComponent, bAiming, COND_SkipOwner)
 }
 
+void UNRCombatComponent::BeginDestroy()
+{
+	if (StreamableHandle.IsValid())
+	{
+		StreamableHandle->ReleaseHandle();
+		StreamableHandle.Reset();
+	}
+	Super::BeginDestroy();
+}
+
 void UNRCombatComponent::InitLocallyControlledInputEvent(UInputComponent* PlayerInputComponent)
 {
 	Super::InitLocallyControlledInputEvent(PlayerInputComponent);
@@ -66,20 +76,13 @@ void UNRCombatComponent::InitLocallyControlledInputEvent(UInputComponent* Player
 void UNRCombatComponent::SetEquippedWeapon(ANRWeaponBase* InWeapon)
 {
 	EquippedWeapon = InWeapon;
-	
-	// 删除旧的资源
-	if (StreamableHandle)
-	{
-		StreamableHandle.Get()->ReleaseHandle();
-		StreamableHandle.Reset();
-	}
 
 	if (NRCharacter && EquippedWeapon)
 	{
 		// 缓存动画蒙太奇资源
 		if (const UDataTable* DT_Montage = EquippedWeapon->GetWeaponMontageDT())
 		{
-			TArray<FSoftObjectPath> AssetsToLoad;
+			TArray<FSoftObjectPath> TargetsToStream;
 			
 			TArray<FNRMontageRow*> MontageRows;
 			DT_Montage->GetAllRows<FNRMontageRow>(TEXT("FNRMontageRow"), MontageRows);
@@ -87,15 +90,15 @@ void UNRCombatComponent::SetEquippedWeapon(ANRWeaponBase* InWeapon)
 			{
 				if (it)
 				{
-					UNRStatics::AddSoftObjectPathToArray(it->TPS, AssetsToLoad);// 加载TP动画
+					UNRStatics::AddSoftObjectPathToArray(it->TPS, TargetsToStream);// 加载TP动画
 					if (NRCharacter->IsLocallyControlled())
 					{
-						UNRStatics::AddSoftObjectPathToArray(it->FPS, AssetsToLoad); // 本地控制端加载FP动画
+						UNRStatics::AddSoftObjectPathToArray(it->FPS, TargetsToStream); // 本地控制端加载FP动画
 					}
 				}
 			}
 
-			StreamableHandle = UNRGameSingleton::Get()->StreamableManager.RequestAsyncLoad(AssetsToLoad);
+			UNRStatics::RequestAsyncLoad(StreamableHandle, TargetsToStream);
 		}
 	}
 }

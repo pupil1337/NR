@@ -36,7 +36,7 @@ protected:
 	//~End   FAnimInstanceProxy
 
 	//~Begin FNRAnimInstanceProxyBase
-	virtual void AddSoftObjectPathToArray(TArray<FSoftObjectPath>& AssetsToLoad) override;
+	virtual void AddSoftObjectPathToArray(TArray<FSoftObjectPath>& OutTargetsToStream) override;
 	//~End   FNRAnimInstanceProxyBase
 	
 //~Begin This Class
