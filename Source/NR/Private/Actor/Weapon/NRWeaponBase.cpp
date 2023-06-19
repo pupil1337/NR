@@ -158,7 +158,7 @@ void ANRWeaponBase::OnRep_WeaponState(ENRWeaponState OldWeaponState)
 					{
 						if (!NRGameSingleton->CommonVFX.PickupVFX.IsNull())
 						{
-							const TDelegate<void()> DelegateToCall = FStreamableDelegate::CreateLambda([this, &NRGameSingleton]()
+							const TDelegate<void()> DelegateToCall = FStreamableDelegate::CreateLambda([this, NRGameSingleton]()
 								{
 									if (NRGameSingleton->CommonVFX.PickupVFX.IsValid())
 									{

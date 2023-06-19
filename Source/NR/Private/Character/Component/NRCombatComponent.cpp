@@ -5,7 +5,6 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "NRGameSingleton.h"
 #include "Actor/Weapon/NRWeaponBase.h"
 #include "Character/NRCharacter.h"
 #include "Character/Component/NRBagComponent.h"
