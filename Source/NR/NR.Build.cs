@@ -18,7 +18,11 @@ public class NR : ModuleRules
 			
 			"BaseModule",
 			
-			"Niagara"
+			"Niagara",
+			
+			"GameplayAbilities",
+			"GameplayTags",
+			"GameplayTasks"
 		});
 	}
 }

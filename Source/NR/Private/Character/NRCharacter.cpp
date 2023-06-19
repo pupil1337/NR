@@ -11,6 +11,9 @@
 #include "Static/NRStatics.h"
 #include "Character/NRCharacterMovementComponent.h"
 #include "Character/Component/NRComponentBase.h"
+#include "Character/GAS/NRAbilitySystemComponent.h"
+#include "Character/GAS/NRAttributeSet.h"
+#include "Character/GAS/NRGameplayAbility.h"
 #include "Net/UnrealNetwork.h"
 
 const FName NAME_Socket_Camera(TEXT("SOCKET_Camera"));
@@ -23,7 +26,7 @@ ANRCharacter::ANRCharacter(const FObjectInitializer& ObjectInitializer)
 	PrimaryActorTick.bStartWithTickEnabled = true;
 
 	bUseControllerRotationYaw = true;
-	
+
 	// Spring
 	Spring = CreateDefaultSubobject<USpringArmComponent>(TEXT("弹簧臂"));
 	Spring->SetupAttachment(GetCapsuleComponent());
@@ -40,6 +43,13 @@ ANRCharacter::ANRCharacter(const FObjectInitializer& ObjectInitializer)
 	// Camera
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("摄像机"));
 	Camera->SetupAttachment(MeshArm, NAME_Socket_Camera);
+
+	// NRAbilitySystemComponent
+	NRAbilitySystemComponent = CreateDefaultSubobject<UNRAbilitySystemComponent>(TEXT("技能组件"));
+	NRAbilitySystemComponent->SetIsReplicated(true);
+	NRAbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
+
+	NRAttributeSet = CreateDefaultSubobject<UNRAttributeSet>(TEXT("属性集"));
 }
 
 void ANRCharacter::OnConstruction(const FTransform& Transform)
@@ -88,6 +98,56 @@ void ANRCharacter::BeginPlay()
 	}
 }
 
+void ANRCharacter::InitializeAttributes() const
+{
+	if (NRAbilitySystemComponent && DefaultAttributeEffect)
+	{
+		FGameplayEffectContextHandle EffectContext = NRAbilitySystemComponent->MakeEffectContext();
+		EffectContext.AddSourceObject(this);
+
+		if (const FGameplayEffectSpecHandle SpecHandle = NRAbilitySystemComponent->MakeOutgoingSpec(DefaultAttributeEffect, 1.0f, EffectContext); SpecHandle.IsValid())
+		{
+			FActiveGameplayEffectHandle GEHandle = NRAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		}
+	}	
+}
+
+void ANRCharacter::InitializeAbilities()
+{
+	if (HasAuthority() && NRAbilitySystemComponent)
+	{
+		for (TSubclassOf<UNRGameplayAbility>& Ability : DefaultAbilities)
+		{
+			NRAbilitySystemComponent->GiveAbility(
+				FGameplayAbilitySpec(Ability, 1, static_cast<int32>(Ability.GetDefaultObject()->GetAbilityInputID()), this)
+			);
+		}
+	}
+}
+
+void ANRCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	if (NRAbilitySystemComponent)
+	{
+		NRAbilitySystemComponent->InitAbilityActorInfo(this, this);
+		InitializeAttributes();
+		InitializeAbilities();
+	}
+}
+
+void ANRCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	if (NRAbilitySystemComponent)
+	{
+		NRAbilitySystemComponent->InitAbilityActorInfo(this, this);
+		InitializeAttributes();
+	}
+}
+
 void ANRCharacter::PawnClientRestart()
 {
 	Super::PawnClientRestart();
@@ -108,50 +168,60 @@ void ANRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	if (const APlayerController* PlayerController = GetController<APlayerController>())
+	if (PlayerInputComponent)
 	{
-		if (const ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer())
+		if (const APlayerController* PlayerController = GetController<APlayerController>())
 		{
-			if (UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
+			if (const ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer())
 			{
-				if (IMC_Character)
+				if (UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
 				{
-					EnhancedInputLocalPlayerSubsystem->AddMappingContext(IMC_Character, 0);
-					if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+					if (IMC_Character)
 					{
-						if (IA_Move)
+						EnhancedInputLocalPlayerSubsystem->AddMappingContext(IMC_Character, 0);
+						if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 						{
-							EnhancedInputComponent->BindAction(IA_Move, ETriggerEvent::Triggered, this, &ThisClass::OnMoveInput);
-							EnhancedInputComponent->BindAction(IA_Move, ETriggerEvent::Completed, this, &ThisClass::OnMoveInput);
-						}
-						if (IA_Look)
-						{
-							EnhancedInputComponent->BindAction(IA_Look, ETriggerEvent::Triggered, this, &ThisClass::OnLookInput);
-						}
-						if (IA_Jump)
-						{
-							EnhancedInputComponent->BindAction(IA_Jump, ETriggerEvent::Started, this, &ThisClass::Jump);
-						}
-						if (IA_Crouch)
-						{
-							EnhancedInputComponent->BindAction(IA_Crouch, ETriggerEvent::Started, this, &ThisClass::OnCrouchInput);
-						}
-						if (IA_Run)
-						{
-							EnhancedInputComponent->BindAction(IA_Run, ETriggerEvent::Started, this, &ThisClass::OnRunInput);
+							if (IA_Move)
+							{
+								EnhancedInputComponent->BindAction(IA_Move, ETriggerEvent::Triggered, this, &ThisClass::OnMoveInput);
+								EnhancedInputComponent->BindAction(IA_Move, ETriggerEvent::Completed, this, &ThisClass::OnMoveInput);
+							}
+							if (IA_Look)
+							{
+								EnhancedInputComponent->BindAction(IA_Look, ETriggerEvent::Triggered, this, &ThisClass::OnLookInput);
+							}
+							if (IA_Jump)
+							{
+								EnhancedInputComponent->BindAction(IA_Jump, ETriggerEvent::Started, this, &ThisClass::Jump);
+							}
+							if (IA_Crouch)
+							{
+								EnhancedInputComponent->BindAction(IA_Crouch, ETriggerEvent::Started, this, &ThisClass::OnCrouchInput);
+							}
+							if (IA_Run)
+							{
+								EnhancedInputComponent->BindAction(IA_Run, ETriggerEvent::Started, this, &ThisClass::OnRunInput);
+							}
 						}
 					}
 				}
 			}
 		}
-	}
 
-	// Components注册输入事件
-	for (UActorComponent* it: GetComponents())
-	{
-		if (UNRComponentBase* tNRComp = Cast<UNRComponentBase>(it))
+		// Components注册输入事件
+		for (UActorComponent* it: GetComponents())
 		{
-			tNRComp->InitLocallyControlledInputEvent(PlayerInputComponent);
+			if (UNRComponentBase* tNRComp = Cast<UNRComponentBase>(it))
+			{
+				tNRComp->InitLocallyControlledInputEvent(PlayerInputComponent);
+			}
+		}
+
+		if (NRAbilitySystemComponent)
+		{
+			const FTopLevelAssetPath InputEnumPath = FTopLevelAssetPath(TEXT("/Script/NR"), TEXT("ENRAbilityInputID"));
+			const FGameplayAbilityInputBinds Binds("IA_Confirm", "IA_Cancel", InputEnumPath, static_cast<int32>(ENRAbilityInputID::IA_Confirm), static_cast<int32>(ENRAbilityInputID::IA_Cancel));
+			NRAbilitySystemComponent->BindAbilityActivationToInputComponent(InputComponent, Binds);
 		}
 	}
 }

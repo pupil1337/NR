@@ -4,10 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "NRCharacterBase.h"
-#include "InputActionValue.h"
+#include "AbilitySystemComponent.h"
+#include "AbilitySystemInterface.h"
 #include "NRCharacter.generated.h"
 
-class UNRSaveGame;
+class UNRGameplayAbility;
+class UNRAttributeSet;
+class UNRAbilitySystemComponent;
 class USpringArmComponent;
 class USkeletalMeshComponent;
 class UCameraComponent;
@@ -24,7 +27,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMoveInput, const FInputActionValu
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnJumped);
 
 UCLASS(Abstract, Blueprintable)
-class NR_API ANRCharacter : public ANRCharacterBase
+class NR_API ANRCharacter : public ANRCharacterBase, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -41,10 +44,22 @@ class NR_API ANRCharacter : public ANRCharacterBase
 	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UCameraComponent> Camera;
 
+	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"))
+	TObjectPtr<UNRAbilitySystemComponent> NRAbilitySystemComponent;
+
+	UPROPERTY()
+	TObjectPtr<UNRAttributeSet> NRAttributeSet;
+
 	// Settings
 	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"), Category="配置|角色", DisplayName="摄像机-FPS弹簧臂相对eyes位置偏移")
 	FVector SpringOffsetFPS = FVector(30.0f, 0.0f, 0.0f);
 
+	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"), Category="配置|技能系统", DisplayName="角色默认Attribute-GameplayEffect")
+	TSubclassOf<UGameplayEffect> DefaultAttributeEffect;
+
+	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"), Category="配置|技能系统", DisplayName="角色默认技能列表")
+	TArray<TSubclassOf<UNRGameplayAbility> > DefaultAbilities;
+	
 	// Inputs
 	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"), Category="配置|输入")
 	TObjectPtr<UInputMappingContext> IMC_Character;
@@ -69,7 +84,9 @@ public:
 	virtual void PreInitializeComponents() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void BeginPlay() override;
-	
+
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void OnRep_PlayerState() override;
 	virtual void PawnClientRestart() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Tick(float DeltaSeconds) override;
@@ -77,25 +94,29 @@ public:
 	virtual void Jump() override;
 	virtual void OnJumped_Implementation() override;
 
-//~ This Class Begin
+	// IAbilitySystemInterface
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return Cast<UAbilitySystemComponent>(NRAbilitySystemComponent); }
 
+//~Begin This Class
 	// Input Event Delegate
 	FOnMoveInput   OnInputEvent_Move;
 	FOnCrouchInput OnInputEvent_Crouch;
 	FOnRunInput    OnInputEvent_Run;
 	FOnJumped      OnJumpedEvent;
 
-	// Getter
-	FORCEINLINE const TArray<TSubclassOf<UNRComponentBase> >& GetAllNRComponentClasses() const { return NRComponentClasses; }
-	FORCEINLINE USkeletalMeshComponent* GetMeshArm() const { return MeshArm; }
-
 	// NRCharacterMovementComponent
 	UPROPERTY(Transient, Replicated)
 	bool bRunning;
 	UPROPERTY(Transient, Replicated)
 	bool bSkiing;
+
+	// Getter
+	FORCEINLINE USkeletalMeshComponent* GetMeshArm() const { return MeshArm; }
 	
 private:
+	void InitializeAttributes() const;
+	void InitializeAbilities();
+	
 	// LocallyControlled
 	void SetMeshesVisibility() const;
 	void UpdateSpringLocation(float DeltaSeconds) const;
