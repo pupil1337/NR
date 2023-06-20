@@ -6,8 +6,10 @@
 #include "NRCharacterBase.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
+#include "Types/NRGASTypes.h"
 #include "NRCharacter.generated.h"
 
+struct FInputActionValue;
 class UNRGameplayAbility;
 class UNRAttributeSet;
 class UNRAbilitySystemComponent;
@@ -91,7 +93,6 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Tick(float DeltaSeconds) override;
 
-	virtual void Jump() override;
 	virtual void OnJumped_Implementation() override;
 
 	// IAbilitySystemInterface
@@ -122,8 +123,10 @@ private:
 	void UpdateSpringLocation(float DeltaSeconds) const;
 	
 	// Inputs
+	void SendLocalInputToASC(bool bPressed, ENRAbilityInputID InputID) const;
 	void OnMoveInput(const FInputActionValue& Value);
 	void OnLookInput(const FInputActionValue& Value);
+	void OnJumpInput(const FInputActionValue& Value);
 	void OnCrouchInput(const FInputActionValue& Value);
 	void OnRunInput(const FInputActionValue& Value);
 };

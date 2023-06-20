@@ -118,9 +118,12 @@ void ANRCharacter::InitializeAbilities()
 	{
 		for (TSubclassOf<UNRGameplayAbility>& Ability : DefaultAbilities)
 		{
-			NRAbilitySystemComponent->GiveAbility(
-				FGameplayAbilitySpec(Ability, 1, static_cast<int32>(Ability.GetDefaultObject()->GetAbilityInputID()), this)
-			);
+			if (Ability)
+			{
+				NRAbilitySystemComponent->GiveAbility(
+					FGameplayAbilitySpec(Ability, 1, static_cast<int32>(Ability.GetDefaultObject()->GetAbilityInputID()), this)
+				);
+			}
 		}
 	}
 }
@@ -192,7 +195,7 @@ void ANRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 							}
 							if (IA_Jump)
 							{
-								EnhancedInputComponent->BindAction(IA_Jump, ETriggerEvent::Started, this, &ThisClass::Jump);
+								EnhancedInputComponent->BindAction(IA_Jump, ETriggerEvent::Started, this, &ThisClass::OnJumpInput);
 							}
 							if (IA_Crouch)
 							{
@@ -216,13 +219,6 @@ void ANRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 				tNRComp->InitLocallyControlledInputEvent(PlayerInputComponent);
 			}
 		}
-
-		if (NRAbilitySystemComponent)
-		{
-			const FTopLevelAssetPath InputEnumPath = FTopLevelAssetPath(TEXT("/Script/NR"), TEXT("ENRAbilityInputID"));
-			const FGameplayAbilityInputBinds Binds("IA_Confirm", "IA_Cancel", InputEnumPath, static_cast<int32>(ENRAbilityInputID::IA_Confirm), static_cast<int32>(ENRAbilityInputID::IA_Cancel));
-			NRAbilitySystemComponent->BindAbilityActivationToInputComponent(InputComponent, Binds);
-		}
 	}
 }
 
@@ -233,21 +229,6 @@ void ANRCharacter::Tick(float DeltaSeconds)
 	if (IsLocallyControlled())
 	{
 		UpdateSpringLocation(DeltaSeconds);
-	}
-}
-
-void ANRCharacter::Jump()
-{
-	if (const UNRCharacterMovementComponent* NRCharacterMovementComponent = GetCharacterMovement<UNRCharacterMovementComponent>())
-	{
-		if (NRCharacterMovementComponent->IsCrouching())
-		{
-			UnCrouch();
-		}
-		else
-		{
-			Super::Jump();
-		}
 	}
 }
 
@@ -272,6 +253,21 @@ void ANRCharacter::UpdateSpringLocation(float DeltaSeconds) const
 }
 
 // Inputs ===================================================================================
+void ANRCharacter::SendLocalInputToASC(bool bPressed, ENRAbilityInputID InputID) const
+{
+	if (NRAbilitySystemComponent)
+	{
+		if (bPressed)
+		{
+			NRAbilitySystemComponent->AbilityLocalInputPressed(static_cast<uint32>(InputID));
+		}
+		else
+		{
+			NRAbilitySystemComponent->AbilityLocalInputReleased(static_cast<uint32>(InputID));
+		}
+	}
+}
+
 void ANRCharacter::OnMoveInput(const FInputActionValue& Value)
 {
 	if (Controller)
@@ -297,6 +293,11 @@ void ANRCharacter::OnLookInput(const FInputActionValue& Value)
 			PlayerController->RotationInput.Pitch = 0.0f;
 		}
 	}
+}
+
+void ANRCharacter::OnJumpInput(const FInputActionValue& Value)
+{
+	SendLocalInputToASC(true, ENRAbilityInputID::EAIID_Jump);
 }
 
 void ANRCharacter::OnCrouchInput(const FInputActionValue& Value)

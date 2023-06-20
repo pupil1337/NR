@@ -4,3 +4,7 @@ p.NetShowCorrections XX	(展示服务器矫正移动)
 
 输入:
 ShowDebug EnhancedInput	(增强输入Debug)
+
+GAS:
+ShowDebug AbilitySystem	(GAS Debug)
+AbilitySystem.Debug.NextCategory	(GAS Debug下一页 '一共三页')

@@ -4,21 +4,22 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
-#include "NRGASTypes.h"
+#include "Types/NRGASTypes.h"
 #include "NRGameplayAbility.generated.h"
 
 /**
  * 
  */
-UCLASS()
+UCLASS(Abstract, NotBlueprintable)
 class NR_API UNRGameplayAbility : public UGameplayAbility
 {
 	GENERATED_BODY()
-	
-	UPROPERTY(EditDefaultsOnly)
-	ENRAbilityInputID AbilityInputID = ENRAbilityInputID::IA_None;
 
 //~Begin This Class
 public:
 	FORCEINLINE ENRAbilityInputID GetAbilityInputID() const { return AbilityInputID; }
+
+protected:
+	UPROPERTY(VisibleDefaultsOnly)
+	ENRAbilityInputID AbilityInputID = ENRAbilityInputID::EAIID_None;
 };

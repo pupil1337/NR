@@ -27,6 +27,12 @@ public:
 	 */
 	static void AddSoftObjectPathToArray(const TSoftObjectPtr<UObject>& SoftObjectPtr, TArray<FSoftObjectPath>& OutTargetsToStream);
 
+	/**
+	 * @brief 异步加载资源
+	 * @param OutStreamableHandle StreamableHandle引用
+	 * @param TargetsToStream 需要加载的资源路径列表
+	 * @param DelegateToCall 加载完成回调(TargetsToStream为Empty则不会调用)
+	 */
 	static void RequestAsyncLoad(TSharedPtr<FStreamableHandle>& OutStreamableHandle, const TArray<FSoftObjectPath>& TargetsToStream, const FStreamableDelegate& DelegateToCall = FStreamableDelegate());
 
 	/**
