@@ -195,7 +195,8 @@ void ANRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 							}
 							if (IA_Jump)
 							{
-								EnhancedInputComponent->BindAction(IA_Jump, ETriggerEvent::Started, this, &ThisClass::OnJumpInput);
+								EnhancedInputComponent->BindAction(IA_Jump, ETriggerEvent::Started, this, &ThisClass::OnJumpInputPressed);
+								EnhancedInputComponent->BindAction(IA_Jump, ETriggerEvent::Completed, this, &ThisClass::OnJumpInputReleased);
 							}
 							if (IA_Crouch)
 							{
@@ -230,6 +231,11 @@ void ANRCharacter::Tick(float DeltaSeconds)
 	{
 		UpdateSpringLocation(DeltaSeconds);
 	}
+}
+
+bool ANRCharacter::CanJumpInternal_Implementation() const
+{
+	return JumpIsAllowedInternal(); // Super: !bIsCrouched && JumpIsAllowedInternal();
 }
 
 void ANRCharacter::OnJumped_Implementation()
@@ -295,9 +301,14 @@ void ANRCharacter::OnLookInput(const FInputActionValue& Value)
 	}
 }
 
-void ANRCharacter::OnJumpInput(const FInputActionValue& Value)
+void ANRCharacter::OnJumpInputPressed(const FInputActionValue& Value)
 {
 	SendLocalInputToASC(true, ENRAbilityInputID::EAIID_Jump);
+}
+
+void ANRCharacter::OnJumpInputReleased(const FInputActionValue& Value)
+{
+	SendLocalInputToASC(false, ENRAbilityInputID::EAIID_Jump);
 }
 
 void ANRCharacter::OnCrouchInput(const FInputActionValue& Value)

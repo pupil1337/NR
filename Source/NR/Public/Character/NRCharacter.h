@@ -93,6 +93,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Tick(float DeltaSeconds) override;
 
+	virtual bool CanJumpInternal_Implementation() const override;
 	virtual void OnJumped_Implementation() override;
 
 	// IAbilitySystemInterface
@@ -126,7 +127,8 @@ private:
 	void SendLocalInputToASC(bool bPressed, ENRAbilityInputID InputID) const;
 	void OnMoveInput(const FInputActionValue& Value);
 	void OnLookInput(const FInputActionValue& Value);
-	void OnJumpInput(const FInputActionValue& Value);
+	void OnJumpInputPressed(const FInputActionValue& Value);
+	void OnJumpInputReleased(const FInputActionValue& Value);
 	void OnCrouchInput(const FInputActionValue& Value);
 	void OnRunInput(const FInputActionValue& Value);
 };
