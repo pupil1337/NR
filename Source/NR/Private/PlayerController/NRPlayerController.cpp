@@ -7,6 +7,11 @@
 #include "NRUserWidgetBase.h"
 #include "UI/NRUIUserWidget.h"
 
+#ifdef IMGUI_API
+#include "ImGuiModule.h"
+#include "DebugConsole/NRDebugConsole.h"
+#endif
+
 
 void ANRPlayerController::BeginPlay()
 {
@@ -19,7 +24,25 @@ void ANRPlayerController::BeginPlay()
 		SetShowMouseCursor(false);
 
 		CreateUIUserWidget();
+
+#ifdef IMGUI_API
+		DebugConsole = new NRDebugConsole(this);
+		FImGuiModule::Get().AddWorldImGuiDelegate(FImGuiDelegate::CreateRaw(DebugConsole, &NRDebugConsole::Tick));
+#endif
 	}
+}
+
+void ANRPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (IsLocalPlayerController())
+	{
+#ifdef IMGUI_API
+		delete DebugConsole;
+		DebugConsole = nullptr;
+#endif	
+	}
+	
+	Super::EndPlay(EndPlayReason);
 }
 
 void ANRPlayerController::CreateUIUserWidget()

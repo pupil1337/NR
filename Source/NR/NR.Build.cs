@@ -15,14 +15,15 @@ public class NR : ModuleRules
 			"UMG",
 			
 			"EnhancedInput",
-			
-			"BaseModule",
-			
+
 			"Niagara",
 			
 			"GameplayAbilities",
 			"GameplayTags",
-			"GameplayTasks"
+			"GameplayTasks",
+			
+			"BaseModule",
+			"ImGui"
 		});
 	}
 }

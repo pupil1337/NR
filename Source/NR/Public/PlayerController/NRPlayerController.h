@@ -8,6 +8,10 @@
 
 class UNRUIUserWidget;
 
+#ifdef IMGUI_API
+class NRDebugConsole;
+#endif
+
 UCLASS()
 class NR_API ANRPlayerController : public APlayerController
 {
@@ -15,6 +19,7 @@ class NR_API ANRPlayerController : public APlayerController
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 //~ Begin This Class
 private:
@@ -22,4 +27,9 @@ private:
 	
 	UPROPERTY(Transient)
 	UNRUIUserWidget* UIUserWidget;
+
+#ifdef IMGUI_API
+public:
+	NRDebugConsole* DebugConsole;
+#endif
 };
