@@ -16,9 +16,5 @@ public:
 	void Tick();
 
 private:
-
-	bool bStatFPS = true;
-	bool bTest = false;
-	
 	ANRPlayerController* NRPlayerController;
 };
