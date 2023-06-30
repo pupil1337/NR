@@ -313,11 +313,11 @@ void ANRCharacter::OnJumpInputReleased(const FInputActionValue& Value)
 
 void ANRCharacter::OnCrouchInput(const FInputActionValue& Value)
 {
-	OnInputEvent_Crouch.Broadcast();
+	//OnInputEvent_Crouch.Broadcast();
 }
 
 void ANRCharacter::OnRunInput(const FInputActionValue& Value)
 {
-	OnInputEvent_Run.Broadcast();
+	//OnInputEvent_Run.Broadcast();
 }
 

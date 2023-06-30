@@ -15,6 +15,7 @@ NRDebugConsole::NRDebugConsole(ANRPlayerController* NRPlayerController):
 	GameViewportClient = NRPlayerController->GetLocalPlayer()->ViewportClient;
 
 	NRPlayerController->ConsoleCommand("NetEmulation.PktLag 0");
+	NRPlayerController->ConsoleCommand("t.MaxFPS -1"); MaxFPS = -1;
 }
 
 NRDebugConsole::~NRDebugConsole()
@@ -66,6 +67,7 @@ void NRDebugConsole::ConsoleVar()
 {
 	if (ImGui::CollapsingHeader("Console Var"))
 	{
+		ImGui::Indent();
 		// Stat FPS
 		ImGui::Checkbox("Stat FPS", &bStatFPS);
 		if (bStatFPS != GameViewportClient->IsStatEnabled("FPS"))
@@ -82,8 +84,14 @@ void NRDebugConsole::ConsoleVar()
 		{
 			NRPlayerController->ConsoleCommand(FString::Printf(TEXT("p.NetShowCorrections %d"), bNetShowCorrections));	
 		}
+
+		// MaxFPS
+		if (ImGui::SliderInt("t.MaxFPS", &MaxFPS, 30, 999))
+		{
+			NRPlayerController->ConsoleCommand(FString::Printf(TEXT("t.MaxFPS %d"), MaxFPS));
+		}
 		
-		ImGui::Dummy({0.0f, 2.0f});
+		ImGui::SeparatorText("");
 		
 		// Show Collision
 		ImGui::Checkbox("show Collision", &bShowCollision);
@@ -122,5 +130,7 @@ void NRDebugConsole::ConsoleVar()
 			NRPlayerController->ConsoleCommand(FString::Printf(TEXT("NetEmulation.PktLag %d"), NetLag));
 		}
 		ImGui::EndDisabled();
+
+		ImGui::Unindent();
 	}
 }

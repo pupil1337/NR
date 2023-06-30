@@ -33,6 +33,7 @@ private:
 	// 1. Console Var
 	inline static bool bStatFPS = true;
 	inline static bool bNetShowCorrections = false;
+	inline static int MaxFPS = -1;
 	bool bShowCollision = false;
 	ShowDebugFlags ShowDebugFlags = 0;
 	int NetLag = 0;
