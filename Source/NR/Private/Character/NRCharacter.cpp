@@ -233,11 +233,6 @@ void ANRCharacter::Tick(float DeltaSeconds)
 	}
 }
 
-bool ANRCharacter::CanJumpInternal_Implementation() const
-{
-	return JumpIsAllowedInternal(); // Super: !bIsCrouched && JumpIsAllowedInternal();
-}
-
 void ANRCharacter::OnJumped_Implementation()
 {
 	Super::OnJumped_Implementation();
@@ -313,7 +308,17 @@ void ANRCharacter::OnJumpInputReleased(const FInputActionValue& Value)
 
 void ANRCharacter::OnCrouchInput(const FInputActionValue& Value)
 {
-	//OnInputEvent_Crouch.Broadcast();
+	if (NRAbilitySystemComponent)
+	{
+		if (NRAbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("Ability.Crouch"))))
+		{
+			SendLocalInputToASC(false, ENRAbilityInputID::EAIID_Crouch);
+		}
+		else
+		{
+			SendLocalInputToASC(true, ENRAbilityInputID::EAIID_Crouch);
+		}
+	}
 }
 
 void ANRCharacter::OnRunInput(const FInputActionValue& Value)

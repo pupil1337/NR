@@ -41,3 +41,28 @@ void UNRGA_CharacterCrouch::ActivateAbility(const FGameplayAbilitySpecHandle Han
 		}
 	}
 }
+
+void UNRGA_CharacterCrouch::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
+{
+	Super::InputReleased(Handle, ActorInfo, ActivationInfo);
+
+	CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+}
+
+void UNRGA_CharacterCrouch::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
+{
+	if (ScopeLockCount > 0)
+	{
+		WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &UNRGA_CharacterCrouch::CancelAbility, Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility));
+	}
+	
+	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
+
+	if (ActorInfo)
+	{
+		if (ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get()))
+		{
+			Character->UnCrouch();
+		}	
+	}
+}
