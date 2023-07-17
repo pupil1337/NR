@@ -233,11 +233,34 @@ void ANRCharacter::Tick(float DeltaSeconds)
 	}
 }
 
+bool ANRCharacter::CanJumpInternal_Implementation() const
+{
+	return /* !bIsCrouched && */ JumpIsAllowedInternal();
+}
+
 void ANRCharacter::OnJumped_Implementation()
 {
 	Super::OnJumped_Implementation();
 	
 	OnJumpedEvent.Broadcast();
+}
+
+void ANRCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
+{
+	Super::OnMovementModeChanged(PrevMovementMode, PreviousCustomMode);
+
+	if (NRAbilitySystemComponent)
+	{
+		const FGameplayTag& FallingTag = FGameplayTag::RequestGameplayTag(FName("State.Falling"));
+		if (GetCharacterMovement()->IsFalling())
+		{
+			NRAbilitySystemComponent->AddLooseGameplayTag(FallingTag);
+		}
+		else
+		{
+			NRAbilitySystemComponent->RemoveLooseGameplayTag(FallingTag);
+		}
+	}
 }
 
 // FuncType-LocallyControlled ===================================================================================
@@ -273,11 +296,15 @@ void ANRCharacter::OnMoveInput(const FInputActionValue& Value)
 {
 	if (Controller)
 	{
-		const FVector2d Value2D = Value.Get<FInputActionValue::Axis2D>();
-		AddMovementInput(FRotationMatrix(FRotator(0.0f, Controller->GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::Type::X), Value2D.Y);
-		AddMovementInput(FRotationMatrix(FRotator(0.0f, Controller->GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::Type::Y), Value2D.X);
+		MoveInputValue = Value.Get<FInputActionValue::Axis2D>();
+		AddMovementInput(FRotationMatrix(FRotator(0.0f, Controller->GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::Type::X), MoveInputValue.Y);
+		AddMovementInput(FRotationMatrix(FRotator(0.0f, Controller->GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::Type::Y), MoveInputValue.X);
+
+		if (MoveInputValue.Y != 1.0f)
+		{
+			SendLocalInputToASC(false, ENRAbilityInputID::EAIID_Run);
+		}
 	}
-	OnInputEvent_Move.Broadcast(Value);
 }
 
 void ANRCharacter::OnLookInput(const FInputActionValue& Value)
@@ -323,6 +350,15 @@ void ANRCharacter::OnCrouchInput(const FInputActionValue& Value)
 
 void ANRCharacter::OnRunInput(const FInputActionValue& Value)
 {
-	//OnInputEvent_Run.Broadcast();
+	if (MoveInputValue.Y == 1.0f)
+	{
+		if (NRAbilitySystemComponent)
+		{
+			if (!NRAbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("Ability.Run"))))
+			{
+				SendLocalInputToASC(true, ENRAbilityInputID::EAIID_Run);
+			}
+		}	
+	}
 }
 

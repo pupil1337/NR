@@ -4,7 +4,6 @@
 #include "Character/GAS/Ability/NRGA_CharacterJump.h"
 
 #include "Character/NRCharacter.h"
-#include "GameFramework/CharacterMovementComponent.h"
 
 UNRGA_CharacterJump::UNRGA_CharacterJump()
 {
@@ -12,23 +11,21 @@ UNRGA_CharacterJump::UNRGA_CharacterJump()
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::Type::NonInstanced;
 }
 
-// bool UNRGA_CharacterJump::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
-// {
-// 	if (Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
-// 	{
-// 		// if (ActorInfo)
-// 		// {
-// 		// 	if (const ANRCharacter* NRCharacter = Cast<ANRCharacter>(ActorInfo->AvatarActor.Get()))
-// 		// 	{
-// 		// 		return NRCharacter->CanJump();
-// 		// 	}
-// 		// }
-// 		// TODO
-// 		return true;
-// 	}
-//
-// 	return false;
-// }
+bool UNRGA_CharacterJump::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
+{
+	if (Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
+	{
+		if (ActorInfo)
+		{
+			if (const ANRCharacter* NRCharacter = Cast<ANRCharacter>(ActorInfo->AvatarActor.Get()))
+			{
+				return NRCharacter->CanJump();
+			}
+		}
+	}
+
+	return false;
+}
 
 void UNRGA_CharacterJump::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {

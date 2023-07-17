@@ -93,7 +93,9 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Tick(float DeltaSeconds) override;
 
+	virtual bool CanJumpInternal_Implementation() const override;
 	virtual void OnJumped_Implementation() override;
+	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
 
 	// IAbilitySystemInterface
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return Cast<UAbilitySystemComponent>(NRAbilitySystemComponent); }
@@ -124,6 +126,7 @@ private:
 	
 	// Inputs
 	void SendLocalInputToASC(bool bPressed, ENRAbilityInputID InputID) const;
+	FVector2D MoveInputValue = FVector2D::ZeroVector; // 仅在控制端
 	void OnMoveInput(const FInputActionValue& Value);
 	void OnLookInput(const FInputActionValue& Value);
 	void OnJumpInputPressed(const FInputActionValue& Value);

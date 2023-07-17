@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "Character/GAS/NRGameplayAbility.h"
-#include "NRGA_CharacterJump.generated.h"
+#include "NRGA_CharacterRun.generated.h"
 
 /**
  * 
  */
 UCLASS(Abstract, Blueprintable)
-class NR_API UNRGA_CharacterJump : public UNRGameplayAbility
+class NR_API UNRGA_CharacterRun : public UNRGameplayAbility
 {
 	GENERATED_BODY()
 
 public:
-	UNRGA_CharacterJump();
+	UNRGA_CharacterRun();
 
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const override;
 

@@ -164,6 +164,13 @@ bool UNRCharacterMovementComponent::CanCrouchInCurrentState() const
 	return Super::CanCrouchInCurrentState() && IsMovingOnGround();
 }
 
+bool UNRCharacterMovementComponent::CanAttemptJump() const
+{
+	return IsJumpAllowed() &&
+		   // !bWantsToCrouch &&
+		   (IsMovingOnGround() || IsFalling()); // Falling included for double-jump and non-zero jump hold time, but validated by character.
+}
+
 bool UNRCharacterMovementComponent::IsNRMovementMode(ENRMovementMode InNRMovementMode) const
 {
 	return MovementMode == MOVE_Custom && CustomMovementMode == InNRMovementMode;

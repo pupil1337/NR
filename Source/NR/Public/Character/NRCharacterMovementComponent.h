@@ -75,6 +75,8 @@ public:
 	virtual bool IsMovingOnGround() const override;
 
 	virtual bool CanCrouchInCurrentState() const override;
+
+	virtual bool CanAttemptJump() const override;
 	
 protected:
 	virtual void UpdateFromCompressedFlags(uint8 Flags) override;

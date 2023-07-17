@@ -4,7 +4,6 @@
 #include "Character/GAS/Ability/NRGA_CharacterCrouch.h"
 
 #include "GameFramework/Character.h"
-#include "GameFramework/CharacterMovementComponent.h"
 
 UNRGA_CharacterCrouch::UNRGA_CharacterCrouch()
 {
@@ -15,13 +14,8 @@ bool UNRGA_CharacterCrouch::CanActivateAbility(const FGameplayAbilitySpecHandle 
 {
 	if (Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
 	{
-		if (const ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get()))
-		{
-			if (const UCharacterMovementComponent* CharacterMovementComponent = Character->GetCharacterMovement())
-			{
-				return !CharacterMovementComponent->IsFalling();
-			}
-		}
+		// TODO
+		return true;
 	}
 	return false;
 }
