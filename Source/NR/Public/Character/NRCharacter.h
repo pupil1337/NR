@@ -107,12 +107,6 @@ public:
 	FOnRunInput    OnInputEvent_Run;
 	FOnJumped      OnJumpedEvent;
 
-	// NRCharacterMovementComponent
-	UPROPERTY(Transient, Replicated)
-	bool bRunning;
-	UPROPERTY(Transient, Replicated)
-	bool bSkiing;
-
 	// Getter
 	FORCEINLINE USkeletalMeshComponent* GetMeshArm() const { return MeshArm; }
 	

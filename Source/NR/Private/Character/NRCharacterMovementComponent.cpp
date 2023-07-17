@@ -11,14 +11,16 @@ class ANRCharacter;
 
 // FSavedMove_NR =======================================================================================================
 FSavedMove_NR::FSavedMove_NR()
-	: bWantsToRun(0)
+	: bWantsToRun(0),
+	  bWantsToSki(0)
 {
 }
 
 bool FSavedMove_NR::CanCombineWith(const FSavedMovePtr& NewMove, ACharacter* InCharacter, float MaxDelta) const
 {
 	const FSavedMove_NR* NewNRMove = static_cast<FSavedMove_NR*>(NewMove.Get());
-	if (bWantsToRun != NewNRMove->bWantsToRun)
+	if (bWantsToRun != NewNRMove->bWantsToRun ||
+		bWantsToSki != NewNRMove->bWantsToSki)
 	{
 		return false;
 	}
@@ -30,6 +32,7 @@ void FSavedMove_NR::Clear()
 	Super::Clear();
 
 	bWantsToRun = 0;
+	bWantsToSki = 0;
 }
 
 uint8 FSavedMove_NR::GetCompressedFlags() const
@@ -38,6 +41,11 @@ uint8 FSavedMove_NR::GetCompressedFlags() const
 	if (bWantsToRun)
 	{
 		Result |= FLAG_Custom_0;
+	}
+
+	if (bWantsToSki)
+	{
+		Result |= FLAG_Custom_1;
 	}
 	
 	return Result;
@@ -50,6 +58,7 @@ void FSavedMove_NR::SetMoveFor(ACharacter* C, float InDeltaTime, FVector const& 
 	if (const UNRCharacterMovementComponent* NRCharacterMovementComponent = C->GetCharacterMovement<UNRCharacterMovementComponent>())
 	{
 		bWantsToRun = NRCharacterMovementComponent->bWantsToRun;
+		bWantsToSki = NRCharacterMovementComponent->bWantsToSki;
 	}
 }
 
@@ -60,6 +69,7 @@ void FSavedMove_NR::PrepMoveFor(ACharacter* C)
 	if (UNRCharacterMovementComponent* NRCharacterMovementComponent = C->GetCharacterMovement<UNRCharacterMovementComponent>())
 	{
 		NRCharacterMovementComponent->bWantsToRun = bWantsToRun;
+		NRCharacterMovementComponent->bWantsToSki = bWantsToSki;
 	}
 }
 
@@ -101,6 +111,7 @@ void UNRCharacterMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
 	Super::UpdateFromCompressedFlags(Flags);
 
 	bWantsToRun = (Flags & FSavedMove_NR::FLAG_Custom_0) != 0;
+	bWantsToSki = (Flags & FSavedMove_NR::FLAG_Custom_1) != 0;
 }
 
 void UNRCharacterMovementComponent::OnMovementUpdated(float DeltaSeconds, const FVector& OldLocation, const FVector& OldVelocity)
@@ -114,7 +125,6 @@ void UNRCharacterMovementComponent::OnMovementUpdated(float DeltaSeconds, const 
 		{
 			MaxWalkSpeed = bWantsToRun ? Run_MaxWalkSpeed : NRCharacterOwner->GetClass()->GetDefaultObject<ANRCharacter>()->GetCharacterMovement<UNRCharacterMovementComponent>()->MaxWalkSpeed;
 		}
-		NRCharacterOwner->bRunning = bWantsToRun;
 	}
 }
 
@@ -123,7 +133,7 @@ void UNRCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float Del
 	if (NRCharacterOwner->GetLocalRole() != ROLE_SimulatedProxy)
 	{
 		// Ski
-		if (MovementMode == MOVE_Walking && bWantsToRun && bWantsToCrouch)
+		if (MovementMode == MOVE_Walking && bWantsToSki)
 		{
 			FHitResult PotentialSkiSurface;
 			if (Velocity.SizeSquared() > pow(MaxWalkSpeedCrouched, 2) && GetSkiSurface(PotentialSkiSurface))
@@ -131,7 +141,7 @@ void UNRCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float Del
 				EnterSki(PotentialSkiSurface);
 			}
 		}
-		if (IsNRMovementMode(NRMOVE_Ski) && !bWantsToCrouch)
+		if (IsNRMovementMode(NRMOVE_Ski) && !bWantsToSki)
 		{
 			ExitSki(false);
 		}
@@ -183,15 +193,23 @@ void UNRCharacterMovementComponent::Run(bool bRun)
 	if (bWantsToRun)
 	{
 		bWantsToCrouch = false;
+		bWantsToSki = false;
 	}
 }
 
 // Ski
+void UNRCharacterMovementComponent::Ski(bool bSki)
+{
+	bWantsToSki = bSki;
+	if (bWantsToSki)
+	{
+		bWantsToCrouch = false;
+		bWantsToRun = false;
+	}
+}
+
 void UNRCharacterMovementComponent::EnterSki(const FHitResult& PotentialSkiSurface)
 {
-	bWantsToRun = false;
-	NRCharacterOwner->bSkiing = true;
-
 	const FVector VelPlaneDir = FVector::VectorPlaneProject(Velocity, PotentialSkiSurface.Normal).GetSafeNormal();
 	Velocity += VelPlaneDir * Ski_EnterImpulse;
 	SetMovementMode(MOVE_Custom, NRMOVE_Ski);
@@ -276,7 +294,6 @@ void UNRCharacterMovementComponent::PhySki(float deltaTime, int32 Iterations)
 void UNRCharacterMovementComponent::ExitSki(bool bKeepCrouch)
 {
 	bWantsToCrouch = bKeepCrouch;
-	NRCharacterOwner->bSkiing = false;
 	const FQuat NewRotation = FRotationMatrix::MakeFromXZ(UpdatedComponent->GetForwardVector().GetSafeNormal2D(), FVector::UpVector).ToQuat();
 	FHitResult Hit;
 	SafeMoveUpdatedComponent(FVector::ZeroVector, NewRotation, true, Hit);

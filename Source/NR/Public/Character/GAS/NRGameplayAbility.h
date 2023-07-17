@@ -17,9 +17,9 @@ class NR_API UNRGameplayAbility : public UGameplayAbility
 
 //~Begin This Class
 public:
-	FORCEINLINE ENRAbilityInputID GetAbilityInputID() const { return AbilityInputID; }
+	FORCEINLINE ENRAbilityInputID GetAbilityInputID() const { return NRAbilityInputID; }
 
 protected:
 	UPROPERTY(VisibleDefaultsOnly)
-	ENRAbilityInputID AbilityInputID = ENRAbilityInputID::EAIID_None;
+	ENRAbilityInputID NRAbilityInputID = ENRAbilityInputID::EAIID_None;
 };

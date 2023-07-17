@@ -7,7 +7,8 @@
 
 UNRGA_CharacterCrouch::UNRGA_CharacterCrouch()
 {
-	AbilityInputID = ENRAbilityInputID::EAIID_Crouch;
+	NRAbilityInputID = ENRAbilityInputID::EAIID_Crouch;
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::Type::NonInstanced;
 }
 
 bool UNRGA_CharacterCrouch::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
@@ -17,6 +18,7 @@ bool UNRGA_CharacterCrouch::CanActivateAbility(const FGameplayAbilitySpecHandle 
 		// TODO
 		return true;
 	}
+	
 	return false;
 }
 

@@ -7,7 +7,7 @@
 
 UNRGA_CharacterJump::UNRGA_CharacterJump()
 {
-	AbilityInputID = ENRAbilityInputID::EAIID_Jump;
+	NRAbilityInputID = ENRAbilityInputID::EAIID_Jump;
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::Type::NonInstanced;
 }
 

@@ -8,7 +8,7 @@
 
 UNRGA_CharacterRun::UNRGA_CharacterRun()
 {
-	AbilityInputID = ENRAbilityInputID::EAIID_Run;
+	NRAbilityInputID = ENRAbilityInputID::EAIID_Run;
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::NonInstanced;
 }
 

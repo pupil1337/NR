@@ -80,9 +80,6 @@ void ANRCharacter::PreInitializeComponents()
 void ANRCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	
-	DOREPLIFETIME_CONDITION(ANRCharacter, bRunning, COND_SimulatedOnly)
-	DOREPLIFETIME_CONDITION(ANRCharacter, bSkiing, COND_SimulatedOnly)
 }
 
 void ANRCharacter::BeginPlay()
@@ -337,7 +334,17 @@ void ANRCharacter::OnCrouchInput(const FInputActionValue& Value)
 {
 	if (NRAbilitySystemComponent)
 	{
-		if (NRAbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("Ability.Crouch"))))
+		// 滑铲
+		if (NRAbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("Ability.Run"))))
+		{
+			SendLocalInputToASC(true, ENRAbilityInputID::EAIID_Ski);
+		}
+		else if (NRAbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("Ability.Ski"))))
+		{
+			SendLocalInputToASC(false, ENRAbilityInputID::EAIID_Ski);
+		}
+		// 蹲伏
+		else if (NRAbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("Ability.Crouch"))))
 		{
 			SendLocalInputToASC(false, ENRAbilityInputID::EAIID_Crouch);
 		}
