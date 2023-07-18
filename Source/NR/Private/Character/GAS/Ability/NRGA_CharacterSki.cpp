@@ -3,6 +3,7 @@
 
 #include "Character/GAS/Ability/NRGA_CharacterSki.h"
 
+#include "Character/NRCharacterMovementComponent.h"
 #include "GameFramework/Character.h"
 
 UNRGA_CharacterSki::UNRGA_CharacterSki()
@@ -33,7 +34,10 @@ void UNRGA_CharacterSki::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 
 		if (ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get()))
 		{
-			Character->Crouch();
+			if (UNRCharacterMovementComponent* NRCharacterMovementComponent = Character->GetCharacterMovement<UNRCharacterMovementComponent>())
+			{
+				NRCharacterMovementComponent->Ski(true);
+			}
 		}
 	}
 }
@@ -56,9 +60,12 @@ void UNRGA_CharacterSki::CancelAbility(const FGameplayAbilitySpecHandle Handle, 
 
 	if (ActorInfo)
 	{
-		if (ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get()))
+		if (const ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get()))
 		{
-			Character->UnCrouch();
-		}	
+			if (UNRCharacterMovementComponent* NRCharacterMovementComponent = Character->GetCharacterMovement<UNRCharacterMovementComponent>())
+			{
+				NRCharacterMovementComponent->Ski(false);
+			}
+		}
 	}
 }

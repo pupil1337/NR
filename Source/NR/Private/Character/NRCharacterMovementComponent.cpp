@@ -118,7 +118,7 @@ void UNRCharacterMovementComponent::OnMovementUpdated(float DeltaSeconds, const 
 {
 	Super::OnMovementUpdated(DeltaSeconds, OldLocation, OldVelocity);
 	
-	if (NRCharacterOwner && NRCharacterOwner->GetLocalRole() != ROLE_SimulatedProxy)
+	if (NRCharacterOwner->GetLocalRole() != ROLE_SimulatedProxy)
 	{
 		// Run
 		if (MovementMode == MOVE_Walking)
@@ -190,26 +190,17 @@ bool UNRCharacterMovementComponent::IsNRMovementMode(ENRMovementMode InNRMovemen
 void UNRCharacterMovementComponent::Run(bool bRun)
 {
 	bWantsToRun = bRun;
-	if (bWantsToRun)
-	{
-		bWantsToCrouch = false;
-		bWantsToSki = false;
-	}
 }
 
 // Ski
 void UNRCharacterMovementComponent::Ski(bool bSki)
 {
 	bWantsToSki = bSki;
-	if (bWantsToSki)
-	{
-		bWantsToCrouch = false;
-		bWantsToRun = false;
-	}
 }
 
 void UNRCharacterMovementComponent::EnterSki(const FHitResult& PotentialSkiSurface)
 {
+	NRCharacterOwner->Crouch();
 	const FVector VelPlaneDir = FVector::VectorPlaneProject(Velocity, PotentialSkiSurface.Normal).GetSafeNormal();
 	Velocity += VelPlaneDir * Ski_EnterImpulse;
 	SetMovementMode(MOVE_Custom, NRMOVE_Ski);
@@ -293,7 +284,15 @@ void UNRCharacterMovementComponent::PhySki(float deltaTime, int32 Iterations)
 
 void UNRCharacterMovementComponent::ExitSki(bool bKeepCrouch)
 {
-	bWantsToCrouch = bKeepCrouch;
+	if (bKeepCrouch)
+	{
+		NRCharacterOwner->GetAbilitySystemComponent()->AbilityLocalInputPressed(static_cast<uint32>(ENRAbilityInputID::EAIID_Crouch));
+	}
+	else
+	{
+		NRCharacterOwner->UnCrouch();
+	}
+	NRCharacterOwner->GetAbilitySystemComponent()->AbilityLocalInputReleased(static_cast<uint32>(ENRAbilityInputID::EAIID_Ski));
 	const FQuat NewRotation = FRotationMatrix::MakeFromXZ(UpdatedComponent->GetForwardVector().GetSafeNormal2D(), FVector::UpVector).ToQuat();
 	FHitResult Hit;
 	SafeMoveUpdatedComponent(FVector::ZeroVector, NewRotation, true, Hit);

@@ -16,8 +16,10 @@ bool UNRGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Han
 {
 	if (Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
 	{
-		// TODO
-		return true;
+		if (const ANRCharacter* NRCharacter = Cast<ANRCharacter>(ActorInfo->AvatarActor.Get()))
+		{
+			return NRCharacter->GetMoveInput().Y == 1.0f;
+		}
 	}
 
 	return false;

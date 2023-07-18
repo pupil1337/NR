@@ -109,6 +109,7 @@ public:
 
 	// Getter
 	FORCEINLINE USkeletalMeshComponent* GetMeshArm() const { return MeshArm; }
+	FORCEINLINE FVector2D GetMoveInput() const { return MoveInputValue; } // 仅在控制端
 	
 private:
 	void InitializeAttributes() const;
