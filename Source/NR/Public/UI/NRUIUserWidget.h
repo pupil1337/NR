@@ -6,6 +6,7 @@
 #include "NRUserWidgetBase.h"
 #include "NRUIUserWidget.generated.h"
 
+class UNRLifeUserWidget;
 class UNRCrosshairUserWidget;
 
 /**
@@ -18,4 +19,7 @@ class NR_API UNRUIUserWidget : public UNRUserWidgetBase
 
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UNRCrosshairUserWidget> CrosshairUserWidget;
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UNRLifeUserWidget> LifeUserWidget;
 };

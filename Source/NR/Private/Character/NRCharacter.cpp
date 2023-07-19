@@ -14,7 +14,6 @@
 #include "Character/GAS/NRAbilitySystemComponent.h"
 #include "Character/GAS/NRAttributeSet.h"
 #include "Character/GAS/NRGameplayAbility.h"
-#include "Net/UnrealNetwork.h"
 
 const FName NAME_Socket_Camera(TEXT("SOCKET_Camera"));
 const FName NAME_Bone_Spine_01(TEXT("spine_01"));

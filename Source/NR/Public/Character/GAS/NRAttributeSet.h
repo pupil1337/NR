@@ -23,6 +23,8 @@ class NR_API UNRAttributeSet : public UAttributeSet
 {
 	GENERATED_BODY()
 
+	friend class ANRCharacter;
+	
 public:
 	UNRAttributeSet();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -32,6 +34,13 @@ private:
 	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(UNRAttributeSet, Health)
 
+	UPROPERTY(ReplicatedUsing=OnRep_MaxHealth, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
+	FGameplayAttributeData MaxHealth;
+	ATTRIBUTE_ACCESSORS(UNRAttributeSet, MaxHealth)
+
 	UFUNCTION()
 	void OnRep_Health(const FGameplayAttributeData& OldHealth);
+
+	UFUNCTION()
+	void OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth);
 };

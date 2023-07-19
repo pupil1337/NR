@@ -6,6 +6,7 @@
 #include "NRCharacterBase.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
+#include "GAS/NRAttributeSet.h"
 #include "Types/NRGASTypes.h"
 #include "NRCharacter.generated.h"
 
@@ -110,6 +111,8 @@ public:
 	// Getter
 	FORCEINLINE USkeletalMeshComponent* GetMeshArm() const { return MeshArm; }
 	FORCEINLINE FVector2D GetMoveInput() const { return MoveInputValue; } // 仅在控制端
+	FORCEINLINE float GetHealth() const { return NRAttributeSet->GetHealth(); }
+	FORCEINLINE float GetMaxHealth() const { return NRAttributeSet->GetMaxHealth(); }
 	
 private:
 	void InitializeAttributes() const;
