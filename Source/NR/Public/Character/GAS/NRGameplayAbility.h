@@ -15,6 +15,9 @@ class NR_API UNRGameplayAbility : public UGameplayAbility
 {
 	GENERATED_BODY()
 
+public:
+	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
+	
 //~Begin This Class
 public:
 	FORCEINLINE ENRAbilityInputID GetAbilityInputID() const { return NRAbilityInputID; }
@@ -22,4 +25,7 @@ public:
 protected:
 	UPROPERTY(VisibleDefaultsOnly)
 	ENRAbilityInputID NRAbilityInputID = ENRAbilityInputID::EAIID_None;
+
+	UPROPERTY(VisibleDefaultsOnly, DisplayName="自动激活")
+	bool bAutoActiveOnGive = false;
 };

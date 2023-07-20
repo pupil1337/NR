@@ -3,6 +3,7 @@
 
 #include "Character/GAS/NRAttributeSet.h"
 
+#include "GameplayEffectExtension.h"
 #include "Net/UnrealNetwork.h"
 
 UNRAttributeSet::UNRAttributeSet()
@@ -17,6 +18,21 @@ void UNRAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME_CONDITION_NOTIFY(UNRAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always)
 	DOREPLIFETIME_CONDITION_NOTIFY(UNRAttributeSet, Shield, COND_None, REPNOTIFY_Always)
 	DOREPLIFETIME_CONDITION_NOTIFY(UNRAttributeSet, MaxShield, COND_None, REPNOTIFY_Always)
+}
+
+void UNRAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
+{
+	Super::PreAttributeChange(Attribute, NewValue);
+}
+
+void UNRAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
+{
+	Super::PostGameplayEffectExecute(Data);
+
+	if (Data.EvaluatedData.Attribute == GetShieldAttribute())
+	{
+		SetShield(FMath::Clamp<float>(GetShield(), 0.0f, GetMaxShield()));
+	}
 }
 
 void UNRAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth)

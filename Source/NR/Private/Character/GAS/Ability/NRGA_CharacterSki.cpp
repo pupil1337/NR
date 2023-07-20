@@ -32,7 +32,7 @@ void UNRGA_CharacterSki::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		}
 
-		if (ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get()))
+		if (const ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get()))
 		{
 			if (UNRCharacterMovementComponent* NRCharacterMovementComponent = Character->GetCharacterMovement<UNRCharacterMovementComponent>())
 			{
