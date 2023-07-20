@@ -113,6 +113,8 @@ public:
 	FORCEINLINE FVector2D GetMoveInput() const { return MoveInputValue; } // 仅在控制端
 	FORCEINLINE float GetHealth() const { return NRAttributeSet->GetHealth(); }
 	FORCEINLINE float GetMaxHealth() const { return NRAttributeSet->GetMaxHealth(); }
+	FORCEINLINE float GetShield() const { return NRAttributeSet->GetShield(); }
+	FORCEINLINE float GetMaxShield() const { return NRAttributeSet->GetMaxShield(); }
 	
 private:
 	void InitializeAttributes() const;

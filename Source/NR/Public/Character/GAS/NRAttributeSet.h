@@ -30,17 +30,35 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 private:
+	/** Health */
 	UPROPERTY(ReplicatedUsing=OnRep_Health, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(UNRAttributeSet, Health)
 
+	/** MaxHealth */
 	UPROPERTY(ReplicatedUsing=OnRep_MaxHealth, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	FGameplayAttributeData MaxHealth;
 	ATTRIBUTE_ACCESSORS(UNRAttributeSet, MaxHealth)
 
+	/** Shield */
+	UPROPERTY(ReplicatedUsing=OnRep_Shield, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
+	FGameplayAttributeData Shield;
+	ATTRIBUTE_ACCESSORS(UNRAttributeSet, Shield)
+
+	UPROPERTY(ReplicatedUsing=OnRep_MaxShield, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
+	FGameplayAttributeData MaxShield;
+	ATTRIBUTE_ACCESSORS(UNRAttributeSet, MaxShield)
+	
 	UFUNCTION()
 	void OnRep_Health(const FGameplayAttributeData& OldHealth);
 
 	UFUNCTION()
 	void OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth);
+
+	UFUNCTION()
+	void OnRep_Shield(const FGameplayAttributeData& OldShield);
+
+	UFUNCTION()
+	void OnRep_MaxShield(const FGameplayAttributeData& OldMaxShield);
+	
 };
