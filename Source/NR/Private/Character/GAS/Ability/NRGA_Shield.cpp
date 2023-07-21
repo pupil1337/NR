@@ -7,7 +7,9 @@
 
 UNRGA_Shield::UNRGA_Shield()
 {
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::NonInstanced;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerOnly;
+	NetSecurityPolicy = EGameplayAbilityNetSecurityPolicy::ServerOnly;
 	
 	bAutoActiveOnGive = true;
 }

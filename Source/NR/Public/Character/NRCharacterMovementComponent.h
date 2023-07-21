@@ -59,13 +59,13 @@ public:
 	float Run_MaxWalkSpeed = 600.0f;
 
 	// Settings - Ski
-	UPROPERTY(EditAnywhere, Category="角色移动: 滑行", DisplayName="开始滑行冲量", meta=(ClampMin="0.0", UIMin="0.0", ForceUnits="cm/s"))
+	UPROPERTY(EditAnywhere, Category="角色移动: 滑铲", DisplayName="开始滑行冲量", meta=(ClampMin="0.0", UIMin="0.0", ForceUnits="cm/s"))
 	float Ski_EnterImpulse = 600.0f;
-	UPROPERTY(EditAnywhere, Category="角色移动: 滑行", DisplayName="滑行摩擦力系数", meta=(ClampMin="0.0", UIMin="0.0"))
+	UPROPERTY(EditAnywhere, Category="角色移动: 滑铲", DisplayName="滑行摩擦力系数", meta=(ClampMin="0.0", UIMin="0.0"))
 	float Ski_Friction = 0.3f;
-	UPROPERTY(EditAnywhere, Category="角色移动: 滑行", DisplayName="能够应用额外加速度时最小坡度", meta=(ClampMin="-90.0", ClampMax="0.0", UIMin="-90.0", UIMax="0.0", Units="deg"))
+	UPROPERTY(EditAnywhere, Category="角色移动: 滑铲", DisplayName="能够应用额外加速度时最小坡度", meta=(ClampMin="-90.0", ClampMax="0.0", UIMin="-90.0", UIMax="0.0", Units="deg"))
 	float Ski_MinSlopeToHasAcceleration = -10.0f;
-	UPROPERTY(EditAnywhere, Category="角色移动: 滑行", DisplayName="应用的额外加速度大小", meta=(ClampMin="0.0", UIMin="0.0", ForceUnits="cm/s"))
+	UPROPERTY(EditAnywhere, Category="角色移动: 滑铲", DisplayName="应用的额外加速度大小", meta=(ClampMin="0.0", UIMin="0.0", ForceUnits="cm/s"))
 	float Ski_AddAcceleration = 500.0f;
 	
 	UNRCharacterMovementComponent();

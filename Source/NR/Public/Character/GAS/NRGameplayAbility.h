@@ -16,6 +16,8 @@ class NR_API UNRGameplayAbility : public UGameplayAbility
 	GENERATED_BODY()
 
 public:
+	UNRGameplayAbility();
+	
 	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 	
 //~Begin This Class

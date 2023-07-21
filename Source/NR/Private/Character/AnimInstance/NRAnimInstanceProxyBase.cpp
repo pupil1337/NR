@@ -50,9 +50,9 @@ void FNRAnimInstanceProxyBase::PreUpdate(UAnimInstance* InAnimInstance, float De
 			// bJumping
 			bJumping = NRCharacterMovementComponent->IsFalling();
 			// bRunning
-			bRunning = NRCharacter->GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("Ability.Run")));
+			bRunning = NRCharacter->bRunning;
 			// bSkiing
-			bSkiing = NRCharacter->GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("Ability.Ski")));
+			bSkiing = NRCharacter->bSkiing;
 		}
 
 		const FVector Velocity = UKismetMathLibrary::InverseTransformDirection(NRCharacter->GetActorTransform(), NRCharacter->GetVelocity());

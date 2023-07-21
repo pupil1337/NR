@@ -108,6 +108,12 @@ public:
 	FOnRunInput    OnInputEvent_Run;
 	FOnJumped      OnJumpedEvent;
 
+	// Custom Movement
+	UPROPERTY(Replicated)
+	bool bRunning;
+	UPROPERTY(Replicated)
+	bool bSkiing;
+	
 	// Getter
 	FORCEINLINE USkeletalMeshComponent* GetMeshArm() const { return MeshArm; }
 	FORCEINLINE FVector2D GetMoveInput() const { return MoveInputValue; } // 仅在控制端

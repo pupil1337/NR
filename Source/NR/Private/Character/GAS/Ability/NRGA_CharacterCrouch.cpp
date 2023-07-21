@@ -7,8 +7,10 @@
 
 UNRGA_CharacterCrouch::UNRGA_CharacterCrouch()
 {
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::NonInstanced;
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalOnly;
+	
 	NRAbilityInputID = ENRAbilityInputID::EAIID_Crouch;
-	InstancingPolicy = EGameplayAbilityInstancingPolicy::Type::NonInstanced;
 }
 
 bool UNRGA_CharacterCrouch::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
@@ -24,17 +26,9 @@ bool UNRGA_CharacterCrouch::CanActivateAbility(const FGameplayAbilitySpecHandle 
 
 void UNRGA_CharacterCrouch::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
-	if (HasAuthorityOrPredictionKey(ActorInfo, &ActivationInfo))
+	if (ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get()))
 	{
-		if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
-		{
-			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
-		}
-
-		if (ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get()))
-		{
-			Character->Crouch();
-		}
+		Character->Crouch();
 	}
 }
 

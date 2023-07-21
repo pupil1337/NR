@@ -8,8 +8,10 @@
 
 UNRGA_CharacterSki::UNRGA_CharacterSki()
 {
-	NRAbilityInputID = ENRAbilityInputID::EAIID_Ski;
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::NonInstanced;
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalOnly;
+	
+	NRAbilityInputID = ENRAbilityInputID::EAIID_Ski;
 }
 
 bool UNRGA_CharacterSki::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
@@ -25,19 +27,11 @@ bool UNRGA_CharacterSki::CanActivateAbility(const FGameplayAbilitySpecHandle Han
 
 void UNRGA_CharacterSki::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
-	if (HasAuthorityOrPredictionKey(ActorInfo, &ActivationInfo))
+	if (const ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get()))
 	{
-		if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+		if (UNRCharacterMovementComponent* NRCharacterMovementComponent = Character->GetCharacterMovement<UNRCharacterMovementComponent>())
 		{
-			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
-		}
-
-		if (const ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get()))
-		{
-			if (UNRCharacterMovementComponent* NRCharacterMovementComponent = Character->GetCharacterMovement<UNRCharacterMovementComponent>())
-			{
-				NRCharacterMovementComponent->Ski(true);
-			}
+			NRCharacterMovementComponent->Ski(true);
 		}
 	}
 }

@@ -5,6 +5,14 @@
 
 #include "AbilitySystemComponent.h"
 
+UNRGameplayAbility::UNRGameplayAbility()
+{
+	ReplicationPolicy = EGameplayAbilityReplicationPolicy::ReplicateNo;
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+	NetSecurityPolicy = EGameplayAbilityNetSecurityPolicy::ClientOrServer;
+}
+
 void UNRGameplayAbility::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
 	Super::OnAvatarSet(ActorInfo, Spec);

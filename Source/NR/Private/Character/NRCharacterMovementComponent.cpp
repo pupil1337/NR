@@ -125,6 +125,7 @@ void UNRCharacterMovementComponent::OnMovementUpdated(float DeltaSeconds, const 
 		{
 			MaxWalkSpeed = bWantsToRun ? Run_MaxWalkSpeed : NRCharacterOwner->GetClass()->GetDefaultObject<ANRCharacter>()->GetCharacterMovement<UNRCharacterMovementComponent>()->MaxWalkSpeed;
 		}
+		NRCharacterOwner->bRunning = bWantsToRun;
 	}
 }
 
@@ -201,6 +202,7 @@ void UNRCharacterMovementComponent::Ski(bool bSki)
 void UNRCharacterMovementComponent::EnterSki(const FHitResult& PotentialSkiSurface)
 {
 	NRCharacterOwner->Crouch();
+	NRCharacterOwner->bSkiing = true;
 	const FVector VelPlaneDir = FVector::VectorPlaneProject(Velocity, PotentialSkiSurface.Normal).GetSafeNormal();
 	Velocity += VelPlaneDir * Ski_EnterImpulse;
 	SetMovementMode(MOVE_Custom, NRMOVE_Ski);
@@ -284,15 +286,21 @@ void UNRCharacterMovementComponent::PhySki(float deltaTime, int32 Iterations)
 
 void UNRCharacterMovementComponent::ExitSki(bool bKeepCrouch)
 {
-	if (bKeepCrouch)
+	NRCharacterOwner->bSkiing = false;
+	// 本地控制端 设置角色蹲伏/站起 + 退出滑铲
+	if (NRCharacterOwner->IsLocallyControlled())
 	{
-		NRCharacterOwner->GetAbilitySystemComponent()->AbilityLocalInputPressed(static_cast<uint32>(ENRAbilityInputID::EAIID_Crouch));
+		if (bKeepCrouch)
+		{
+			NRCharacterOwner->GetAbilitySystemComponent()->AbilityLocalInputPressed(static_cast<uint32>(ENRAbilityInputID::EAIID_Crouch));
+		}
+		else
+		{
+			NRCharacterOwner->UnCrouch();
+		}
+		NRCharacterOwner->GetAbilitySystemComponent()->AbilityLocalInputReleased(static_cast<uint32>(ENRAbilityInputID::EAIID_Ski));	
 	}
-	else
-	{
-		NRCharacterOwner->UnCrouch();
-	}
-	NRCharacterOwner->GetAbilitySystemComponent()->AbilityLocalInputReleased(static_cast<uint32>(ENRAbilityInputID::EAIID_Ski));
+	
 	const FQuat NewRotation = FRotationMatrix::MakeFromXZ(UpdatedComponent->GetForwardVector().GetSafeNormal2D(), FVector::UpVector).ToQuat();
 	FHitResult Hit;
 	SafeMoveUpdatedComponent(FVector::ZeroVector, NewRotation, true, Hit);

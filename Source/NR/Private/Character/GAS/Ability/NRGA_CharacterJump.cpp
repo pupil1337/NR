@@ -7,8 +7,10 @@
 
 UNRGA_CharacterJump::UNRGA_CharacterJump()
 {
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::NonInstanced;
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalOnly;
+	
 	NRAbilityInputID = ENRAbilityInputID::EAIID_Jump;
-	InstancingPolicy = EGameplayAbilityInstancingPolicy::Type::NonInstanced;
 }
 
 bool UNRGA_CharacterJump::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
@@ -29,22 +31,14 @@ bool UNRGA_CharacterJump::CanActivateAbility(const FGameplayAbilitySpecHandle Ha
 
 void UNRGA_CharacterJump::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
-	if (HasAuthorityOrPredictionKey(ActorInfo, &ActivationInfo))
+	if (ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get()))
 	{
-		if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+		// 虽然设置了Jump技能激活前取消Crouch技能, 但滑铲时角色是Crouching的, 但是不是通过Crouch技能激活的, 所以需要确保在滑铲时跳跃取消角色Crouch
+		if (Character->bIsCrouched)
 		{
-			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+			Character->UnCrouch();	
 		}
-
-		if (ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get()))
-		{
-			// 虽然设置了Jump技能激活前取消Crouch技能, 但滑铲时角色是Crouching的, 但是不是通过Crouch技能激活的, 所以需要确保在滑铲时跳跃取消角色Crouch
-			if (Character->bIsCrouched)
-			{
-				Character->UnCrouch();	
-			}
-			Character->Jump();
-		}
+		Character->Jump();
 	}
 }
 

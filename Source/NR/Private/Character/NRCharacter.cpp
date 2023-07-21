@@ -14,6 +14,7 @@
 #include "Character/GAS/NRAbilitySystemComponent.h"
 #include "Character/GAS/NRAttributeSet.h"
 #include "Character/GAS/NRGameplayAbility.h"
+#include "Net/UnrealNetwork.h"
 
 const FName NAME_Socket_Camera(TEXT("SOCKET_Camera"));
 const FName NAME_Bone_Spine_01(TEXT("spine_01"));
@@ -79,6 +80,9 @@ void ANRCharacter::PreInitializeComponents()
 void ANRCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ANRCharacter, bRunning, COND_SimulatedOnly)
+	DOREPLIFETIME_CONDITION(ANRCharacter, bSkiing, COND_SimulatedOnly)
 }
 
 void ANRCharacter::BeginPlay()
@@ -334,16 +338,16 @@ void ANRCharacter::OnCrouchInput(const FInputActionValue& Value)
 	if (NRAbilitySystemComponent)
 	{
 		// 滑铲
-		if (NRAbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("Ability.Run"))))
+		if (bRunning)
 		{
 			SendLocalInputToASC(true, ENRAbilityInputID::EAIID_Ski);
 		}
-		else if (NRAbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("Ability.Ski"))))
+		else if (bSkiing)
 		{
 			SendLocalInputToASC(false, ENRAbilityInputID::EAIID_Ski);
 		}
 		// 蹲伏
-		else if (NRAbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("Ability.Crouch"))))
+		else if (bIsCrouched)
 		{
 			SendLocalInputToASC(false, ENRAbilityInputID::EAIID_Crouch);
 		}
