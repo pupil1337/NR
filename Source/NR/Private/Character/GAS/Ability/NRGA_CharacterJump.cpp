@@ -33,11 +33,6 @@ void UNRGA_CharacterJump::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 {
 	if (ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get()))
 	{
-		// 虽然设置了Jump技能激活前取消Crouch技能, 但滑铲时角色是Crouching的, 但是不是通过Crouch技能激活的, 所以需要确保在滑铲时跳跃取消角色Crouch
-		if (Character->bIsCrouched)
-		{
-			Character->UnCrouch();	
-		}
 		Character->Jump();
 	}
 }

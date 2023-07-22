@@ -144,7 +144,11 @@ void UNRCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float Del
 		}
 		if (IsNRMovementMode(NRMOVE_Ski) && !bWantsToSki)
 		{
-			ExitSki(false);
+			ExitSki(true, MOVE_Walking);
+		}
+		if (MovementMode == MOVE_Falling && !bWantsToSki && NRCharacterOwner->bSkiing)
+		{
+			ExitSki(false, MOVE_Falling);
 		}
 	}
 	
@@ -175,11 +179,36 @@ bool UNRCharacterMovementComponent::CanCrouchInCurrentState() const
 	return Super::CanCrouchInCurrentState() && IsMovingOnGround();
 }
 
+bool UNRCharacterMovementComponent::IsCrouching() const
+{
+	return Super::IsCrouching() /* add: */ && !IsSkiing();
+}
+
 bool UNRCharacterMovementComponent::CanAttemptJump() const
 {
 	return IsJumpAllowed() &&
 		   // !bWantsToCrouch &&
 		   (IsMovingOnGround() || IsFalling()); // Falling included for double-jump and non-zero jump hold time, but validated by character.
+}
+
+bool UNRCharacterMovementComponent::DoJump(bool bReplayingMoves)
+{
+	UE_LOG(LogTemp, Log, TEXT("DoJump Pre MovementMode: %s"), *GetMovementName())
+	return Super::DoJump(bReplayingMoves);
+}
+
+FString UNRCharacterMovementComponent::GetMovementName() const
+{
+	if (MovementMode == MOVE_Custom)
+	{
+		switch (CustomMovementMode)
+		{
+			case NRMOVE_Ski: return TEXT("Ski"); break;
+			default: break;;
+		}
+		return TEXT("Custom Unknown");
+	}
+	return Super::GetMovementName();
 }
 
 bool UNRCharacterMovementComponent::IsNRMovementMode(ENRMovementMode InNRMovementMode) const
@@ -201,8 +230,13 @@ void UNRCharacterMovementComponent::Ski(bool bSki)
 
 void UNRCharacterMovementComponent::EnterSki(const FHitResult& PotentialSkiSurface)
 {
-	NRCharacterOwner->Crouch();
-	NRCharacterOwner->bSkiing = true;
+	if (NRCharacterOwner->GetLocalRole() != ROLE_SimulatedProxy)
+	{
+		NRCharacterOwner->bSkiing = true;
+	
+		Crouch();
+	}
+	
 	const FVector VelPlaneDir = FVector::VectorPlaneProject(Velocity, PotentialSkiSurface.Normal).GetSafeNormal();
 	Velocity += VelPlaneDir * Ski_EnterImpulse;
 	SetMovementMode(MOVE_Custom, NRMOVE_Ski);
@@ -220,13 +254,13 @@ void UNRCharacterMovementComponent::PhySki(float deltaTime, int32 Iterations)
 	FHitResult SurfaceHit;
 	if (!GetSkiSurface(SurfaceHit))
 	{
-		ExitSki(false);
+		ExitSki(false, MOVE_Falling);
 		StartNewPhysics(deltaTime, Iterations);
 		return;
 	}
 	if (Velocity.SizeSquared() < pow(MaxWalkSpeedCrouched, 2))
 	{
-		ExitSki(true);
+		ExitSki(true, MOVE_Walking);
 		StartNewPhysics(deltaTime, Iterations);
 		return;
 	}
@@ -271,11 +305,11 @@ void UNRCharacterMovementComponent::PhySki(float deltaTime, int32 Iterations)
 	FHitResult NewSurfaceHit;
 	if (!GetSkiSurface(NewSurfaceHit))
 	{
-		ExitSki(false);
+		ExitSki(false, MOVE_Falling);
 	}
 	else if (Velocity.SizeSquared() < pow(MaxWalkSpeedCrouched, 2))
 	{
-		ExitSki(true);
+		ExitSki(true, MOVE_Walking);
 	}
 
 	if (!bJustTeleported && !HasAnimRootMotion() && !CurrentRootMotion.HasOverrideVelocity())
@@ -284,9 +318,22 @@ void UNRCharacterMovementComponent::PhySki(float deltaTime, int32 Iterations)
 	}
 }
 
-void UNRCharacterMovementComponent::ExitSki(bool bKeepCrouch)
+void UNRCharacterMovementComponent::ExitSki(bool bKeepCrouch, EMovementMode NewMovementMode)
 {
-	NRCharacterOwner->bSkiing = false;
+	if (NRCharacterOwner->GetLocalRole() != ROLE_SimulatedProxy)
+	{
+		NRCharacterOwner->bSkiing = false;
+	
+		UnCrouch();
+	}
+	
+	// NRCharacterOwner->bSkiing = false;
+	//
+	// if (NRCharacterOwner->GetLocalRole() != ROLE_SimulatedProxy)
+	// {
+	// 	UnCrouch();
+	// }
+	
 	// 本地控制端 设置角色蹲伏/站起 + 退出滑铲
 	if (NRCharacterOwner->IsLocallyControlled())
 	{
@@ -294,17 +341,13 @@ void UNRCharacterMovementComponent::ExitSki(bool bKeepCrouch)
 		{
 			NRCharacterOwner->GetAbilitySystemComponent()->AbilityLocalInputPressed(static_cast<uint32>(ENRAbilityInputID::EAIID_Crouch));
 		}
-		else
-		{
-			NRCharacterOwner->UnCrouch();
-		}
 		NRCharacterOwner->GetAbilitySystemComponent()->AbilityLocalInputReleased(static_cast<uint32>(ENRAbilityInputID::EAIID_Ski));	
 	}
 	
 	const FQuat NewRotation = FRotationMatrix::MakeFromXZ(UpdatedComponent->GetForwardVector().GetSafeNormal2D(), FVector::UpVector).ToQuat();
 	FHitResult Hit;
 	SafeMoveUpdatedComponent(FVector::ZeroVector, NewRotation, true, Hit);
-	SetMovementMode(bKeepCrouch ? MOVE_Walking : MOVE_Falling);
+	SetMovementMode(NewMovementMode);
 }
 
 bool UNRCharacterMovementComponent::GetSkiSurface(FHitResult& Hit) const

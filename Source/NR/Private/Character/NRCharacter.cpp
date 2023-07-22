@@ -347,7 +347,7 @@ void ANRCharacter::OnCrouchInput(const FInputActionValue& Value)
 			SendLocalInputToASC(false, ENRAbilityInputID::EAIID_Ski);
 		}
 		// 蹲伏
-		else if (bIsCrouched)
+		else if (bIsCrouched && !bSkiing)
 		{
 			SendLocalInputToASC(false, ENRAbilityInputID::EAIID_Crouch);
 		}

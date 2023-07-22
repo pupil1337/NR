@@ -50,9 +50,9 @@ void FNRAnimInstanceProxyBase::PreUpdate(UAnimInstance* InAnimInstance, float De
 			// bJumping
 			bJumping = NRCharacterMovementComponent->IsFalling();
 			// bRunning
-			bRunning = NRCharacter->bRunning;
+			bRunning = NRCharacterMovementComponent->IsRunning();
 			// bSkiing
-			bSkiing = NRCharacter->bSkiing;
+			bSkiing = NRCharacterMovementComponent->IsSkiing();
 		}
 
 		const FVector Velocity = UKismetMathLibrary::InverseTransformDirection(NRCharacter->GetActorTransform(), NRCharacter->GetVelocity());

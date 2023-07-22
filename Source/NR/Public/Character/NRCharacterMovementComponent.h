@@ -77,7 +77,13 @@ public:
 
 	virtual bool CanCrouchInCurrentState() const override;
 
+	virtual bool IsCrouching() const override;
+
 	virtual bool CanAttemptJump() const override;
+
+	virtual bool DoJump(bool bReplayingMoves) override;
+
+	virtual FString GetMovementName() const override;
 	
 protected:
 	virtual void UpdateFromCompressedFlags(uint8 Flags) override;
@@ -95,11 +101,14 @@ public:
 	void Run(bool bRun);
 
 	void Ski(bool bSki);
+
+	FORCEINLINE bool IsRunning() const { return NRCharacterOwner && NRCharacterOwner->bRunning; }
+	FORCEINLINE bool IsSkiing() const { return NRCharacterOwner && NRCharacterOwner->bSkiing; }
 	
 private:
 	void EnterSki(const FHitResult& PotentialSkiSurface);
 	void PhySki(float deltaTime, int32 Iterations);
-	void ExitSki(bool bKeepCrouch);
+	void ExitSki(bool bKeepCrouch, EMovementMode NewMovementMode);
 	bool GetSkiSurface(FHitResult& Hit) const;
 
 	// Transient
