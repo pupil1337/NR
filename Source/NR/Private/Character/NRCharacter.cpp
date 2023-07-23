@@ -12,7 +12,7 @@
 #include "Character/NRCharacterMovementComponent.h"
 #include "Character/Component/NRComponentBase.h"
 #include "Character/GAS/NRAbilitySystemComponent.h"
-#include "Character/GAS/NRAttributeSet.h"
+#include "Character/GAS/Attribute/NRAttributeSet.h"
 #include "Character/GAS/NRGameplayAbility.h"
 #include "Net/UnrealNetwork.h"
 
@@ -195,16 +195,20 @@ void ANRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 							}
 							if (IA_Jump)
 							{
-								EnhancedInputComponent->BindAction(IA_Jump, ETriggerEvent::Started, this, &ThisClass::OnJumpInputPressed);
-								EnhancedInputComponent->BindAction(IA_Jump, ETriggerEvent::Completed, this, &ThisClass::OnJumpInputReleased);
+								EnhancedInputComponent->BindAction(IA_Jump, ETriggerEvent::Started, this, &ThisClass::OnJumpInput);
+								EnhancedInputComponent->BindAction(IA_Jump, ETriggerEvent::Completed, this, &ThisClass::OnJumpInput);
 							}
-							if (IA_Crouch)
-							{
+							if (IA_Crouch)							{
 								EnhancedInputComponent->BindAction(IA_Crouch, ETriggerEvent::Started, this, &ThisClass::OnCrouchInput);
 							}
 							if (IA_Run)
 							{
 								EnhancedInputComponent->BindAction(IA_Run, ETriggerEvent::Started, this, &ThisClass::OnRunInput);
+							}
+							if (IA_Fire)
+							{
+								EnhancedInputComponent->BindAction(IA_Fire, ETriggerEvent::Started, this, &ThisClass::OnFireInput);
+								EnhancedInputComponent->BindAction(IA_Fire, ETriggerEvent::Completed, this, &ThisClass::OnFireInput);
 							}
 						}
 					}
@@ -323,14 +327,9 @@ void ANRCharacter::OnLookInput(const FInputActionValue& Value)
 	}
 }
 
-void ANRCharacter::OnJumpInputPressed(const FInputActionValue& Value)
+void ANRCharacter::OnJumpInput(const FInputActionValue& Value)
 {
-	SendLocalInputToASC(true, ENRAbilityInputID::EAIID_Jump);
-}
-
-void ANRCharacter::OnJumpInputReleased(const FInputActionValue& Value)
-{
-	SendLocalInputToASC(false, ENRAbilityInputID::EAIID_Jump);
+	SendLocalInputToASC(static_cast<bool>(Value.Get<FInputActionValue::Axis1D>()), ENRAbilityInputID::EAIID_Jump);
 }
 
 void ANRCharacter::OnCrouchInput(const FInputActionValue& Value)
@@ -370,5 +369,10 @@ void ANRCharacter::OnRunInput(const FInputActionValue& Value)
 			}
 		}	
 	}
+}
+
+void ANRCharacter::OnFireInput(const FInputActionValue& Value)
+{
+	SendLocalInputToASC(static_cast<bool>(Value.Get<FInputActionValue::Axis1D>()), ENRAbilityInputID::EAIID_Fire);
 }
 

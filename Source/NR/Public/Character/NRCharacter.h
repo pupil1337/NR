@@ -6,7 +6,8 @@
 #include "NRCharacterBase.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
-#include "GAS/NRAttributeSet.h"
+#include "InputActionValue.h"
+#include "GAS/Attribute/NRAttributeSet.h"
 #include "Types/NRGASTypes.h"
 #include "NRCharacter.generated.h"
 
@@ -35,50 +36,52 @@ class NR_API ANRCharacter : public ANRCharacterBase, public IAbilitySystemInterf
 	GENERATED_BODY()
 
 	// Components
-	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"))
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<USpringArmComponent> Spring;
 
-	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"))
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<USkeletalMeshComponent> MeshArm;
 
-	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"))
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<USkeletalMeshComponent> MeshLeg;
 
-	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"))
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UCameraComponent> Camera;
 
-	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"))
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UNRAbilitySystemComponent> NRAbilitySystemComponent;
 
 	UPROPERTY()
 	TObjectPtr<UNRAttributeSet> NRAttributeSet;
 
 	// Settings
-	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"), Category="配置|角色", DisplayName="摄像机-FPS弹簧臂相对eyes位置偏移")
+	UPROPERTY(EditDefaultsOnly, Category="配置|角色", DisplayName="摄像机-FPS弹簧臂相对eyes位置偏移")
 	FVector SpringOffsetFPS = FVector(30.0f, 0.0f, 0.0f);
 
-	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"), Category="配置|技能系统", DisplayName="角色默认Attribute-GameplayEffect")
+	UPROPERTY(EditDefaultsOnly, Category="配置|技能系统", DisplayName="角色默认Attribute-GameplayEffect")
 	TSubclassOf<UGameplayEffect> DefaultAttributeEffect;
 
-	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"), Category="配置|技能系统", DisplayName="角色默认技能列表")
+	UPROPERTY(EditDefaultsOnly, Category="配置|技能系统", DisplayName="角色默认技能列表")
 	TArray<TSubclassOf<UNRGameplayAbility> > DefaultAbilities;
 	
 	// Inputs
-	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"), Category="配置|输入")
+	UPROPERTY(EditDefaultsOnly, Category="配置|输入")
 	TObjectPtr<UInputMappingContext> IMC_Character;
-	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"), Category="配置|输入")
+	UPROPERTY(EditDefaultsOnly, Category="配置|输入")
 	TObjectPtr<UInputAction> IA_Move;
-	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"), Category="配置|输入")
+	UPROPERTY(EditDefaultsOnly, Category="配置|输入")
 	TObjectPtr<UInputAction> IA_Look;
-	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"), Category="配置|输入")
+	UPROPERTY(EditDefaultsOnly, Category="配置|输入")
 	TObjectPtr<UInputAction> IA_Jump;
-	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"), Category="配置|输入")
+	UPROPERTY(EditDefaultsOnly, Category="配置|输入")
 	TObjectPtr<UInputAction> IA_Crouch;
-	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"), Category="配置|输入")
+	UPROPERTY(EditDefaultsOnly, Category="配置|输入")
 	TObjectPtr<UInputAction> IA_Run;
+	UPROPERTY(EditDefaultsOnly, Category="配置|输入")
+	TObjectPtr<UInputAction> IA_Fire;
 
 	// Components
-	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"), Category="配置|角色", DisplayName="需要创建的组件")
+	UPROPERTY(EditDefaultsOnly, Category="配置|角色", DisplayName="需要创建的组件")
 	TArray<TSubclassOf<UNRComponentBase>> NRComponentClasses;
 	
 public:
@@ -135,8 +138,8 @@ private:
 	FVector2D MoveInputValue = FVector2D::ZeroVector; // 仅在控制端
 	void OnMoveInput(const FInputActionValue& Value);
 	void OnLookInput(const FInputActionValue& Value);
-	void OnJumpInputPressed(const FInputActionValue& Value);
-	void OnJumpInputReleased(const FInputActionValue& Value);
+	void OnJumpInput(const FInputActionValue& Value);
 	void OnCrouchInput(const FInputActionValue& Value);
 	void OnRunInput(const FInputActionValue& Value);
+	void OnFireInput(const FInputActionValue& Value);
 };
