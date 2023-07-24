@@ -11,5 +11,8 @@ UCLASS()
 class NR_API UNRAbilitySystemComponent : public UAbilitySystemComponent
 {
 	GENERATED_BODY()
-	
+
+//~Begin This Class
+public:
+	FGameplayAbilitySpecHandle FindAbilitySpecHandleForClass(const TSubclassOf<UGameplayAbility>& AbilityClass);
 };

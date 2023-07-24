@@ -6,6 +6,10 @@
 #include "Character/GAS/NRGameplayAbility.h"
 #include "NRGA_Fire.generated.h"
 
+class UNRGA_FireInstant;
+class ANRWeaponBase;
+class UNRAbilitySystemComponent;
+
 /**
  * 
  */
@@ -14,6 +18,9 @@ class NR_API UNRGA_Fire : public UNRGameplayAbility
 {
 	GENERATED_BODY()
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UNRGA_FireInstant> NRGA_FireInstantClass;
+	
 public:
 	UNRGA_Fire();
 
@@ -27,11 +34,24 @@ public:
 	
 //~Begin This Class
 private:
-
-	void FiringTick();
+	UFUNCTION()
+	virtual void Automatic_Fire();
 	
+	// Utils
+	ANRWeaponBase* GetEquippedWeaponFromActorInfo(const FGameplayAbilityActorInfo* ActorInfo) const;
+	bool IsRatePassed(uint32 FireRate) const;
+	
+	// Temp
 	FTimerHandle TickTimerHandle;
 
-	// Temp
+	UPROPERTY(Transient)
+	ANRWeaponBase* EquippedWeapon;
+
+	UPROPERTY(Transient)
+	UNRAbilitySystemComponent* NRAbilitySystemComponent;
+	FGameplayAbilitySpecHandle GA_FireInstantSpecHandle;
+	UPROPERTY(Transient)
+	UNRGA_FireInstant* GA_FireInstant;
+	
 	float PreFireTime;
 };

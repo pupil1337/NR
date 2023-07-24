@@ -38,6 +38,7 @@ public:
 	void SetEquippedWeapon(ANRWeaponBase* InWeapon);
 	
 	FORCEINLINE bool GetIsAiming() const { return bAiming; }
+	FORCEINLINE ANRWeaponBase* GetEquippedWeapon() { return EquippedWeapon; } 
 	
 private:
 	/** 武器开枪间隔大于上次开火时间 */

@@ -4,10 +4,17 @@
 #include "Character/GAS/Ability/NRGA_Fire.h"
 
 #include "AbilitySystemGlobals.h"
+#include "Abilities/Tasks/AbilityTask_WaitDelay.h"
+#include "Character/NRCharacter.h"
+#include "Character/Component/NRCombatComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Actor/Weapon/NRWeaponBase.h"
+#include "Character/GAS/NRAbilitySystemComponent.h"
+#include "Character/GAS/Ability/NRGA_FireInstant.h"
+#include "Table/Weapon/NRWeaponSetting.h"
 
 UNRGA_Fire::UNRGA_Fire()
 {
-	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalOnly;
 
 	NRAbilityInputID = ENRAbilityInputID::EAIID_Fire;
@@ -15,16 +22,48 @@ UNRGA_Fire::UNRGA_Fire()
 
 bool UNRGA_Fire::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
 {
-	return Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
+	if (Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
+	{
+		return GetEquippedWeaponFromActorInfo(ActorInfo) != nullptr;
+	}
+
+	return false;
 }
 
 void UNRGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	
+	// 设置当前装备的武器
+	EquippedWeapon = GetEquippedWeaponFromActorInfo(ActorInfo);
+	if (EquippedWeapon == nullptr)
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
+		return;
+	}
 
-	float TickFrequency = 1.0f / 100.0f; // 每秒100发
-	UAbilitySystemGlobals::NonShipping_ApplyGlobalAbilityScaler_Duration(TickFrequency);
-	GetWorld()->GetTimerManager().SetTimer(TickTimerHandle, this, &ThisClass::FiringTick, TickFrequency, true);
+	// FireInstant
+	NRAbilitySystemComponent = Cast<UNRAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo());
+	if (NRAbilitySystemComponent)
+	{
+		GA_FireInstantSpecHandle = NRAbilitySystemComponent->FindAbilitySpecHandleForClass(NRGA_FireInstantClass);
+		if (const FGameplayAbilitySpec* AbilitySpec = NRAbilitySystemComponent->FindAbilitySpecFromHandle(GA_FireInstantSpecHandle))
+		{
+			GA_FireInstant = Cast<UNRGA_FireInstant>(AbilitySpec->GetPrimaryInstance());
+			if (GA_FireInstant)
+			{
+				// Automatic
+				if (EquippedWeapon->GetWeaponSettingRow()->FireMode == ENRWeaponFireMode::EWFM_Automatic)
+				{
+					NRAbilitySystemComponent->TryActivateAbility(GA_FireInstantSpecHandle);
+
+					UAbilityTask_WaitDelay* AT_WaitDelay = UAbilityTask_WaitDelay::WaitDelay(GA_FireInstant, 60.0f / EquippedWeapon->GetWeaponSettingRow()->FireRate);
+					AT_WaitDelay->OnFinish.AddDynamic(this, &ThisClass::Automatic_Fire);
+					AT_WaitDelay->ReadyForActivation();
+				}
+			}
+		}
+	}
 }
 
 void UNRGA_Fire::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
@@ -41,7 +80,33 @@ void UNRGA_Fire::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
 }
 
-void UNRGA_Fire::FiringTick()
+void UNRGA_Fire::Automatic_Fire()
 {
+	if (GA_FireInstant)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Automatic_Fire"))
+
+		UAbilityTask_WaitDelay* AT_WaitDelay = UAbilityTask_WaitDelay::WaitDelay(GA_FireInstant, 60.0f / EquippedWeapon->GetWeaponSettingRow()->FireRate);
+		AT_WaitDelay->OnFinish.AddDynamic(this, &ThisClass::Automatic_Fire);
+		AT_WaitDelay->ReadyForActivation();
+	}
+}
+
+// Utils ==============================================================================================
+ANRWeaponBase* UNRGA_Fire::GetEquippedWeaponFromActorInfo(const FGameplayAbilityActorInfo* ActorInfo) const
+{
+	if (const ANRCharacter* NRCharacter = Cast<ANRCharacter>(ActorInfo->AvatarActor.Get()))
+	{
+		if (UNRCombatComponent* CombatComponent = NRCharacter->GetComponentByClass<UNRCombatComponent>())
+		{
+			return CombatComponent->GetEquippedWeapon();
+		}
+	}
 	
+	return nullptr;
+}
+
+bool UNRGA_Fire::IsRatePassed(uint32 FireRate) const
+{
+	return PreFireTime + 60.0f / FireRate <= UGameplayStatics::GetTimeSeconds(this);
 }
