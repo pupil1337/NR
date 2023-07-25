@@ -6,6 +6,7 @@
 #include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
 #include "NRGameSingleton.h"
+#include "Character/GAS/TargetActor/NRGATA_LineTrace.h"
 #include "Static/NRStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "Types/NRCollisionTypes.h"
@@ -85,6 +86,12 @@ void ANRWeaponBase::Destroyed()
 		AttachmentStreamableHandle->ReleaseHandle();
 		AttachmentStreamableHandle.Reset();
 	}
+
+	if (TA_LineTrace)
+	{
+		TA_LineTrace->Destroy();
+	}
+	
 	Super::Destroyed();
 }
 
@@ -297,5 +304,19 @@ FNRIronSightSettingRow* ANRWeaponBase::GetIronSightSettingRow()
 		}
 	}
 	return IronSightSetting;
+}
+
+ANRGATA_LineTrace* ANRWeaponBase::GetLineTraceTargetActor()
+{
+	if (TA_LineTrace)
+	{
+		return TA_LineTrace;
+	}
+
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.Owner = this;
+	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	TA_LineTrace = GetWorld()->SpawnActor<ANRGATA_LineTrace>();
+	return TA_LineTrace;
 }
 

@@ -39,11 +39,10 @@ private:
 	
 	// Utils
 	ANRWeaponBase* GetEquippedWeaponFromActorInfo(const FGameplayAbilityActorInfo* ActorInfo) const;
+	bool ResetData(const FGameplayAbilityActorInfo* ActorInfo);
 	bool IsRatePassed(uint32 FireRate) const;
 	
 	// Temp
-	FTimerHandle TickTimerHandle;
-
 	UPROPERTY(Transient)
 	ANRWeaponBase* EquippedWeapon;
 

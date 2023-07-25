@@ -8,6 +8,7 @@
 #include "Types/NRWeaponTypes.h"
 #include "NRWeaponBase.generated.h"
 
+class ANRGATA_LineTrace;
 struct FNRIronSightSettingRow;
 class UDataTable;
 struct FNRMagazineSettingRow;
@@ -24,16 +25,16 @@ class NR_API ANRWeaponBase : public AActor, public INRInteractionInterface
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"))
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<USkeletalMeshComponent> Mesh;
 
-	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"))
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UStaticMeshComponent> Magazine;
 
-	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"))
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UStaticMeshComponent> IronSight;
 	
-	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess="true"))
+	UPROPERTY(EditDefaultsOnly)
 	ENRWeaponType WeaponType = ENRWeaponType::EWT_None;
 	
 public:
@@ -60,6 +61,8 @@ public:
 	UAnimMontage* GetWeaponMontage(bool bFPS, const FName& RowName);
 	FNRMagazineSettingRow* GetMagazineSettingRow();
 	FNRIronSightSettingRow* GetIronSightSettingRow();
+
+	ANRGATA_LineTrace* GetLineTraceTargetActor();
 
 	FORCEINLINE ENRWeaponType GetWeaponType() const { return WeaponType; }
 	FORCEINLINE ENRWeaponState GetWeaponState() const { return WeaponState; }
@@ -88,6 +91,9 @@ private:
 
 	TSharedPtr<FStreamableHandle> PickupVfxStreamableHandle;
 	TSharedPtr<FStreamableHandle> AttachmentStreamableHandle;
+
+	UPROPERTY(Transient)
+	ANRGATA_LineTrace* TA_LineTrace;
 
 	// Temp
 	uint8 bFPS_SeparateFOVDirty : 1;
