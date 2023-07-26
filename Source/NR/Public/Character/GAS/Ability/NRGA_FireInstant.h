@@ -37,6 +37,4 @@ private:
 
 	UPROPERTY(Transient)
 	ANRWeaponBase* EquippedWeapon;
-
-	UPROPERTY()
 };
