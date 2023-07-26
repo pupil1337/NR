@@ -6,7 +6,7 @@
 #include "Static/NRStatics.h"
 #include "Actor/Weapon/NRWeaponBase.h"
 #include "Character/NRCharacter.h"
-#include "Character/Component/NRBagComponent.h"
+#include "Character/Component/NRInventoryComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
 const FName NAME_Track_Location(TEXT("Location"));
@@ -26,9 +26,9 @@ void FNRArmAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float Del
 		if (NRCharacter->IsLocallyControlled())
 		{
 			/** AnimSetting */
-			if (const UNRBagComponent* BagComponent = Cast<UNRBagComponent>(NRCharacter->GetComponentByClass(UNRBagComponent::StaticClass())))
+			if (const UNRInventoryComponent* InventoryComponent = NRCharacter->GetInventoryComponent())
 			{
-				if (ANRWeaponBase* Weapon = BagComponent->GetFPSWeapon())
+				if (ANRWeaponBase* Weapon = InventoryComponent->GetCurrentWeapon())
 				{
 					if (Weapon != StreamableHandlePair.Key)
 					{

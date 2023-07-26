@@ -6,9 +6,9 @@
 #include "AbilitySystemGlobals.h"
 #include "Abilities/Tasks/AbilityTask_WaitDelay.h"
 #include "Character/NRCharacter.h"
-#include "Character/Component/NRCombatComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Actor/Weapon/NRWeaponBase.h"
+#include "Character/Component/NRInventoryComponent.h"
 #include "Character/GAS/NRAbilitySystemComponent.h"
 #include "Character/GAS/Ability/NRGA_FireInstant.h"
 #include "Table/Weapon/NRWeaponSetting.h"
@@ -86,9 +86,9 @@ ANRWeaponBase* UNRGA_Fire::GetEquippedWeaponFromActorInfo(const FGameplayAbility
 {
 	if (const ANRCharacter* NRCharacter = Cast<ANRCharacter>(ActorInfo->AvatarActor.Get()))
 	{
-		if (UNRCombatComponent* CombatComponent = NRCharacter->GetComponentByClass<UNRCombatComponent>())
+		if (const UNRInventoryComponent* InventoryComponent = NRCharacter->GetInventoryComponent())
 		{
-			return CombatComponent->GetEquippedWeapon();
+			return InventoryComponent->GetCurrentWeapon();
 		}
 	}
 	

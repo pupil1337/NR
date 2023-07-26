@@ -6,9 +6,9 @@
 #include "Static/NRStatics.h"
 #include "Actor/Weapon/NRWeaponBase.h"
 #include "Character/NRCharacter.h"
-#include "Character/Component/NRBagComponent.h"
 #include "Engine/StreamableManager.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Character/Component/NRInventoryComponent.h"
 
 const FName NAME_Curve_Feet_Crossing(TEXT("Feet_Crossing"));
 
@@ -33,9 +33,9 @@ void FNRBodyAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float De
 	if (const ANRCharacter* NRCharacter = Cast<ANRCharacter>(InAnimInstance->TryGetPawnOwner()))
 	{
 		/** AnimSetting */
-		if (const UNRBagComponent* BagComponent = Cast<UNRBagComponent>(NRCharacter->GetComponentByClass(UNRBagComponent::StaticClass())))
+		if (const UNRInventoryComponent* InventoryComponent = NRCharacter->GetInventoryComponent())
 		{
-			if (ANRWeaponBase* Weapon = BagComponent->GetTPSWeapon())
+			if (ANRWeaponBase* Weapon = InventoryComponent->GetCurrentWeapon())
 			{
 				if (Weapon != StreamableHandlePair.Key)
 				{

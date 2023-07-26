@@ -6,7 +6,7 @@
 #include "AbilitySystemGlobals.h"
 #include "Actor/Weapon/NRWeaponBase.h"
 #include "Character/NRCharacter.h"
-#include "Character/Component/NRCombatComponent.h"
+#include "Character/Component/NRInventoryComponent.h"
 #include "Character/GAS/TargetActor/NRGATA_LineTrace.h"
 #include "Character/GAS/Task/NRAT_ServerWaitClientTargetData.h"
 #include "Character/GAS/Task/NRAT_WaitTargetDataUsingActor.h"
@@ -76,9 +76,9 @@ ANRWeaponBase* UNRGA_FireInstant::GetEquippedWeaponFromActorInfo(const FGameplay
 {
 	if (const ANRCharacter* NRCharacter = Cast<ANRCharacter>(ActorInfo->AvatarActor.Get()))
 	{
-		if (UNRCombatComponent* CombatComponent = NRCharacter->GetComponentByClass<UNRCombatComponent>())
+		if (const UNRInventoryComponent* InventoryComponent = NRCharacter->GetInventoryComponent())
 		{
-			return CombatComponent->GetEquippedWeapon();
+			return InventoryComponent->GetCurrentWeapon();
 		}
 	}
 	

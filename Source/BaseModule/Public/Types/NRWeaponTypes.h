@@ -11,6 +11,12 @@ const FName NAME_Separate_FOV_Alpha(TEXT("Separate_FOV Alpha"));
 const FName NAME_Separate_Alpha(TEXT("Separate Alpha"));
 
 
+/** 角色- 1P武器插槽 */
+const FName NAME_Socket_Weapon(TEXT("SOCKET_Weapon"));
+
+/** 角色- 3P武器插槽 */
+const FName NAME_HandR_IkHandGun(TEXT("VB HandR_IkHandGun"));
+
 /** 武器- 默认插槽 */
 const FName NAME_Socket_Default(TEXT("SOCKET_Default"));
 

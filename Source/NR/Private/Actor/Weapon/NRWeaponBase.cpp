@@ -6,6 +6,7 @@
 #include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
 #include "NRGameSingleton.h"
+#include "Character/NRCharacter.h"
 #include "Character/GAS/TargetActor/NRGATA_LineTrace.h"
 #include "Static/NRStatics.h"
 #include "Net/UnrealNetwork.h"
@@ -40,6 +41,8 @@ ANRWeaponBase::ANRWeaponBase()
 	IronSight1P->SetupAttachment(Mesh1P, NAME_Socket_Default);
 	IronSight3P = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("机瞄3P"));
 	IronSight3P->SetupAttachment(Mesh3P, NAME_Socket_Default);
+
+	SetFPS_SeparateFOV(true, true);
 }
 
 void ANRWeaponBase::OnConstruction(const FTransform& Transform)
@@ -77,12 +80,14 @@ void ANRWeaponBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 void ANRWeaponBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SetFPS_SeparateFOV(true, true);
 }
 
 void ANRWeaponBase::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
+	
 	TickFPS_SeparateFOVDirty();
 }
 
@@ -114,31 +119,6 @@ void ANRWeaponBase::SetWeaponState(ENRWeaponState InWeaponState)
 	OnRep_WeaponState(OldWeaponState);
 }
 
-void ANRWeaponBase::SetOnlySeeShadow(bool bOnlyShadow) const
-{
-	// TODO
-	// Mesh->SetRenderInMainPass(!bOnlyShadow);
-	//
-	// Magazine->SetVisibility(!bOnlyShadow);
-	// Magazine->SetCastHiddenShadow(bOnlyShadow);
-	//
-	// IronSight->SetVisibility(!bOnlyShadow);
-	// IronSight->SetCastHiddenShadow(bOnlyShadow);
-}
-
-void ANRWeaponBase::SetSelfShadowOnly(bool bSelfShadowOnly) const
-{
-	// TODO
-	// Mesh->bSelfShadowOnly = bSelfShadowOnly;
-	// Mesh->MarkRenderStateDirty();
-	//
-	// Magazine->bSelfShadowOnly = bSelfShadowOnly;
-	// Magazine->MarkRenderStateDirty();
-	//
-	// IronSight->bSelfShadowOnly = bSelfShadowOnly;
-	// IronSight->MarkRenderStateDirty();
-}
-
 void ANRWeaponBase::SetFPS_SeparateFOV(bool bInSeparateFOV, bool bInSeparate)
 {
 	bFPS_SeparateFOVDirty = true;
@@ -147,20 +127,35 @@ void ANRWeaponBase::SetFPS_SeparateFOV(bool bInSeparateFOV, bool bInSeparate)
 	bSeparate = bInSeparate;
 }
 
+void ANRWeaponBase::Equip()
+{
+	const ANRCharacter* NRCharacter = Cast<ANRCharacter>(GetOwner());
+	if (!NRCharacter)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s %s Owner is not NRCharacter"), *FString(__FUNCTION__), *GetName())
+		return;
+	}
+	
+	Mesh1P->AttachToComponent(NRCharacter->GetMeshArm(), FAttachmentTransformRules::SnapToTargetIncludingScale, NAME_Socket_Weapon);
+	Mesh3P->AttachToComponent(NRCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, NAME_HandR_IkHandGun);
+}
+
+void ANRWeaponBase::UnEquip()
+{
+	Mesh1P->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+	Mesh3P->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+}
+
 void ANRWeaponBase::TickFPS_SeparateFOVDirty()
 {
 	if (bFPS_SeparateFOVDirty)
 	{
-		// TODO
-		// UNRStatics::SetFPS_SeparateFOV(Mesh1P, bSeparateFOV, bSeparate);
-		// UNRStatics::SetFPS_SeparateFOV(Mesh3P, bSeparateFOV, bSeparate);
-		// UNRStatics::SetFPS_SeparateFOV(Magazine1P, bSeparateFOV, bSeparate);
-		// UNRStatics::SetFPS_SeparateFOV(Magazine3P, bSeparateFOV, bSeparate);
-		// UNRStatics::SetFPS_SeparateFOV(IronSight1P, bSeparateFOV, bSeparate);
-		// UNRStatics::SetFPS_SeparateFOV(IronSight3P, bSeparateFOV, bSeparate);
-		// bFPS_SeparateFOVDirty = Mesh1P->GetMaterials().Num() == 0 ||
-		// 						Magazine->GetMaterials().Num() == 0 ||
-		// 						IronSight->GetMaterials().Num() == 0;
+		UNRStatics::SetFPS_SeparateFOV(Mesh1P, bSeparateFOV, bSeparate);
+		UNRStatics::SetFPS_SeparateFOV(Magazine1P, bSeparateFOV, bSeparate);
+		UNRStatics::SetFPS_SeparateFOV(IronSight1P, bSeparateFOV, bSeparate);
+		bFPS_SeparateFOVDirty = Mesh1P->GetMaterials().Num() == 0 ||
+								Magazine1P->GetMaterials().Num() == 0 ||
+								IronSight1P->GetMaterials().Num() == 0;
 	}
 }
 
@@ -231,6 +226,7 @@ void ANRWeaponBase::OnRep_WeaponState(ENRWeaponState OldWeaponState)
 	// }
 }
 
+// Getter ================================================================================
 FNRWeaponInformationRow* ANRWeaponBase::GetWeaponInformation()
 {
 	if (!WeaponInformation)

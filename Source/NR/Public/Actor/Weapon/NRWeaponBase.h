@@ -66,10 +66,12 @@ public:
 
 // This Class Func
 	void SetWeaponState(ENRWeaponState InWeaponState);
-	void SetOnlySeeShadow(bool bOnlyShadow) const;
-	void SetSelfShadowOnly(bool bSelfShadowOnly) const;
-	void SetFPS_SeparateFOV(bool bInSeparateFOV, bool bInSeparate);
 
+	void Equip();
+
+	void UnEquip();
+
+	// Getter
 	FNRArmAnimSetRow* GetWeaponArmAnimSetRow();
 	FNRBodyAnimSetRow* GetWeaponBodyAnimSetRow();
 	FNRWeaponSettingRow* GetWeaponSettingRow();
@@ -77,20 +79,17 @@ public:
 	UAnimMontage* GetWeaponMontage(bool bFPS, const FName& RowName);
 	FNRMagazineSettingRow* GetMagazineSettingRow();
 	FNRIronSightSettingRow* GetIronSightSettingRow();
-
-	ANRGATA_LineTrace* GetLineTraceTargetActor();
-
-	// FORCEINLINE ENRWeaponType GetWeaponType() const { return WeaponType; }
-	// FORCEINLINE ENRWeaponState GetWeaponState() const { return WeaponState; }
-	// FORCEINLINE USkeletalMeshComponent* GetMesh() const { return Mesh; }
 	
-protected:
+	ANRGATA_LineTrace* GetLineTraceTargetActor();
+	
+private:
 	UFUNCTION()
 	void OnRep_WeaponState(ENRWeaponState OldWeaponState);
 
+	void SetFPS_SeparateFOV(bool bInSeparateFOV, bool bInSeparate);
+	
 	void TickFPS_SeparateFOVDirty();
 	
-private:
 	FNRWeaponInformationRow* GetWeaponInformation();
 	FNRWeaponInformationRow* WeaponInformation;
 	FNRArmAnimSetRow* WeaponArmAnimSet;

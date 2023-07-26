@@ -5,7 +5,6 @@
 
 #include "Character/NRCharacter.h"
 #include "Character/NRCharacterMovementComponent.h"
-#include "Character/Component/NRCombatComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Static/NRStatics.h"
 
@@ -60,12 +59,13 @@ void FNRAnimInstanceProxyBase::PreUpdate(UAnimInstance* InAnimInstance, float De
 		
 		// VelocityAlpha
 		VelocityAlpha = bJumping || bSkiing ? 0.0f : VelocityXY.Size() / GetCurrMoveModeMaxSpeed();
-		
-		if (const UNRCombatComponent* CombatComponent = Cast<UNRCombatComponent>(NRCharacter->GetComponentByClass(UNRCombatComponent::StaticClass())))
-		{
-			// bAiming
-			bAiming = CombatComponent->GetIsAiming();
-		}
+
+		// TODO
+		// if (const UNRCombatComponent* CombatComponent = Cast<UNRCombatComponent>(NRCharacter->GetComponentByClass(UNRCombatComponent::StaticClass())))
+		// {
+		// 	// bAiming
+		// 	bAiming = CombatComponent->GetIsAiming();
+		// }
 	}
 }
 

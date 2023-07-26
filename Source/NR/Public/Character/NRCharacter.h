@@ -11,7 +11,7 @@
 #include "Types/NRGASTypes.h"
 #include "NRCharacter.generated.h"
 
-struct FInputActionValue;
+class UNRInventoryComponent;
 class UNRGameplayAbility;
 class UNRAttributeSet;
 class UNRAbilitySystemComponent;
@@ -20,10 +20,6 @@ class USkeletalMeshComponent;
 class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
-class ANRWeaponBase;
-class UBoxComponent;
-class UNRComponentBase;
-class UNRCharacterMovementComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCrouchInput);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnRunInput);
@@ -49,10 +45,13 @@ class NR_API ANRCharacter : public ANRCharacterBase, public IAbilitySystemInterf
 	TObjectPtr<UCameraComponent> Camera;
 
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UNRAbilitySystemComponent> NRAbilitySystemComponent;
+	TObjectPtr<UNRAbilitySystemComponent> AbilitySystemComponent;
 
-	UPROPERTY()
-	TObjectPtr<UNRAttributeSet> NRAttributeSet;
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UNRInventoryComponent> InventoryComponent;
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UNRAttributeSet> AttributeSet;
 
 	// Settings
 	UPROPERTY(EditDefaultsOnly, Category="配置|角色", DisplayName="摄像机-FPS弹簧臂相对eyes位置偏移")
@@ -79,10 +78,6 @@ class NR_API ANRCharacter : public ANRCharacterBase, public IAbilitySystemInterf
 	TObjectPtr<UInputAction> IA_Run;
 	UPROPERTY(EditDefaultsOnly, Category="配置|输入")
 	TObjectPtr<UInputAction> IA_Fire;
-
-	// Components
-	UPROPERTY(EditDefaultsOnly, Category="配置|角色", DisplayName="需要创建的组件")
-	TArray<TSubclassOf<UNRComponentBase>> NRComponentClasses;
 	
 public:
 	ANRCharacter(const FObjectInitializer& ObjectInitializer);
@@ -102,7 +97,7 @@ public:
 	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
 
 	// IAbilitySystemInterface
-	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return Cast<UAbilitySystemComponent>(NRAbilitySystemComponent); }
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return Cast<UAbilitySystemComponent>(AbilitySystemComponent); }
 
 //~Begin This Class
 	// Input Event Delegate
@@ -119,11 +114,12 @@ public:
 	
 	// Getter
 	FORCEINLINE USkeletalMeshComponent* GetMeshArm() const { return MeshArm; }
+	FORCEINLINE UNRInventoryComponent* GetInventoryComponent() const { return InventoryComponent; }
 	FORCEINLINE FVector2D GetMoveInput() const { return MoveInputValue; } // 仅在控制端
-	FORCEINLINE float GetHealth() const { return NRAttributeSet->GetHealth(); }
-	FORCEINLINE float GetMaxHealth() const { return NRAttributeSet->GetMaxHealth(); }
-	FORCEINLINE float GetShield() const { return NRAttributeSet->GetShield(); }
-	FORCEINLINE float GetMaxShield() const { return NRAttributeSet->GetMaxShield(); }
+	FORCEINLINE float GetHealth() const { return AttributeSet->GetHealth(); }
+	FORCEINLINE float GetMaxHealth() const { return AttributeSet->GetMaxHealth(); }
+	FORCEINLINE float GetShield() const { return AttributeSet->GetShield(); }
+	FORCEINLINE float GetMaxShield() const { return AttributeSet->GetMaxShield(); }
 	
 private:
 	void InitializeAttributes() const;

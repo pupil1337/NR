@@ -10,7 +10,7 @@
 #include "EnhancedInputComponent.h"
 #include "Static/NRStatics.h"
 #include "Character/NRCharacterMovementComponent.h"
-#include "Character/Component/NRComponentBase.h"
+#include "Character/Component/NRInventoryComponent.h"
 #include "Character/GAS/NRAbilitySystemComponent.h"
 #include "Character/GAS/Attribute/NRAttributeSet.h"
 #include "Character/GAS/NRGameplayAbility.h"
@@ -44,12 +44,19 @@ ANRCharacter::ANRCharacter(const FObjectInitializer& ObjectInitializer)
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("摄像机"));
 	Camera->SetupAttachment(MeshArm, NAME_Socket_Camera);
 
-	// NRAbilitySystemComponent
-	NRAbilitySystemComponent = CreateDefaultSubobject<UNRAbilitySystemComponent>(TEXT("技能组件"));
-	NRAbilitySystemComponent->SetIsReplicated(true);
-	NRAbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
+	// AbilitySystemComponent
+	AbilitySystemComponent = CreateDefaultSubobject<UNRAbilitySystemComponent>(TEXT("技能组件"));
+	AbilitySystemComponent->SetIsReplicated(true);
+	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
-	NRAttributeSet = CreateDefaultSubobject<UNRAttributeSet>(TEXT("属性集"));
+	// AttributeSet
+	AttributeSet = CreateDefaultSubobject<UNRAttributeSet>(TEXT("属性集"));
+
+	// InventoryComponent
+	InventoryComponent = CreateDefaultSubobject<UNRInventoryComponent>(TEXT("背包组件"));
+	InventoryComponent->SetIsReplicated(true);
+	InventoryComponent->bAutoActivate = true;
+	InventoryComponent->bWantsInitializeComponent = true;
 }
 
 void ANRCharacter::OnConstruction(const FTransform& Transform)
@@ -62,18 +69,6 @@ void ANRCharacter::OnConstruction(const FTransform& Transform)
 
 void ANRCharacter::PreInitializeComponents()
 {
-	// Components
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		for (TSubclassOf<UNRComponentBase> tClass: NRComponentClasses)
-		{
-			UNRComponentBase* tComp = NewObject<UNRComponentBase>(this, tClass);
-			tComp->RegisterComponent();
-			// TODO 目前所有组件都是同步的, 非常没必要. (要分: 同步组件、仅服务器组件、仅本地控制组件、仅所有客户端组件)
-			tComp->SetIsReplicated(true);
-		}	
-	}
-	
 	Super::PreInitializeComponents();
 }
 
@@ -88,39 +83,31 @@ void ANRCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 void ANRCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (GetLocalRole() == ROLE_SimulatedProxy)
-	{
-		Spring->DestroyComponent();
-		MeshArm->DestroyComponent();
-		MeshLeg->DestroyComponent();
-		Camera->DestroyComponent();
-	}
 }
 
 void ANRCharacter::InitializeAttributes() const
 {
-	if (NRAbilitySystemComponent && DefaultAttributeEffect)
+	if (AbilitySystemComponent && DefaultAttributeEffect)
 	{
-		FGameplayEffectContextHandle EffectContext = NRAbilitySystemComponent->MakeEffectContext();
+		FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
 		EffectContext.AddSourceObject(this);
 
-		if (const FGameplayEffectSpecHandle SpecHandle = NRAbilitySystemComponent->MakeOutgoingSpec(DefaultAttributeEffect, 1.0f, EffectContext); SpecHandle.IsValid())
+		if (const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributeEffect, 1.0f, EffectContext); SpecHandle.IsValid())
 		{
-			FActiveGameplayEffectHandle GEHandle = NRAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+			FActiveGameplayEffectHandle GEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 		}
 	}	
 }
 
 void ANRCharacter::InitializeAbilities()
 {
-	if (HasAuthority() && NRAbilitySystemComponent)
+	if (HasAuthority() && AbilitySystemComponent)
 	{
 		for (TSubclassOf<UNRGameplayAbility>& Ability : DefaultAbilities)
 		{
 			if (Ability)
 			{
-				NRAbilitySystemComponent->GiveAbility(
+				AbilitySystemComponent->GiveAbility(
 					FGameplayAbilitySpec(Ability, 1, static_cast<int32>(Ability.GetDefaultObject()->GetAbilityInputID()), this)
 				);
 			}
@@ -132,9 +119,9 @@ void ANRCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	if (NRAbilitySystemComponent)
+	if (AbilitySystemComponent)
 	{
-		NRAbilitySystemComponent->InitAbilityActorInfo(this, this);
+		AbilitySystemComponent->InitAbilityActorInfo(this, this);
 		InitializeAttributes();
 		InitializeAbilities();
 	}
@@ -144,9 +131,9 @@ void ANRCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
-	if (NRAbilitySystemComponent)
+	if (AbilitySystemComponent)
 	{
-		NRAbilitySystemComponent->InitAbilityActorInfo(this, this);
+		AbilitySystemComponent->InitAbilityActorInfo(this, this);
 		InitializeAttributes();
 	}
 }
@@ -157,14 +144,7 @@ void ANRCharacter::PawnClientRestart()
 	
 	SetMeshesVisibility();
 
-	// Components本地控制端初始化
-	for (UActorComponent* it: GetComponents())
-	{
-		if (UNRComponentBase* tNRComp = Cast<UNRComponentBase>(it))
-		{
-			tNRComp->PawnClientRestart();
-		}
-	}
+	InventoryComponent->OnPawnClientRestart();
 }
 
 void ANRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -217,13 +197,7 @@ void ANRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		}
 
 		// Components注册输入事件
-		for (UActorComponent* it: GetComponents())
-		{
-			if (UNRComponentBase* tNRComp = Cast<UNRComponentBase>(it))
-			{
-				tNRComp->InitLocallyControlledInputEvent(PlayerInputComponent);
-			}
-		}
+		InventoryComponent->OnSetupPlayerInputComponent(PlayerInputComponent);
 	}
 }
 
@@ -253,16 +227,16 @@ void ANRCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 P
 {
 	Super::OnMovementModeChanged(PrevMovementMode, PreviousCustomMode);
 
-	if (NRAbilitySystemComponent)
+	if (AbilitySystemComponent)
 	{
 		const FGameplayTag& FallingTag = FGameplayTag::RequestGameplayTag(FName("State.Falling"));
 		if (GetCharacterMovement()->IsFalling())
 		{
-			NRAbilitySystemComponent->AddLooseGameplayTag(FallingTag);
+			AbilitySystemComponent->AddLooseGameplayTag(FallingTag);
 		}
 		else
 		{
-			NRAbilitySystemComponent->RemoveLooseGameplayTag(FallingTag);
+			AbilitySystemComponent->RemoveLooseGameplayTag(FallingTag);
 		}
 	}
 }
@@ -283,15 +257,15 @@ void ANRCharacter::UpdateSpringLocation(float DeltaSeconds) const
 // Inputs ===================================================================================
 void ANRCharacter::SendLocalInputToASC(bool bPressed, ENRAbilityInputID InputID) const
 {
-	if (NRAbilitySystemComponent)
+	if (AbilitySystemComponent)
 	{
 		if (bPressed)
 		{
-			NRAbilitySystemComponent->AbilityLocalInputPressed(static_cast<uint32>(InputID));
+			AbilitySystemComponent->AbilityLocalInputPressed(static_cast<uint32>(InputID));
 		}
 		else
 		{
-			NRAbilitySystemComponent->AbilityLocalInputReleased(static_cast<uint32>(InputID));
+			AbilitySystemComponent->AbilityLocalInputReleased(static_cast<uint32>(InputID));
 		}
 	}
 }
@@ -334,7 +308,7 @@ void ANRCharacter::OnJumpInput(const FInputActionValue& Value)
 
 void ANRCharacter::OnCrouchInput(const FInputActionValue& Value)
 {
-	if (NRAbilitySystemComponent)
+	if (AbilitySystemComponent)
 	{
 		// 滑铲
 		if (bRunning)
@@ -361,9 +335,9 @@ void ANRCharacter::OnRunInput(const FInputActionValue& Value)
 {
 	if (MoveInputValue.Y == 1.0f)
 	{
-		if (NRAbilitySystemComponent)
+		if (AbilitySystemComponent)
 		{
-			if (!NRAbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("Ability.Run"))))
+			if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("Ability.Run"))))
 			{
 				SendLocalInputToASC(true, ENRAbilityInputID::EAIID_Run);
 			}
