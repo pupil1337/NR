@@ -3,6 +3,7 @@
 
 #include "Character/GAS/Ability/NRGA_FireInstant.h"
 
+#include "AbilitySystemGlobals.h"
 #include "Actor/Weapon/NRWeaponBase.h"
 #include "Character/NRCharacter.h"
 #include "Character/Component/NRCombatComponent.h"
@@ -15,6 +16,12 @@ UNRGA_FireInstant::UNRGA_FireInstant()
 	
 }
 
+bool UNRGA_FireInstant::CheckCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, OUT FGameplayTagContainer* OptionalRelevantTags) const
+{
+	return Super::CheckCost(Handle, ActorInfo, OptionalRelevantTags);
+}
+
+
 bool UNRGA_FireInstant::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
 {
 	return Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
@@ -26,11 +33,11 @@ void UNRGA_FireInstant::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 
 	if (ResetData(ActorInfo))
 	{
-		UNRAT_ServerWaitClientTargetData* AT_ServerWaitClientTargetData = UNRAT_ServerWaitClientTargetData::ServerWaitClientTargetData(this, true);
+		UNRAT_ServerWaitClientTargetData* AT_ServerWaitClientTargetData = UNRAT_ServerWaitClientTargetData::ServerWaitClientTargetData(this, false);
 		AT_ServerWaitClientTargetData->ValidData.AddDynamic(this, &ThisClass::HandleTargetData);
 		AT_ServerWaitClientTargetData->ReadyForActivation();
 	
-		FireBullet();	
+		FireBullet();
 	}
 	else
 	{
@@ -40,19 +47,28 @@ void UNRGA_FireInstant::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 
 void UNRGA_FireInstant::FireBullet()
 {
-	UE_LOG(LogTemp, Log, TEXT("FireInstant:: FireBullet"))
-
-	if (EquippedWeapon)
+	if (GetCurrentActorInfo() && GetCurrentActorInfo()->IsLocallyControlled())
 	{
-		UNRAT_WaitTargetDataUsingActor* AT_WaitTargetDataUsingActor = UNRAT_WaitTargetDataUsingActor::WaitTargetDataUsingActor(this, EGameplayTargetingConfirmation::Type::Instant, EquippedWeapon->GetLineTraceTargetActor(), true);
-		AT_WaitTargetDataUsingActor->ValidData.AddDynamic(this, &ThisClass::HandleTargetData);
-		AT_WaitTargetDataUsingActor->ReadyForActivation();
+		if (UAbilitySystemGlobals::Get().ShouldIgnoreCosts() || CheckCost(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo()))
+		{
+			UE_LOG(LogTemp, Log, TEXT("FireInstant:: FireBullet(LocallyControlled)"))
+
+			if (EquippedWeapon)
+			{
+				UNRAT_WaitTargetDataUsingActor* AT_WaitTargetDataUsingActor = UNRAT_WaitTargetDataUsingActor::WaitTargetDataUsingActor(this, EGameplayTargetingConfirmation::Type::Instant, EquippedWeapon->GetLineTraceTargetActor(), true);
+				AT_WaitTargetDataUsingActor->ValidData.AddDynamic(this, &ThisClass::HandleTargetData);
+				AT_WaitTargetDataUsingActor->ReadyForActivation();
+			}	
+		}
 	}
 }
 
 void UNRGA_FireInstant::HandleTargetData(const FGameplayAbilityTargetDataHandle& Data)
 {
-	UE_LOG(LogTemp, Log, TEXT("FireInstant:: HandleTargetData"))
+	if (GetCurrentActorInfo())
+	{
+		UE_LOG(LogTemp, Log, TEXT("FireInstant:: HandleTargetData [%s, Role:%d]"), GetCurrentActorInfo()->IsNetAuthority() ? TEXT("Server") : TEXT("Client"), GetOwningActorFromActorInfo()->GetLocalRole())
+	}
 }
 
 // Utils ==============================================================================================
