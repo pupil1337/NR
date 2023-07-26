@@ -30,7 +30,8 @@ enum class ENRWeaponType : uint8
 {
 	EWT_None = 0,
 	EWT_Box = 1,
-	EWT_AR_01 = 2
+	EWT_AR_01 = 2,
+	EWT_Max
 };
 
 UENUM()

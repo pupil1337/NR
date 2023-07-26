@@ -4,12 +4,21 @@
 
 #include "CoreMinimal.h"
 #include "Character/Component/NRComponentBase.h"
+#include "Types/NRWeaponTypes.h"
 #include "NRBagComponent.generated.h"
 
 class UInputMappingContext;
 class UInputAction;
 class UInputComponent;
 class ANRWeaponBase;
+
+USTRUCT()
+struct NR_API FNRInventory
+{
+	GENERATED_BODY()
+
+	TArray<ANRWeaponBase*> Weapons;
+};
 
 /**
  * 
@@ -40,25 +49,51 @@ protected:
 
 //~Begin This Class
 public:
-	/** LocallyControlled Only */
-	void EquipFPSWeapon(ENRWeaponType WeaponType);
-	
-	UFUNCTION(Server, Reliable)
-	void Server_EquipTPSWeapon(ENRWeaponType WeaponType);
-
-	UFUNCTION()
-	void OnRep_TPSWeapon(ANRWeaponBase* OldWeapon);
-
-	void TryEquipWeaponInSlot(uint8 Slot);
-	
-	FORCEINLINE ANRWeaponBase* GetFPSWeapon() const { return FPSWeapon; }
-	FORCEINLINE ANRWeaponBase* GetTPSWeapon() const { return TPSWeapon; }
+	FORCEINLINE ANRWeaponBase* GetCurrentWeapon() const { return CurrentWeapon; }
 
 private:
+	/**
+	 * @brief 客户端发送存档给服务器, 服务器初始化仓库
+	 * @todo 实现
+	 */
+	UFUNCTION(Server, Reliable)
+	void Server_InitInventory();
+	void Server_InitInventory_Implementation();
+	bool Server_InitInventory_Validata();
+	
+	/**
+	 * @brief 增加武器到仓库 仅服务器调用
+	 * @param NewWeapon 需要增加的武器
+	 * @param bDoEquip 是否执行装备
+	 */
+	void AddWeaponToInventory(ANRWeaponBase* NewWeapon, bool bDoEquip = false);
+	
+	UFUNCTION()
+	void OnRep_Inventory();
+
+	void EquipWeapon(ANRWeaponBase* NewWeapon);
+	UFUNCTION(Server, Reliable)
+	void Server_EquipWeapon(ANRWeaponBase* NewWeapon);
+	void Server_EquipWeapon_Implementation(ANRWeaponBase* NewWeapon);
+	bool Server_EquipWeapon_Validata(ANRWeaponBase* NewWeapon);
+
+	void SetCurrentWeapon(ANRWeaponBase* WeaponToEquip);
+
+	void UnEquipWeapon(ANRWeaponBase* WeaponToUnEquip);
+
+	UFUNCTION()
+	void OnRep_CurrentWeapon(ANRWeaponBase* OldWeapon);
+
+	void TryEquipWeaponInSlot(uint8 Slot);
+
+	// Utils
+	bool IsWeaponExistInInventory(ANRWeaponBase* InWeapon);
+	
+	UPROPERTY(Transient, ReplicatedUsing=OnRep_Inventory)
+	FNRInventory Inventory;
+	
 	UPROPERTY(Transient)
 	ANRWeaponBase* WeaponSlot[5]; // 武器插槽 0为空手, 1~4为武器
-	UPROPERTY(Transient)
-	ANRWeaponBase* FPSWeapon; // 1P武器 仅在本地控制端
-	UPROPERTY(Transient, ReplicatedUsing=OnRep_TPSWeapon)
-	ANRWeaponBase* TPSWeapon; // 3P武器 在服务端生成同步给客户端
+	UPROPERTY(Transient, ReplicatedUsing=OnRep_CurrentWeapon)
+	ANRWeaponBase* CurrentWeapon;
 };

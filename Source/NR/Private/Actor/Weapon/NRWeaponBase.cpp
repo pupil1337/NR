@@ -19,17 +19,27 @@ ANRWeaponBase::ANRWeaponBase()
 
 	bReplicates = true;
 
-	// Mesh
-	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("枪身"));
-	SetRootComponent(Mesh);
+	// SceneRoot
+	SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	SetRootComponent(SceneRoot);
+	
+	// Mesh1P/3P
+	Mesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("枪身1P"));
+	Mesh1P->SetupAttachment(SceneRoot);
+	Mesh3P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("枪身3P"));
+	Mesh3P->SetupAttachment(SceneRoot);
 
-	// Magazine
-	Magazine = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("弹夹"));
-	Magazine->SetupAttachment(Mesh, NAME_Socket_Magazine);
-
-	// IronSight
-	IronSight = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("机瞄"));
-	IronSight->SetupAttachment(Mesh, NAME_Socket_Default);
+	// Magazine1P/3P
+	Magazine1P = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("弹夹1P"));
+	Magazine1P->SetupAttachment(Mesh1P, NAME_Socket_Magazine);
+	Magazine3P = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("弹夹3P"));
+	Magazine3P->SetupAttachment(Mesh3P, NAME_Socket_Magazine);
+	
+	// IronSight1P/3P
+	IronSight1P = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("机瞄1P"));
+	IronSight1P->SetupAttachment(Mesh1P, NAME_Socket_Default);
+	IronSight3P = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("机瞄3P"));
+	IronSight3P->SetupAttachment(Mesh3P, NAME_Socket_Default);
 }
 
 void ANRWeaponBase::OnConstruction(const FTransform& Transform)
@@ -44,11 +54,13 @@ void ANRWeaponBase::OnConstruction(const FTransform& Transform)
 		{
 			if (MagazineSetting && MagazineSetting->Mesh.IsValid())
 			{
-				Magazine->SetStaticMesh(MagazineSetting->Mesh.Get());
+				Magazine1P->SetStaticMesh(MagazineSetting->Mesh.Get());
+				Magazine3P->SetStaticMesh(MagazineSetting->Mesh.Get());
 			}
 			if (IronSightSetting && IronSightSetting->Mesh.IsValid())
 			{
-				IronSight->SetStaticMesh(IronSightSetting->Mesh.Get());
+				IronSight1P->SetStaticMesh(IronSightSetting->Mesh.Get());
+				IronSight3P->SetStaticMesh(IronSightSetting->Mesh.Get());
 			}
 		}
 	);
@@ -104,25 +116,27 @@ void ANRWeaponBase::SetWeaponState(ENRWeaponState InWeaponState)
 
 void ANRWeaponBase::SetOnlySeeShadow(bool bOnlyShadow) const
 {
-	Mesh->SetRenderInMainPass(!bOnlyShadow);
-	
-	Magazine->SetVisibility(!bOnlyShadow);
-	Magazine->SetCastHiddenShadow(bOnlyShadow);
-	
-	IronSight->SetVisibility(!bOnlyShadow);
-	IronSight->SetCastHiddenShadow(bOnlyShadow);
+	// TODO
+	// Mesh->SetRenderInMainPass(!bOnlyShadow);
+	//
+	// Magazine->SetVisibility(!bOnlyShadow);
+	// Magazine->SetCastHiddenShadow(bOnlyShadow);
+	//
+	// IronSight->SetVisibility(!bOnlyShadow);
+	// IronSight->SetCastHiddenShadow(bOnlyShadow);
 }
 
 void ANRWeaponBase::SetSelfShadowOnly(bool bSelfShadowOnly) const
 {
-	Mesh->bSelfShadowOnly = bSelfShadowOnly;
-	Mesh->MarkRenderStateDirty();
-	
-	Magazine->bSelfShadowOnly = bSelfShadowOnly;
-	Magazine->MarkRenderStateDirty();
-	
-	IronSight->bSelfShadowOnly = bSelfShadowOnly;
-	IronSight->MarkRenderStateDirty();
+	// TODO
+	// Mesh->bSelfShadowOnly = bSelfShadowOnly;
+	// Mesh->MarkRenderStateDirty();
+	//
+	// Magazine->bSelfShadowOnly = bSelfShadowOnly;
+	// Magazine->MarkRenderStateDirty();
+	//
+	// IronSight->bSelfShadowOnly = bSelfShadowOnly;
+	// IronSight->MarkRenderStateDirty();
 }
 
 void ANRWeaponBase::SetFPS_SeparateFOV(bool bInSeparateFOV, bool bInSeparate)
@@ -137,79 +151,84 @@ void ANRWeaponBase::TickFPS_SeparateFOVDirty()
 {
 	if (bFPS_SeparateFOVDirty)
 	{
-		UNRStatics::SetFPS_SeparateFOV(Mesh, bSeparateFOV, bSeparate);
-		UNRStatics::SetFPS_SeparateFOV(Magazine, bSeparateFOV, bSeparate);
-		UNRStatics::SetFPS_SeparateFOV(IronSight, bSeparateFOV, bSeparate);
-		bFPS_SeparateFOVDirty = Mesh->GetMaterials().Num() == 0 ||
-								Magazine->GetMaterials().Num() == 0 ||
-								IronSight->GetMaterials().Num() == 0;
+		// TODO
+		// UNRStatics::SetFPS_SeparateFOV(Mesh1P, bSeparateFOV, bSeparate);
+		// UNRStatics::SetFPS_SeparateFOV(Mesh3P, bSeparateFOV, bSeparate);
+		// UNRStatics::SetFPS_SeparateFOV(Magazine1P, bSeparateFOV, bSeparate);
+		// UNRStatics::SetFPS_SeparateFOV(Magazine3P, bSeparateFOV, bSeparate);
+		// UNRStatics::SetFPS_SeparateFOV(IronSight1P, bSeparateFOV, bSeparate);
+		// UNRStatics::SetFPS_SeparateFOV(IronSight3P, bSeparateFOV, bSeparate);
+		// bFPS_SeparateFOVDirty = Mesh1P->GetMaterials().Num() == 0 ||
+		// 						Magazine->GetMaterials().Num() == 0 ||
+		// 						IronSight->GetMaterials().Num() == 0;
 	}
 }
 
 void ANRWeaponBase::OnRep_WeaponState(ENRWeaponState OldWeaponState)
 {
-	switch (WeaponState)
-	{
-		case ENRWeaponState::EWS_None: break;
-
-		case ENRWeaponState::EWS_Pickup:
-		{
-				// 打开碰撞
-				Mesh->SetCollisionProfileName(NRCollisionProfile::Pickup_ProfileName);
-				Mesh->SetSimulatePhysics(true);
-				
-				if (GetNetMode() != NM_DedicatedServer)
-				{
-					// 打开拾取提示特效
-					if (UNRGameSingleton* NRGameSingleton = UNRGameSingleton::Get())
-					{
-						if (!NRGameSingleton->CommonVFX.PickupVFX.IsNull())
-						{
-							const TDelegate<void()> DelegateToCall = FStreamableDelegate::CreateLambda([this, NRGameSingleton]()
-								{
-									if (NRGameSingleton->CommonVFX.PickupVFX.IsValid())
-									{
-										PickupNiagaraComp = NewObject<UNiagaraComponent>(this);
-										PickupNiagaraComp->RegisterComponent();
-										PickupNiagaraComp->SetAsset(NRGameSingleton->CommonVFX.PickupVFX.Get());
-										PickupNiagaraComp->AttachToComponent(Mesh, FAttachmentTransformRules::KeepRelativeTransform);		
-									}
-								}
-							);
-
-							TArray<FSoftObjectPath> TargetsToStream;
-							UNRStatics::AddSoftObjectPathToArray(NRGameSingleton->CommonVFX.PickupVFX, TargetsToStream);
-							UNRStatics::RequestAsyncLoad(PickupVfxStreamableHandle, TargetsToStream, DelegateToCall);
-						}
-					}	
-				}
-				break;
-		}
-
-		case ENRWeaponState::EWS_Equip:
-		{
-				// 关闭碰撞
-				Mesh->SetSimulatePhysics(false);
-				Mesh->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
-				
-				if (GetNetMode() != NM_DedicatedServer)
-				{
-					// 关闭拾取提示特效
-					if (PickupVfxStreamableHandle)
-					{
-						PickupVfxStreamableHandle->ReleaseHandle();
-						PickupVfxStreamableHandle.Reset();
-					}
-					if (PickupNiagaraComp)
-					{
-						PickupNiagaraComp->DestroyComponent();
-						PickupNiagaraComp = nullptr;
-					}	
-				}
-				break;
-		}
-	default: ;
-	}
+	// TODO
+	// switch (WeaponState)
+	// {
+	// 	case ENRWeaponState::EWS_None: break;
+	//
+	// 	case ENRWeaponState::EWS_Pickup:
+	// 	{
+	// 			// 打开碰撞
+	// 			Mesh->SetCollisionProfileName(NRCollisionProfile::Pickup_ProfileName);
+	// 			Mesh->SetSimulatePhysics(true);
+	// 			
+	// 			if (GetNetMode() != NM_DedicatedServer)
+	// 			{
+	// 				// 打开拾取提示特效
+	// 				if (UNRGameSingleton* NRGameSingleton = UNRGameSingleton::Get())
+	// 				{
+	// 					if (!NRGameSingleton->CommonVFX.PickupVFX.IsNull())
+	// 					{
+	// 						const TDelegate<void()> DelegateToCall = FStreamableDelegate::CreateLambda([this, NRGameSingleton]()
+	// 							{
+	// 								if (NRGameSingleton->CommonVFX.PickupVFX.IsValid())
+	// 								{
+	// 									PickupNiagaraComp = NewObject<UNiagaraComponent>(this);
+	// 									PickupNiagaraComp->RegisterComponent();
+	// 									PickupNiagaraComp->SetAsset(NRGameSingleton->CommonVFX.PickupVFX.Get());
+	// 									PickupNiagaraComp->AttachToComponent(Mesh, FAttachmentTransformRules::KeepRelativeTransform);		
+	// 								}
+	// 							}
+	// 						);
+	//
+	// 						TArray<FSoftObjectPath> TargetsToStream;
+	// 						UNRStatics::AddSoftObjectPathToArray(NRGameSingleton->CommonVFX.PickupVFX, TargetsToStream);
+	// 						UNRStatics::RequestAsyncLoad(PickupVfxStreamableHandle, TargetsToStream, DelegateToCall);
+	// 					}
+	// 				}	
+	// 			}
+	// 			break;
+	// 	}
+	//
+	// 	case ENRWeaponState::EWS_Equip:
+	// 	{
+	// 			// 关闭碰撞
+	// 			Mesh->SetSimulatePhysics(false);
+	// 			Mesh->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
+	// 			
+	// 			if (GetNetMode() != NM_DedicatedServer)
+	// 			{
+	// 				// 关闭拾取提示特效
+	// 				if (PickupVfxStreamableHandle)
+	// 				{
+	// 					PickupVfxStreamableHandle->ReleaseHandle();
+	// 					PickupVfxStreamableHandle.Reset();
+	// 				}
+	// 				if (PickupNiagaraComp)
+	// 				{
+	// 					PickupNiagaraComp->DestroyComponent();
+	// 					PickupNiagaraComp = nullptr;
+	// 				}	
+	// 			}
+	// 			break;
+	// 	}
+	// default: ;
+	// }
 }
 
 FNRWeaponInformationRow* ANRWeaponBase::GetWeaponInformation()

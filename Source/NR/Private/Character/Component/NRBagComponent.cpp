@@ -8,7 +8,6 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Character/Component/NRCombatComponent.h"
-#include "Static/NRStatics.h"
 #include "Manager/NRItemFactory.h"
 #include "Net/UnrealNetwork.h"
 
@@ -25,14 +24,15 @@ void UNRBagComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION(UNRBagComponent, TPSWeapon, COND_None)
+	DOREPLIFETIME_CONDITION(UNRBagComponent, Inventory, COND_None)
+	DOREPLIFETIME_CONDITION(UNRBagComponent, CurrentWeapon, COND_SimulatedOnly)
 }
 
 void UNRBagComponent::PawnClientRestart()
 {
 	Super::PawnClientRestart();
 
-	EquipFPSWeapon(ENRWeaponType::EWT_AR_01);
+	Server_InitInventory();
 }
 
 void UNRBagComponent::InitLocallyControlledInputEvent(UInputComponent* PlayerInputComponent)
@@ -76,57 +76,116 @@ void UNRBagComponent::InitLocallyControlledInputEvent(UInputComponent* PlayerInp
 	}
 }
 
-void UNRBagComponent::EquipFPSWeapon(ENRWeaponType WeaponType)
+void UNRBagComponent::Server_InitInventory_Implementation()
 {
-	if (NRCharacter)
+	if (ANRWeaponBase* NewWeapon = UNRItemFactory::SpawnWeapon(this, ENRWeaponType::EWT_AR_01))
 	{
-		if (ANRWeaponBase* Weapon = UNRItemFactory::SpawnWeapon(this, WeaponType))
-		{
-			// 销毁旧的武器
-			if (FPSWeapon)
-			{
-				FPSWeapon->Destroy();
-			}
+		NewWeapon->SetOwner(NRCharacter);
+		NewWeapon->SetReplicates(true);
+		NewWeapon->SetWeaponState(ENRWeaponState::EWS_Equip);
+		NewWeapon->AttachToActor(NRCharacter, FAttachmentTransformRules::KeepRelativeTransform);
+		AddWeaponToInventory(NewWeapon, true);
+	}
+}
 
-			// 设置新武器
-			FPSWeapon = Weapon;
-			FPSWeapon->SetOwner(NRCharacter);
-			FPSWeapon->SetReplicates(false); // 房主生成本地控制的fps武器不同步
-			FPSWeapon->SetWeaponState(ENRWeaponState::EWS_Equip);
-			FPSWeapon->AttachToComponent(NRCharacter->GetMeshArm(), FAttachmentTransformRules::SnapToTargetIncludingScale, NAME_Socket_Weapon);
-			FPSWeapon->SetSelfShadowOnly(true);
-			FPSWeapon->SetFPS_SeparateFOV(true, true);
-			
-			if (UNRCombatComponent* CombatComponent = NRCharacter->GetComponentByClass<UNRCombatComponent>())
-			{
-				CombatComponent->SetEquippedWeapon(FPSWeapon);
-			}
-			
-			// 通知服务器生成3p武器
-			Server_EquipTPSWeapon(WeaponType);
+bool UNRBagComponent::Server_InitInventory_Validata()
+{
+	return true;
+}
+
+void UNRBagComponent::AddWeaponToInventory(ANRWeaponBase* NewWeapon, bool bDoEquip/* =false */)
+{
+	if (NRCharacter && NRCharacter->HasAuthority())
+	{
+		if (IsWeaponExistInInventory(NewWeapon))
+		{
+			return;
+		}
+
+		Inventory.Weapons.Add(NewWeapon);
+
+		if (bDoEquip)
+		{
+			EquipWeapon(NewWeapon);
 		}
 	}
 }
 
-void UNRBagComponent::Server_EquipTPSWeapon_Implementation(ENRWeaponType WeaponType)
+void UNRBagComponent::OnRep_Inventory()
+{
+	
+}
+
+void UNRBagComponent::EquipWeapon(ANRWeaponBase* NewWeapon)
 {
 	if (NRCharacter)
 	{
-		if (ANRWeaponBase* Weapon = UNRItemFactory::SpawnWeapon(this, WeaponType))
+		if (NRCharacter->GetLocalRole() < ROLE_Authority)
 		{
-			Weapon->SetOwner(NRCharacter);
-			Weapon->SetReplicates(true);
-			Weapon->SetWeaponState(ENRWeaponState::EWS_Equip);
-			Weapon->AttachToComponent(NRCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, NAME_HandR_IkHandGun);
-
-			ANRWeaponBase* OldWeapon = TPSWeapon;
-			TPSWeapon = Weapon;
-			OnRep_TPSWeapon(OldWeapon);
+			Server_EquipWeapon(NewWeapon);
+			SetCurrentWeapon(NewWeapon);
+		}
+		else
+		{
+			SetCurrentWeapon(NewWeapon);
 		}
 	}
 }
 
-void UNRBagComponent::OnRep_TPSWeapon(ANRWeaponBase* OldWeapon)
+void UNRBagComponent::Server_EquipWeapon_Implementation(ANRWeaponBase* NewWeapon)
+{
+	EquipWeapon(NewWeapon);
+}
+
+bool UNRBagComponent::Server_EquipWeapon_Validata(ANRWeaponBase* NewWeapon)
+{
+	return true;
+}
+
+void UNRBagComponent::SetCurrentWeapon(ANRWeaponBase* WeaponToEquip)
+{
+	if (WeaponToEquip == CurrentWeapon)
+	{
+		return;
+	}
+
+	UnEquipWeapon(CurrentWeapon);
+
+	if (WeaponToEquip)
+	{
+		CurrentWeapon = WeaponToEquip;
+		
+	}
+	
+	if (ANRWeaponBase* NewWeapon = UNRItemFactory::SpawnWeapon(this, WeaponType))
+	{
+		// 销毁旧的武器
+		UnEquipWeapon(CurrentWeapon);
+
+		// 设置新武器
+		FPSWeapon = Weapon;
+		FPSWeapon->SetOwner(NRCharacter);
+		FPSWeapon->SetReplicates(false); // 房主生成本地控制的fps武器不同步
+		FPSWeapon->SetWeaponState(ENRWeaponState::EWS_Equip);
+		FPSWeapon->AttachToComponent(NRCharacter->GetMeshArm(), FAttachmentTransformRules::SnapToTargetIncludingScale, NAME_Socket_Weapon);
+		FPSWeapon->SetSelfShadowOnly(true);
+		FPSWeapon->SetFPS_SeparateFOV(true, true);
+			
+		if (UNRCombatComponent* CombatComponent = NRCharacter->GetComponentByClass<UNRCombatComponent>())
+		{
+			CombatComponent->SetEquippedWeapon(FPSWeapon);
+		}
+			
+		// 通知服务器生成3p武器
+		Server_EquipTPSWeapon(WeaponType);
+	}
+}
+
+void UNRBagComponent::UnEquipWeapon(ANRWeaponBase* WeaponToUnEquip)
+{
+}
+
+void UNRBagComponent::OnRep_CurrentWeapon(ANRWeaponBase* OldWeapon)
 {
 	if (OldWeapon)
 	{
@@ -155,4 +214,18 @@ void UNRBagComponent::TryEquipWeaponInSlot(uint8 Slot)
 	{
 		return;
 	}
+}
+
+// Utils ==============================================================================
+bool UNRBagComponent::IsWeaponExistInInventory(ANRWeaponBase* InWeapon)
+{
+	for (const ANRWeaponBase* Weapon: Inventory.Weapons)
+	{
+		if (Weapon == InWeapon)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }

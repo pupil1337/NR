@@ -20,20 +20,36 @@ struct FStreamableHandle;
 class USkeletalMeshComponent;
 class UNiagaraComponent;
 
-UCLASS(Abstract, NotBlueprintable)
+UCLASS(Abstract, Blueprintable)
 class NR_API ANRWeaponBase : public AActor, public INRInteractionInterface
 {
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<USkeletalMeshComponent> Mesh;
+	TObjectPtr<USceneComponent> SceneRoot;
+
+	// Mesh
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<USkeletalMeshComponent> Mesh1P;
 
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UStaticMeshComponent> Magazine;
+	TObjectPtr<USkeletalMeshComponent> Mesh3P;
+
+	// Magazine
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UStaticMeshComponent> Magazine1P;
 
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UStaticMeshComponent> IronSight;
-	
+	TObjectPtr<UStaticMeshComponent> Magazine3P;
+
+	// IronSight
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UStaticMeshComponent> IronSight1P;
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UStaticMeshComponent> IronSight3P;
+
+	// Weapon Type
 	UPROPERTY(EditDefaultsOnly)
 	ENRWeaponType WeaponType = ENRWeaponType::EWT_None;
 	
@@ -64,9 +80,9 @@ public:
 
 	ANRGATA_LineTrace* GetLineTraceTargetActor();
 
-	FORCEINLINE ENRWeaponType GetWeaponType() const { return WeaponType; }
-	FORCEINLINE ENRWeaponState GetWeaponState() const { return WeaponState; }
-	FORCEINLINE USkeletalMeshComponent* GetMesh() const { return Mesh; }
+	// FORCEINLINE ENRWeaponType GetWeaponType() const { return WeaponType; }
+	// FORCEINLINE ENRWeaponState GetWeaponState() const { return WeaponState; }
+	// FORCEINLINE USkeletalMeshComponent* GetMesh() const { return Mesh; }
 	
 protected:
 	UFUNCTION()
