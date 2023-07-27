@@ -22,3 +22,33 @@ void UNRGameplayAbility::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo,
 		ActorInfo->AbilitySystemComponent->TryActivateAbility(Spec.Handle, false);
 	}
 }
+
+// --------------------------------------------------------------------------------------------------------------------
+//	Animation
+// --------------------------------------------------------------------------------------------------------------------
+void UNRGameplayAbility::SetCurrentAbilityMeshMontage(USkeletalMeshComponent* InMesh, UAnimMontage* InMontage)
+{
+	FNRAbilityMeshMontage AbilityMeshMontage;
+	if (FindAbilityMeshMontage(InMesh, AbilityMeshMontage))
+	{
+		AbilityMeshMontage.Montage = InMontage;
+	}
+	else
+	{
+		CurrentAbilityMeshMontages.Add(FNRAbilityMeshMontage(InMesh, InMontage));
+	}
+}
+
+bool UNRGameplayAbility::FindAbilityMeshMontage(const USkeletalMeshComponent* InMesh, OUT FNRAbilityMeshMontage& OutAbilityMeshMontage)
+{
+	for (const FNRAbilityMeshMontage& AbilityMeshMontage: CurrentAbilityMeshMontages)
+	{
+		if (AbilityMeshMontage.Mesh == InMesh)
+		{
+			OutAbilityMeshMontage = AbilityMeshMontage;
+			return true;
+		}
+	}
+	
+	return false;
+}
