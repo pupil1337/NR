@@ -83,11 +83,6 @@ void UNRInventoryComponent::Server_InitInventory_Implementation()
 	}
 }
 
-bool UNRInventoryComponent::Server_InitInventory_Validata()
-{
-	return true;
-}
-
 void UNRInventoryComponent::AddWeaponToInventory(ANRWeaponBase* NewWeapon, bool bDoEquip/* =false */)
 {
 	if (const ANRCharacter* NRCharacter = Cast<ANRCharacter>(GetOwner()))
@@ -142,11 +137,6 @@ void UNRInventoryComponent::Server_EquipWeapon_Implementation(ANRWeaponBase* New
 	EquipWeapon(NewWeapon);
 }
 
-bool UNRInventoryComponent::Server_EquipWeapon_Validata(ANRWeaponBase* NewWeapon)
-{
-	return true;
-}
-
 void UNRInventoryComponent::SetCurrentWeapon(ANRWeaponBase* NewWeapon, ANRWeaponBase* OldWeapon)
 {
 	if (NewWeapon == OldWeapon)
@@ -184,19 +174,9 @@ void UNRInventoryComponent::Client_SyncCurrentWeapon_Implementation(ANRWeaponBas
 	OnRep_CurrentWeapon(OldWeapon);
 }
 
-bool UNRInventoryComponent::Client_SyncCurrentWeapon_Validata(ANRWeaponBase* InWeapon)
-{
-	return true;
-}
-
 void UNRInventoryComponent::Server_SyncCurrentWeapon_Implementation()
 {
 	Client_SyncCurrentWeapon(CurrentWeapon);
-}
-
-bool UNRInventoryComponent::Server_SyncCurrentWeapon_Validata()
-{
-	return true;
 }
 
 void UNRInventoryComponent::TryEquipWeaponInSlot(uint8 Slot)

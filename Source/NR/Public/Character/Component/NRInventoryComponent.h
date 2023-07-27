@@ -59,7 +59,6 @@ private:
 	UFUNCTION(Server, Reliable)
 	void Server_InitInventory();
 	void Server_InitInventory_Implementation();
-	bool Server_InitInventory_Validata();
 	
 	/**
 	 * @brief 增加武器到仓库 仅服务器调用
@@ -79,7 +78,6 @@ private:
 	UFUNCTION(Server, Reliable)
 	void Server_EquipWeapon(ANRWeaponBase* NewWeapon);
 	void Server_EquipWeapon_Implementation(ANRWeaponBase* NewWeapon);
-	bool Server_EquipWeapon_Validata(ANRWeaponBase* NewWeapon);
 
 	void SetCurrentWeapon(ANRWeaponBase* NewWeapon, ANRWeaponBase* OldWeapon);
 
@@ -91,12 +89,10 @@ private:
 	UFUNCTION(Client, Reliable)
 	void Client_SyncCurrentWeapon(ANRWeaponBase* InWeapon);
 	void Client_SyncCurrentWeapon_Implementation(ANRWeaponBase* InWeapon);
-	bool Client_SyncCurrentWeapon_Validata(ANRWeaponBase* InWeapon);
 
 	UFUNCTION(Server, Reliable)
 	void Server_SyncCurrentWeapon();
 	void Server_SyncCurrentWeapon_Implementation();
-	bool Server_SyncCurrentWeapon_Validata();
 
 	void TryEquipWeaponInSlot(uint8 Slot);
 
