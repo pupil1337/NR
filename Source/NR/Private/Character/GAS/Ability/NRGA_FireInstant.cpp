@@ -8,6 +8,7 @@
 #include "Character/NRCharacter.h"
 #include "Character/Component/NRInventoryComponent.h"
 #include "Character/GAS/TargetActor/NRGATA_LineTrace.h"
+#include "Character/GAS/Task/NRAT_PlayMontageForMeshAndWait.h"
 #include "Character/GAS/Task/NRAT_ServerWaitClientTargetData.h"
 #include "Character/GAS/Task/NRAT_WaitTargetDataUsingActor.h"
 
@@ -65,9 +66,18 @@ void UNRGA_FireInstant::FireBullet()
 
 void UNRGA_FireInstant::HandleTargetData(const FGameplayAbilityTargetDataHandle& Data)
 {
-	if (GetCurrentActorInfo())
+	if (GetCurrentActorInfo() && EquippedWeapon)
 	{
-		UE_LOG(LogTemp, Log, TEXT("FireInstant:: HandleTargetData [%s, Role:%d]"), GetCurrentActorInfo()->IsNetAuthority() ? TEXT("Server") : TEXT("Client"), GetOwningActorFromActorInfo()->GetLocalRole())
+		if (const ANRCharacter* NRCharacter = Cast<ANRCharacter>(GetCurrentActorInfo()->AvatarActor))
+		{
+			UE_LOG(LogTemp, Log, TEXT("FireInstant:: HandleTargetData [%s, Role:%d]"), GetCurrentActorInfo()->IsNetAuthority() ? TEXT("Server") : TEXT("Client"), GetOwningActorFromActorInfo()->GetLocalRole())
+			
+			UNRAT_PlayMontageForMeshAndWait* AT_PlayMontageForMeshAndWait_FPS = UNRAT_PlayMontageForMeshAndWait::PlayMontageForMeshAndWait(this, NRCharacter->GetMeshArm(), EquippedWeapon->GetWeaponMontage(true, FName("Fire")));
+			AT_PlayMontageForMeshAndWait_FPS->ReadyForActivation();
+			
+			UNRAT_PlayMontageForMeshAndWait* AT_PlayMontageForMeshAndWait_TPS = UNRAT_PlayMontageForMeshAndWait::PlayMontageForMeshAndWait(this, NRCharacter->GetMesh(), EquippedWeapon->GetWeaponMontage(false, FName("Fire")));
+			AT_PlayMontageForMeshAndWait_TPS->ReadyForActivation();
+		}
 	}
 }
 
