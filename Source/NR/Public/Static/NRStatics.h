@@ -21,20 +21,17 @@ class NR_API UNRStatics : public UObject
 
 public:
 	/**
-	 * @brief 增加某个资源的路径到数组中
-	 * @param SoftObjectPtr 需要加载的资源软引用
-	 * @param OutTargetsToStream out路径数组
-	 */
-	static void AddSoftObjectPathToArray(const TSoftObjectPtr<UObject>& SoftObjectPtr, TArray<FSoftObjectPath>& OutTargetsToStream);
-
-	/**
-	 * @brief 异步加载资源
+	 * @brief 异步加载资源, 如果传入StreamableHandle持有引用则释放
 	 * @param OutStreamableHandle StreamableHandle引用
 	 * @param TargetsToStream 需要加载的资源路径列表
 	 * @param DelegateToCall 加载完成回调(TargetsToStream为Empty则不会调用)
+	 * @param Priority 加载优先级 Default = 0, Height(立即加载) = 100
+	 * @param bManageActiveHandle 是否由FStreamManager持有StreamableHandle
+	 * @param bStartStalled 是否停滞状态启动Handle, 如果true 则需要手动调用StartStalledHandle()
+	 * @param DebugName DebugName
 	 */
-	static void RequestAsyncLoad(TSharedPtr<FStreamableHandle>& OutStreamableHandle, const TArray<FSoftObjectPath>& TargetsToStream, const FStreamableDelegate& DelegateToCall = FStreamableDelegate());
-
+	static void RequestAsyncLoad(OUT TSharedPtr<FStreamableHandle>& OutStreamableHandle, const TArray<FSoftObjectPath>& TargetsToStream, const FStreamableDelegate& DelegateToCall = FStreamableDelegate(), TAsyncLoadPriority Priority = 0, bool bManageActiveHandle = false, bool bStartStalled = false, const FString& DebugName = TEXT("ArrayDelegate"));
+	
 	/**
 	 * @brief 设置骨骼网格体是否开启第一人称FOV+穿模修复
 	 * @param Mesh 需要设置的Mesh

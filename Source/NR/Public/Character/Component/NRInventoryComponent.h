@@ -4,9 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Actor/Weapon/NRWeaponBase.h"
 #include "NRInventoryComponent.generated.h"
 
+struct FStreamableHandle;
 class UInputMappingContext;
 class UInputAction;
 class UInputComponent;
@@ -43,15 +43,19 @@ class NR_API UNRInventoryComponent : public UActorComponent
 public:
 	UNRInventoryComponent();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void OnComponentDestroyed(bool bDestroyingHierarchy) override;
 
 //~Begin This Class
-public:
 	virtual void OnPawnClientRestart();
 	virtual void OnSetupPlayerInputComponent(UInputComponent* PlayerInputComponent);
 	
 	FORCEINLINE ANRWeaponBase* GetCurrentWeapon() const { return CurrentWeapon; }
 
 private:
+	// ----------------------------------------------------------------------------------------------------------------
+	// Inventory
+	// ----------------------------------------------------------------------------------------------------------------
+	
 	/**
 	 * @brief 客户端发送存档给服务器, 服务器初始化仓库
 	 * @todo 实现
@@ -70,6 +74,10 @@ private:
 	UFUNCTION()
 	void OnRep_Inventory();
 
+	// ----------------------------------------------------------------------------------------------------------------
+	// Weapon
+	// ----------------------------------------------------------------------------------------------------------------
+	
 	/**
 	 * @brief 装备武器: 客户端调用CurrentWeapon使用预测, 服务器调用则RPC客户端同步
 	 * @param NewWeapon 需要装备的武器
@@ -93,15 +101,28 @@ private:
 	UFUNCTION(Server, Reliable)
 	void Server_SyncCurrentWeapon();
 	void Server_SyncCurrentWeapon_Implementation();
-
-	void TryEquipWeaponInSlot(uint8 Slot);
-
-	// Utils
-	bool IsWeaponExistInInventory(ANRWeaponBase* InWeapon);
 	
+	void TryEquipWeaponInSlot(uint8 Slot);
+	
+	bool IsWeaponExistInInventory(ANRWeaponBase* InWeapon);
+
+	// ----------------------------------------------------------------------------------------------------------------
+	// Streamable
+	// ----------------------------------------------------------------------------------------------------------------
+
+	void LoadCurrentWeaponAssets();
+
+	TSharedPtr<FStreamableHandle> StreamableHandle_CurrentWeapon;
+	
+	// ----------------------------------------------------------------------------------------------------------------
+	// Members
+	// ----------------------------------------------------------------------------------------------------------------
+
+	/** Inventory */
 	UPROPERTY(Transient, ReplicatedUsing=OnRep_Inventory)
 	FNRInventory Inventory;
-	
+
+	/** Weapon Shortcut */
 	UPROPERTY(Transient)
 	ANRWeaponBase* WeaponSlot[5]; // 武器插槽 0为空手, 1~4为武器
 	UPROPERTY(Transient, ReplicatedUsing=OnRep_CurrentWeapon)

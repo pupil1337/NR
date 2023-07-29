@@ -48,10 +48,11 @@ ANRWeaponBase::ANRWeaponBase()
 void ANRWeaponBase::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
-	
+
+	// 加载+设置配件模型
 	TArray<FSoftObjectPath> TargetsToStream;
-	if (GetMagazineSettingRow()) UNRStatics::AddSoftObjectPathToArray(MagazineSetting->Mesh, TargetsToStream);
-	if (GetIronSightSettingRow()) UNRStatics::AddSoftObjectPathToArray(IronSightSetting->Mesh, TargetsToStream);
+	if (GetMagazineSettingRow()) TargetsToStream.Add(MagazineSetting->Mesh.Get());
+	if (GetIronSightSettingRow()) TargetsToStream.Add(IronSightSetting->Mesh.Get());
 
 	const TDelegate<void()> DelegateToCall = FStreamableDelegate::CreateLambda([this]()
 		{
@@ -274,27 +275,6 @@ FNRWeaponSettingRow* ANRWeaponBase::GetWeaponSettingRow()
 	}
 
 	return WeaponSetting;
-}
-
-UDataTable* ANRWeaponBase::GetWeaponMontageDT()
-{
-	if (const FNRWeaponInformationRow* WeaponInfo = GetWeaponInformation())
-	{
-		return WeaponInfo->DT_Montage;
-	}
-	return nullptr;
-}
-
-UAnimMontage* ANRWeaponBase::GetWeaponMontage(bool bFPS, const FName& RowName)
-{
-	if (const UDataTable* DT = GetWeaponMontageDT())
-	{
-		if (const FNRMontageRow* MontageRow = DT->FindRow<FNRMontageRow>(RowName, RowName.ToString()))
-		{
-			return bFPS ? MontageRow->FPS.Get() : MontageRow->TPS.Get();	
-		}
-	}
-	return nullptr;
 }
 
 FNRMagazineSettingRow* ANRWeaponBase::GetMagazineSettingRow()

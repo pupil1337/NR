@@ -8,7 +8,7 @@
 #include "NRAnimSetting.generated.h"
 
 /**
- * 手臂 动画Sequence/跳跃动画曲线
+ * 手臂 动画/跳跃动画曲线
  */
 USTRUCT(BlueprintType)
 struct NR_API FNRArmAnimSetRow : public FTableRowBase
@@ -34,6 +34,10 @@ struct NR_API FNRArmAnimSetRow : public FTableRowBase
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="奔跑")
 	TSoftObjectPtr<UAnimSequenceBase> RunPose;
 
+	/** 动画Montage */
+	UPROPERTY(EditDefaultsOnly, DisplayName="开火")
+	TSoftObjectPtr<UAnimMontage> FireMontage;
+
 	/** 跳跃动画曲线 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="曲线", DisplayName="跳跃Offset Location ")
 	TSoftObjectPtr<UCurveVector> JumpOffsetCurveLocation;
@@ -46,7 +50,7 @@ struct NR_API FNRArmAnimSetRow : public FTableRowBase
 };
 
 /**
- * 全身 动画Sequence
+ * 全身 动画
  */
 USTRUCT(BlueprintType)
 struct NR_API FNRBodyAnimSetRow : public FTableRowBase
@@ -68,20 +72,8 @@ struct NR_API FNRBodyAnimSetRow : public FTableRowBase
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="全身-奔跑")
 	TSoftObjectPtr<UAnimSequenceBase> RunPose;
-};
 
-
-/**
- * 动画Montage
- */
-USTRUCT(BlueprintType)
-struct NR_API FNRMontageRow : public FTableRowBase
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSoftObjectPtr<UAnimMontage> FPS;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSoftObjectPtr<UAnimMontage> TPS;
+	/** 动画Montage */
+	UPROPERTY(EditDefaultsOnly, DisplayName="开火")
+	TSoftObjectPtr<UAnimMontage> FireMontage;
 };

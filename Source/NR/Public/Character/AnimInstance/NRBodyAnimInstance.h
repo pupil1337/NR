@@ -111,10 +111,6 @@ protected:
 	virtual void PreUpdate(UAnimInstance* InAnimInstance, float DeltaSeconds) override;
 	virtual void Update(float DeltaSeconds) override;
 	//~End FAnimInstanceProxy
-
-	//~Begin FNRAnimInstanceProxyBase
-	virtual void AddSoftObjectPathToArray(TArray<FSoftObjectPath>& OutTargetsToStream) override;
-	//~End   FNRAnimInstanceProxyBase
 	
 //~ Begin This Class
 	void CalculateMoveDirAndAlpha(const FVector& V, float MoveAngle, float DeltaSeconds);

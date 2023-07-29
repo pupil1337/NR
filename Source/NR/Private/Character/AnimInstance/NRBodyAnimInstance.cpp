@@ -6,7 +6,6 @@
 #include "Static/NRStatics.h"
 #include "Actor/Weapon/NRWeaponBase.h"
 #include "Character/NRCharacter.h"
-#include "Engine/StreamableManager.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Character/Component/NRInventoryComponent.h"
 
@@ -14,11 +13,6 @@ const FName NAME_Curve_Feet_Crossing(TEXT("Feet_Crossing"));
 
 FNRBodyAnimInstanceProxy::~FNRBodyAnimInstanceProxy()
 {
-	if (StreamableHandlePair.Value)
-	{
-		StreamableHandlePair.Value.Get()->ReleaseHandle();
-		StreamableHandlePair.Value.Reset();
-	}
 }
 
 void FNRBodyAnimInstanceProxy::Initialize(UAnimInstance* InAnimInstance)
@@ -37,11 +31,7 @@ void FNRBodyAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float De
 		{
 			if (ANRWeaponBase* Weapon = InventoryComponent->GetCurrentWeapon())
 			{
-				if (Weapon != StreamableHandlePair.Key)
-				{
-					AnimSetting = *Weapon->GetWeaponBodyAnimSetRow();
-					LoadAsset(Weapon);
-				}
+				AnimSetting = *Weapon->GetWeaponBodyAnimSetRow();
 			}
 		}
 		
@@ -69,15 +59,6 @@ void FNRBodyAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float De
 void FNRBodyAnimInstanceProxy::Update(float DeltaSeconds)
 {
 	Super::Update(DeltaSeconds);
-}
-
-void FNRBodyAnimInstanceProxy::AddSoftObjectPathToArray(TArray<FSoftObjectPath>& OutTargetsToStream)
-{
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.StandIdlePose, OutTargetsToStream);
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.StandAimPose, OutTargetsToStream);
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.CrouchIdlePose, OutTargetsToStream);
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.CrouchAimPose, OutTargetsToStream);
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.RunPose, OutTargetsToStream);
 }
 
 void FNRBodyAnimInstanceProxy::CalculateMoveDirAndAlpha(const FVector& V, float MoveAngle, float DeltaSeconds)

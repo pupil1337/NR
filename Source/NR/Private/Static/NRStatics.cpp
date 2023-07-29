@@ -8,18 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Types/NRWeaponTypes.h"
 
-
-void UNRStatics::AddSoftObjectPathToArray(const TSoftObjectPtr<>& SoftObjectPtr, TArray<FSoftObjectPath>& OutTargetsToStream)
-{
-	OutTargetsToStream.AddUnique(SoftObjectPtr.ToSoftObjectPath());
-	
-	if (!SoftObjectPtr.IsPending())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Assets: %s加载失败. [1]a live UObject:%d, [2]not a Object:%d"), *SoftObjectPtr.GetAssetName(), SoftObjectPtr.IsValid(), SoftObjectPtr.IsNull())
-	}
-}
-
-void UNRStatics::RequestAsyncLoad(TSharedPtr<FStreamableHandle>& OutStreamableHandle, const TArray<FSoftObjectPath>& TargetsToStream, const FStreamableDelegate& DelegateToCall)
+void UNRStatics::RequestAsyncLoad(OUT TSharedPtr<FStreamableHandle>& OutStreamableHandle, const TArray<FSoftObjectPath>& TargetsToStream, const FStreamableDelegate& DelegateToCall, const TAsyncLoadPriority Priority, const bool bManageActiveHandle, const bool bStartStalled, const FString& DebugName)
 {
 	if (UNRGameSingleton* NRGameSingleton = UNRGameSingleton::Get())
 	{
@@ -29,7 +18,7 @@ void UNRStatics::RequestAsyncLoad(TSharedPtr<FStreamableHandle>& OutStreamableHa
 			OutStreamableHandle.Reset();
 		}
 
-		OutStreamableHandle = NRGameSingleton->StreamableManager.RequestAsyncLoad(TargetsToStream, DelegateToCall);
+		OutStreamableHandle = NRGameSingleton->StreamableManager.RequestAsyncLoad(TargetsToStream, DelegateToCall, Priority, bManageActiveHandle, bStartStalled, DebugName);
 	}
 }
 

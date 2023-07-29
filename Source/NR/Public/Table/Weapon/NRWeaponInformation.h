@@ -38,9 +38,6 @@ struct NR_API FNRWeaponInformationRow : public FTableRowBase
 	UPROPERTY(EditDefaultsOnly, DisplayName="RowHandle-机瞄")
 	FDataTableRowHandle RowHandle_IronSightSetting; // FNRIronSightSettingRow
 
-	UPROPERTY(EditDefaultsOnly, DisplayName="DataTable-蒙太奇")
-	TObjectPtr<UDataTable> DT_Montage; // FNRMontageRow
-
 	// Getter-手臂动画
 	FNRArmAnimSetRow* GetArmAnimSet() const
 	{

@@ -9,6 +9,7 @@
 #include "Character/NRCharacter.h"
 #include "Manager/NRItemFactory.h"
 #include "Net/UnrealNetwork.h"
+#include "Static/NRStatics.h"
 
 UNRInventoryComponent::UNRInventoryComponent()
 {
@@ -22,6 +23,17 @@ void UNRInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 
 	DOREPLIFETIME_CONDITION(UNRInventoryComponent, Inventory, COND_None)
 	DOREPLIFETIME_CONDITION(UNRInventoryComponent, CurrentWeapon, COND_SimulatedOnly)
+}
+
+void UNRInventoryComponent::OnComponentDestroyed(bool bDestroyingHierarchy)
+{
+	if (StreamableHandle_CurrentWeapon.IsValid())
+	{
+		StreamableHandle_CurrentWeapon.Get()->ReleaseHandle();
+		StreamableHandle_CurrentWeapon.Reset();
+	}
+	
+	Super::OnComponentDestroyed(bDestroyingHierarchy);
 }
 
 void UNRInventoryComponent::OnPawnClientRestart()
@@ -67,6 +79,9 @@ void UNRInventoryComponent::OnSetupPlayerInputComponent(UInputComponent* PlayerI
 		}	
 	}
 }
+
+// ----------------------------------------------------------------------------------------------------------------
+// Inventory
 
 void UNRInventoryComponent::Server_InitInventory_Implementation()
 {
@@ -116,6 +131,9 @@ void UNRInventoryComponent::OnRep_Inventory()
 	}
 }
 
+// ----------------------------------------------------------------------------------------------------------------
+// Weapon
+
 void UNRInventoryComponent::EquipWeapon(ANRWeaponBase* NewWeapon)
 {
 	if (const ANRCharacter* NRCharacter = Cast<ANRCharacter>(GetOwner()))
@@ -151,6 +169,7 @@ void UNRInventoryComponent::SetCurrentWeapon(ANRWeaponBase* NewWeapon, ANRWeapon
 		CurrentWeapon = NewWeapon;
 		CurrentWeapon->SetOwner(GetOwner());
 		CurrentWeapon->Equip();
+		LoadCurrentWeaponAssets();
 	}
 }
 
@@ -187,7 +206,6 @@ void UNRInventoryComponent::TryEquipWeaponInSlot(uint8 Slot)
 	}
 }
 
-// Utils ==============================================================================
 bool UNRInventoryComponent::IsWeaponExistInInventory(ANRWeaponBase* InWeapon)
 {
 	for (const ANRWeaponBase* Weapon: Inventory.Weapons)
@@ -199,4 +217,56 @@ bool UNRInventoryComponent::IsWeaponExistInInventory(ANRWeaponBase* InWeapon)
 	}
 
 	return false;
+}
+
+// ----------------------------------------------------------------------------------------------------------------
+// Streamable
+
+void UNRInventoryComponent::LoadCurrentWeaponAssets()
+{
+	TArray<FSoftObjectPath> TargetsToStream;
+	
+	if (CurrentWeapon)
+	{
+		if (const ANRCharacter* NRCharacter = Cast<ANRCharacter>(GetOwner()))
+		{
+			if (NRCharacter->IsLocallyControlled())
+			{
+				// 1P 手臂 动画
+				if (const FNRArmAnimSetRow* ArmAnimSetRow = CurrentWeapon->GetWeaponArmAnimSetRow())
+				{
+					// Sequence
+					TargetsToStream.Add(ArmAnimSetRow->AimBreath.ToSoftObjectPath());
+					TargetsToStream.Add(ArmAnimSetRow->IdleBreath.ToSoftObjectPath());
+					TargetsToStream.Add(ArmAnimSetRow->AimPose.ToSoftObjectPath());
+					TargetsToStream.Add(ArmAnimSetRow->AimBreath.ToSoftObjectPath());
+					TargetsToStream.Add(ArmAnimSetRow->AimWalkF.ToSoftObjectPath());
+					TargetsToStream.Add(ArmAnimSetRow->RunPose.ToSoftObjectPath());
+					TargetsToStream.Add(ArmAnimSetRow->JumpOffsetCurveLocation.ToSoftObjectPath());
+					TargetsToStream.Add(ArmAnimSetRow->JumpOffsetCurveRotation.ToSoftObjectPath());
+					TargetsToStream.Add(ArmAnimSetRow->LandOffsetCurveLocation.ToSoftObjectPath());
+					TargetsToStream.Add(ArmAnimSetRow->LandOffsetCurveRotation.ToSoftObjectPath());
+
+					// Montage
+					TargetsToStream.Add(ArmAnimSetRow->FireMontage.ToSoftObjectPath());
+				}
+			}
+
+			// 3P 全身 动画
+			if (const FNRBodyAnimSetRow* BodyAnimSetRow = CurrentWeapon->GetWeaponBodyAnimSetRow())
+			{
+				// Sequence
+				TargetsToStream.Add(BodyAnimSetRow->StandIdlePose.ToSoftObjectPath());
+				TargetsToStream.Add(BodyAnimSetRow->StandAimPose.ToSoftObjectPath());
+				TargetsToStream.Add(BodyAnimSetRow->CrouchIdlePose.ToSoftObjectPath());
+				TargetsToStream.Add(BodyAnimSetRow->CrouchAimPose.ToSoftObjectPath());
+				TargetsToStream.Add(BodyAnimSetRow->RunPose.ToSoftObjectPath());
+
+				// Montage
+				TargetsToStream.Add(BodyAnimSetRow->FireMontage.ToSoftObjectPath());
+			}
+		}
+	}
+
+	UNRStatics::RequestAsyncLoad(StreamableHandle_CurrentWeapon, TargetsToStream);
 }

@@ -3,8 +3,8 @@
 
 #include "Character/AnimInstance/NRArmAnimInstance.h"
 
-#include "Static/NRStatics.h"
 #include "Actor/Weapon/NRWeaponBase.h"
+#include "Static/NRStatics.h"
 #include "Character/NRCharacter.h"
 #include "Character/Component/NRInventoryComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -30,11 +30,7 @@ void FNRArmAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float Del
 			{
 				if (ANRWeaponBase* Weapon = InventoryComponent->GetCurrentWeapon())
 				{
-					if (Weapon != StreamableHandlePair.Key)
-					{
-						AnimSetting = *Weapon->GetWeaponArmAnimSetRow();
-						LoadAsset(Weapon);
-					}
+					AnimSetting = *Weapon->GetWeaponArmAnimSetRow();
 				}
 			}
 			
@@ -96,20 +92,6 @@ void FNRArmAnimInstanceProxy::Update(float DeltaSeconds)
 		LandSeconds += DeltaSeconds;
 		ApplyJumpOffset(AnimSetting.LandOffsetCurveLocation.Get(), AnimSetting.LandOffsetCurveRotation.Get(), LandSeconds);
 	}
-}
-
-void FNRArmAnimInstanceProxy::AddSoftObjectPathToArray(TArray<FSoftObjectPath>& OutTargetsToStream)
-{
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.IdlePose, OutTargetsToStream);
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.IdleBreath, OutTargetsToStream);
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.AimPose, OutTargetsToStream);
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.AimBreath, OutTargetsToStream);
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.AimWalkF, OutTargetsToStream);
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.RunPose, OutTargetsToStream);
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.JumpOffsetCurveLocation, OutTargetsToStream);
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.JumpOffsetCurveRotation, OutTargetsToStream);
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.LandOffsetCurveLocation, OutTargetsToStream);
-	UNRStatics::AddSoftObjectPathToArray(AnimSetting.LandOffsetCurveRotation, OutTargetsToStream);
 }
 
 // UNRArmAnimInstance===================================================================================================

@@ -30,6 +30,8 @@ public:
 private:
 	UFUNCTION()
 	void HandleTargetData(const FGameplayAbilityTargetDataHandle& Data);
+
+	void PlayFireMontage();
 	
 	// Utils
 	ANRWeaponBase* GetEquippedWeaponFromActorInfo(const FGameplayAbilityActorInfo* ActorInfo) const;

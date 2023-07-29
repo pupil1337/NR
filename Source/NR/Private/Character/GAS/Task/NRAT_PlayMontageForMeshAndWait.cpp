@@ -36,48 +36,57 @@ void UNRAT_PlayMontageForMeshAndWait::Activate()
 	{
 		return;
 	}
-
-	if (MeshToPlay == nullptr)
-	{
-		return;
-	}
 	
 	bool bPlayedMontage = false;
 
 	if (UNRAbilitySystemComponent* ASC = Cast<UNRAbilitySystemComponent>(AbilitySystemComponent.Get()))
 	{
-		UAnimInstance* AnimInstance = MeshToPlay->GetAnimInstance();
-		if (AnimInstance != nullptr)
+		if (MeshToPlay)
 		{
-			if (ASC->PlayMontageForMesh(Ability, Ability->GetCurrentActivationInfo(), MeshToPlay, MontageToPlay, Rate, StartSection, StartTimeSeconds) > 0.f)
+			if (MontageToPlay)
 			{
-				// Playing a montage could potentially fire off a callback into game code which could kill this ability! Early out if we are  pending kill.
-				if (ShouldBroadcastAbilityTaskDelegates() == false)
+				if (ASC->PlayMontageForMesh(Ability, Ability->GetCurrentActivationInfo(), MeshToPlay, MontageToPlay, Rate, StartSection, StartTimeSeconds) > 0.f)
 				{
-					return;
+					// Playing a montage could potentially fire off a callback into game code which could kill this ability! Early out if we are  pending kill.
+					if (ShouldBroadcastAbilityTaskDelegates() == false)
+					{
+						return;
+					}
+
+					// Bind Delegate
+					if (UAnimInstance* AnimInstance = MeshToPlay->GetAnimInstance())
+					{
+						InterruptedHandle = Ability->OnGameplayAbilityCancelled.AddUObject(this, &UNRAT_PlayMontageForMeshAndWait::OnMontageInterrupted);
+						
+						BlendingOutDelegate.BindUObject(this, &UNRAT_PlayMontageForMeshAndWait::OnMontageBlendingOut);
+						AnimInstance->Montage_SetBlendingOutDelegate(BlendingOutDelegate, MontageToPlay);
+						
+						MontageEndedDelegate.BindUObject(this, &UNRAT_PlayMontageForMeshAndWait::OnMontageEnded);
+						AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, MontageToPlay);
+					}
+					
+					ACharacter* Character = Cast<ACharacter>(GetAvatarActor());
+					if (Character && (Character->GetLocalRole() == ROLE_Authority ||
+									  (Character->GetLocalRole() == ROLE_AutonomousProxy && Ability->GetNetExecutionPolicy() == EGameplayAbilityNetExecutionPolicy::LocalPredicted)))
+					{
+						Character->SetAnimRootMotionTranslationScale(AnimRootMotionTranslationScale);
+					}
+					
+					bPlayedMontage = true;
 				}
-
-				InterruptedHandle = Ability->OnGameplayAbilityCancelled.AddUObject(this, &UNRAT_PlayMontageForMeshAndWait::OnMontageInterrupted);
-
-				BlendingOutDelegate.BindUObject(this, &UNRAT_PlayMontageForMeshAndWait::OnMontageBlendingOut);
-				AnimInstance->Montage_SetBlendingOutDelegate(BlendingOutDelegate, MontageToPlay);
-
-				MontageEndedDelegate.BindUObject(this, &UNRAT_PlayMontageForMeshAndWait::OnMontageEnded);
-				AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, MontageToPlay);
-
-				ACharacter* Character = Cast<ACharacter>(GetAvatarActor());
-				if (Character && (Character->GetLocalRole() == ROLE_Authority ||
-								  (Character->GetLocalRole() == ROLE_AutonomousProxy && Ability->GetNetExecutionPolicy() == EGameplayAbilityNetExecutionPolicy::LocalPredicted)))
+				else
 				{
-					Character->SetAnimRootMotionTranslationScale(AnimRootMotionTranslationScale);
+					ABILITY_LOG(Warning, TEXT("UNRAT_PlayMontageForMeshAndWait call ASC to PlayMontage failed!"));
 				}
-
-				bPlayedMontage = true;
+			}
+			else
+			{
+				ABILITY_LOG(Warning, TEXT("UNRAT_PlayMontageForMeshAndWait want to play a null montage"));
 			}
 		}
 		else
 		{
-			ABILITY_LOG(Warning, TEXT("UNRAT_PlayMontageForMeshAndWait call to PlayMontage failed!"));
+			ABILITY_LOG(Warning, TEXT("UNRAT_PlayMontageForMeshAndWait want let a null Mesh to play Montage"));
 		}
 	}
 	else
@@ -173,7 +182,7 @@ bool UNRAT_PlayMontageForMeshAndWait::StopPlayingMontage()
 		return false;
 	}
 
-	UAnimInstance* AnimInstance = MeshToPlay->GetAnimInstance();
+	const UAnimInstance* AnimInstance = MeshToPlay->GetAnimInstance();
 	if (AnimInstance == nullptr)
 	{
 		return false;
@@ -188,8 +197,7 @@ bool UNRAT_PlayMontageForMeshAndWait::StopPlayingMontage()
 			&& ASC->GetCurrentMontageForMesh(MeshToPlay) == MontageToPlay)
 		{
 			// Unbind delegates so they don't get called as well
-			FAnimMontageInstance* MontageInstance = AnimInstance->GetActiveInstanceForMontage(MontageToPlay);
-			if (MontageInstance)
+			if (FAnimMontageInstance* MontageInstance = AnimInstance->GetActiveInstanceForMontage(MontageToPlay))
 			{
 				MontageInstance->OnMontageBlendingOutStarted.Unbind();
 				MontageInstance->OnMontageEnded.Unbind();

@@ -6,16 +6,10 @@
 #include "Character/NRCharacter.h"
 #include "Character/NRCharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Static/NRStatics.h"
 
 
 FNRAnimInstanceProxyBase::~FNRAnimInstanceProxyBase()
 {
-	if (StreamableHandlePair.Value.IsValid())
-	{
-		StreamableHandlePair.Value.Get()->ReleaseHandle();
-		StreamableHandlePair.Value.Reset();
-	}
 }
 
 void FNRAnimInstanceProxyBase::Initialize(UAnimInstance* InAnimInstance)
@@ -29,10 +23,6 @@ void FNRAnimInstanceProxyBase::Initialize(UAnimInstance* InAnimInstance)
 		MaxWalkSpeed = NRCharacterCDO->GetCharacterMovement<UNRCharacterMovementComponent>()->MaxWalkSpeed;
 		MaxCrouchSpeed = NRCharacterCDO->GetCharacterMovement<UNRCharacterMovementComponent>()->MaxWalkSpeedCrouched;
 		MaxRunSpeed = NRCharacterCDO->GetCharacterMovement<UNRCharacterMovementComponent>()->Run_MaxWalkSpeed;
-	}
-	else // 不是NRCharacter则当前是动画Instance编辑页面
-	{
-		LoadAsset(nullptr, true);
 	}
 }
 
@@ -72,19 +62,6 @@ void FNRAnimInstanceProxyBase::PreUpdate(UAnimInstance* InAnimInstance, float De
 void FNRAnimInstanceProxyBase::Update(float DeltaSeconds)
 {
 	Super::Update(DeltaSeconds);
-}
-
-void FNRAnimInstanceProxyBase::LoadAsset(const ANRWeaponBase* WeaponEquipped, bool bForce)
-{
-	// 当前装备的武器不是已经缓存的资源
-	if (StreamableHandlePair.Key != WeaponEquipped || bForce)
-	{
-		TArray<FSoftObjectPath> TargetsToStream;
-		AddSoftObjectPathToArray(TargetsToStream);
-
-		StreamableHandlePair.Key = WeaponEquipped;
-		UNRStatics::RequestAsyncLoad(StreamableHandlePair.Value, TargetsToStream);
-	}
 }
 
 float FNRAnimInstanceProxyBase::GetCurrMoveModeMaxSpeed() const

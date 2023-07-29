@@ -75,8 +75,6 @@ public:
 	FNRArmAnimSetRow* GetWeaponArmAnimSetRow();
 	FNRBodyAnimSetRow* GetWeaponBodyAnimSetRow();
 	FNRWeaponSettingRow* GetWeaponSettingRow();
-	UDataTable* GetWeaponMontageDT(); // FNRMontageRow
-	UAnimMontage* GetWeaponMontage(bool bFPS, const FName& RowName);
 	FNRMagazineSettingRow* GetMagazineSettingRow();
 	FNRIronSightSettingRow* GetIronSightSettingRow();
 	

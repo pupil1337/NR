@@ -11,6 +11,7 @@
 #include "Character/GAS/Task/NRAT_PlayMontageForMeshAndWait.h"
 #include "Character/GAS/Task/NRAT_ServerWaitClientTargetData.h"
 #include "Character/GAS/Task/NRAT_WaitTargetDataUsingActor.h"
+#include "Table/Weapon/NRAnimSetting.h"
 
 UNRGA_FireInstant::UNRGA_FireInstant()
 {
@@ -52,7 +53,7 @@ void UNRGA_FireInstant::FireBullet()
 	{
 		if (UAbilitySystemGlobals::Get().ShouldIgnoreCosts() || CheckCost(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo()))
 		{
-			UE_LOG(LogTemp, Log, TEXT("FireInstant:: FireBullet(LocallyControlled)"))
+			// UE_LOG(LogTemp, Log, TEXT("FireInstant:: FireBullet(LocallyControlled)"))
 
 			if (EquippedWeapon)
 			{
@@ -66,17 +67,33 @@ void UNRGA_FireInstant::FireBullet()
 
 void UNRGA_FireInstant::HandleTargetData(const FGameplayAbilityTargetDataHandle& Data)
 {
+	// TODO
+
+	PlayFireMontage();
+}
+
+void UNRGA_FireInstant::PlayFireMontage()
+{
 	if (GetCurrentActorInfo() && EquippedWeapon)
 	{
 		if (const ANRCharacter* NRCharacter = Cast<ANRCharacter>(GetCurrentActorInfo()->AvatarActor))
 		{
-			UE_LOG(LogTemp, Log, TEXT("FireInstant:: HandleTargetData [%s, Role:%d]"), GetCurrentActorInfo()->IsNetAuthority() ? TEXT("Server") : TEXT("Client"), GetOwningActorFromActorInfo()->GetLocalRole())
-			
-			UNRAT_PlayMontageForMeshAndWait* AT_PlayMontageForMeshAndWait_FPS = UNRAT_PlayMontageForMeshAndWait::PlayMontageForMeshAndWait(this, NRCharacter->GetMeshArm(), EquippedWeapon->GetWeaponMontage(true, FName("Fire")));
-			AT_PlayMontageForMeshAndWait_FPS->ReadyForActivation();
-			
-			UNRAT_PlayMontageForMeshAndWait* AT_PlayMontageForMeshAndWait_TPS = UNRAT_PlayMontageForMeshAndWait::PlayMontageForMeshAndWait(this, NRCharacter->GetMesh(), EquippedWeapon->GetWeaponMontage(false, FName("Fire")));
-			AT_PlayMontageForMeshAndWait_TPS->ReadyForActivation();
+			// UE_LOG(LogTemp, Log, TEXT("FireInstant:: HandleTargetData [%s, Role:%d]"), GetCurrentActorInfo()->IsNetAuthority() ? TEXT("Server") : TEXT("Client"), GetOwningActorFromActorInfo()->GetLocalRole())
+
+			if (NRCharacter->IsLocallyControlled())
+			{
+				if (const FNRArmAnimSetRow* ArmAnimSetRow = EquippedWeapon->GetWeaponArmAnimSetRow())
+				{
+					UNRAT_PlayMontageForMeshAndWait* AT_PlayMontageForMeshAndWait_FPS = UNRAT_PlayMontageForMeshAndWait::PlayMontageForMeshAndWait(this, NRCharacter->GetMeshArm(), ArmAnimSetRow->FireMontage.Get());
+					AT_PlayMontageForMeshAndWait_FPS->ReadyForActivation();
+				}	
+			}
+
+			if (const FNRBodyAnimSetRow* BodyAnimSetRow = EquippedWeapon->GetWeaponBodyAnimSetRow())
+			{
+				UNRAT_PlayMontageForMeshAndWait* AT_PlayMontageForMeshAndWait_TPS = UNRAT_PlayMontageForMeshAndWait::PlayMontageForMeshAndWait(this, NRCharacter->GetMesh(), BodyAnimSetRow->FireMontage.Get());
+				AT_PlayMontageForMeshAndWait_TPS->ReadyForActivation();	
+			}
 		}
 	}
 }
