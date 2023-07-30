@@ -12,14 +12,8 @@ class NR_API ANRGATA_LineTrace : public ANRGATA_Trace
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
 	ANRGATA_LineTrace();
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	virtual void DoTrace(OUT TArray<FHitResult>& OutHitResults, const UWorld* World, const FGameplayTargetDataFilterHandle FilterHandle, const FVector& Start, const FVector& End, FName ProfileName, const FCollisionQueryParams Params) override;
 };

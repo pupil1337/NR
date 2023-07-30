@@ -4,23 +4,27 @@
 #include "Character/GAS/TargetActor/NRGATA_LineTrace.h"
 
 
-// Sets default values
 ANRGATA_LineTrace::ANRGATA_LineTrace()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
 }
 
-// Called when the game starts or when spawned
-void ANRGATA_LineTrace::BeginPlay()
+void ANRGATA_LineTrace::DoTrace(OUT TArray<FHitResult>& OutHitResults, const UWorld* World, const FGameplayTargetDataFilterHandle FilterHandle, const FVector& Start, const FVector& End, FName ProfileName, const FCollisionQueryParams Params)
 {
-	Super::BeginPlay();
+	check(World);
 	
-}
+	TArray<FHitResult> HitResults;
+	World->LineTraceMultiByProfile(HitResults, Start, End, ProfileName, Params);
 
-// Called every frame
-void ANRGATA_LineTrace::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
+	for (int32 HitIdx = 0; HitIdx < HitResults.Num(); ++HitIdx)
+	{
+		FHitResult& Hit = HitResults[HitIdx];
 
+		if (!Hit.GetActor() || FilterHandle.FilterPassesForActor(Hit.GetActor()))
+		{
+			Hit.TraceStart = Start;
+			Hit.TraceEnd = End;
+			
+			OutHitResults.Add(Hit);
+		}
+	}
+}

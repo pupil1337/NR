@@ -12,21 +12,32 @@ class NR_API ANRGATA_Trace : public AGameplayAbilityTargetActor
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
 	ANRGATA_Trace();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	virtual void StartTargeting(UGameplayAbility* Ability) override;
 
-public:
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
+	
+	virtual void ConfirmTargetingAndContinue() override;
+	
 //~Begin This Class
 	void StopTargeting();
 
+protected:
+	virtual void DoTrace(OUT FHitResult& OutHitResult, const UWorld* World, const FGameplayTargetDataFilterHandle FilterHandle, const FVector& Start, const FVector& End, FName ProfileName, const FCollisionQueryParams Params) PURE_VIRTUAL(ANRGATA_Trace);
+
 private:
-	UPROPERTY()
+	TArray<FHitResult> PerformTrace(AActor* InSourceActor);
+	
+	FGameplayAbilityTargetDataHandle MakeTargetData(const TArray<FHitResult>& HitResults);
+	
+protected:
+	/** Trace最大距离 */
 	float MaxRange;
+
+	/** 每次Trace数量 */
+	uint32 NumberOfTraces;
+	
+	/** 每条Trace造成的HitResult数量 */
+	uint32 MaxHitResultsPerTrace;
 };
