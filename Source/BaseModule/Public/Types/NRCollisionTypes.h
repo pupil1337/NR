@@ -6,5 +6,5 @@
 
 namespace NRCollisionProfile
 {
-	const FName Pickup_ProfileName = FName(TEXT("Pickup"));	
+	const FName Projectile_ProfileName = FName(TEXT("Projectile"));	
 }

@@ -12,6 +12,7 @@
 #include "Character/GAS/Task/NRAT_ServerWaitClientTargetData.h"
 #include "Character/GAS/Task/NRAT_WaitTargetDataUsingActor.h"
 #include "Table/Weapon/NRAnimSetting.h"
+#include "Types/NRCollisionTypes.h"
 
 UNRGA_FireInstant::UNRGA_FireInstant()
 {
@@ -59,7 +60,7 @@ void UNRGA_FireInstant::FireBullet()
 			{
 				if (ANRGATA_LineTrace* TA_LineTrace = EquippedWeapon->GetLineTraceTargetActor())
 				{
-					TA_LineTrace->ConfigParams(100000.0f, UCollisionProfile::BlockAll_ProfileName);
+					TA_LineTrace->ConfigParams(100000.0f, NRCollisionProfile::Projectile_ProfileName);
 					TA_LineTrace->bDebug = true;
 					UNRAT_WaitTargetDataUsingActor* AT_WaitTargetDataUsingActor = UNRAT_WaitTargetDataUsingActor::WaitTargetDataUsingActor(this, EGameplayTargetingConfirmation::Type::Instant, TA_LineTrace, true);
 					AT_WaitTargetDataUsingActor->ValidData.AddDynamic(this, &ThisClass::HandleTargetData);
