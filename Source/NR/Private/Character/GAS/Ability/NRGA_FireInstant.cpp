@@ -57,9 +57,14 @@ void UNRGA_FireInstant::FireBullet()
 
 			if (EquippedWeapon)
 			{
-				UNRAT_WaitTargetDataUsingActor* AT_WaitTargetDataUsingActor = UNRAT_WaitTargetDataUsingActor::WaitTargetDataUsingActor(this, EGameplayTargetingConfirmation::Type::Instant, EquippedWeapon->GetLineTraceTargetActor(), true);
-				AT_WaitTargetDataUsingActor->ValidData.AddDynamic(this, &ThisClass::HandleTargetData);
-				AT_WaitTargetDataUsingActor->ReadyForActivation();
+				if (ANRGATA_LineTrace* TA_LineTrace = EquippedWeapon->GetLineTraceTargetActor())
+				{
+					TA_LineTrace->ConfigParams(100000.0f, UCollisionProfile::BlockAll_ProfileName);
+					TA_LineTrace->bDebug = true;
+					UNRAT_WaitTargetDataUsingActor* AT_WaitTargetDataUsingActor = UNRAT_WaitTargetDataUsingActor::WaitTargetDataUsingActor(this, EGameplayTargetingConfirmation::Type::Instant, TA_LineTrace, true);
+					AT_WaitTargetDataUsingActor->ValidData.AddDynamic(this, &ThisClass::HandleTargetData);
+					AT_WaitTargetDataUsingActor->ReadyForActivation();	
+				}
 			}	
 		}
 	}

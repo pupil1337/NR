@@ -5,6 +5,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "Abilities/GameplayAbility.h"
+#include "Abilities/GameplayAbilityTargetActor_Trace.h"
 
 
 ANRGATA_Trace::ANRGATA_Trace()
@@ -17,9 +18,12 @@ ANRGATA_Trace::ANRGATA_Trace()
 	// AGameplayAbilityTargetActor
 	bDestroyOnConfirmation = false;
 
-	
+
+	MaxRange = 999999.0f;
+	TraceProfile = UCollisionProfile::BlockAll_ProfileName;
 	NumberOfTraces = 1;
 	MaxHitResultsPerTrace = 1;
+	bTraceFromPlayerViewPoint = true;
 }
 
 void ANRGATA_Trace::StartTargeting(UGameplayAbility* Ability)
@@ -43,27 +47,104 @@ void ANRGATA_Trace::ConfirmTargetingAndContinue()
 	{
 		if (IsConfirmTargetingAllowed())
 		{
-			TArray<FHitResult> HitResults = PerformTrace(SourceActor);
+			const TArray<FHitResult> HitResults = PerformTrace(SourceActor);
 			const FGameplayAbilityTargetDataHandle TargetDataHandle = MakeTargetData(HitResults);
 			TargetDataReadyDelegate.Broadcast(TargetDataHandle);
+
+#if ENABLE_DRAW_DEBUG
+			if (bDebug)
+			{
+				ShowDebugTrace(HitResults, EDrawDebugTrace::Type::ForDuration, 3.0f);
+			}
+#endif
 		}	
 	}
 }
 
 TArray<FHitResult> ANRGATA_Trace::PerformTrace(AActor* InSourceActor)
 {
-	TArray<FHitResult> ReturnHitResults;
-
-	// TODO DoTrace
+	bool bTraceComplex = false;
+	TArray<AActor*> ActorsToIgnore;
 	
+	ActorsToIgnore.Add(InSourceActor);
+
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(ANRGATA_Trace), bTraceComplex);
+	Params.AddIgnoredActors(ActorsToIgnore);
+	Params.bReturnPhysicalMaterial = true;
+
+	// TraceStart为SourceActor的位置 非摄像机位置
+	FVector TraceStart = StartLocation.GetTargetingTransform().GetLocation();// InSourceActor->GetActorLocation();
+	FVector TraceEnd;
+
+	// 如果从摄像机位置Trace, 则TraceStart更改为摄像机位置
+	if (PrimaryPC && bTraceFromPlayerViewPoint)
+	{
+		FVector ViewStart;
+		FRotator ViewRot;
+		PrimaryPC->GetPlayerViewPoint(ViewStart, ViewRot);
+
+		TraceStart = ViewStart;
+	}
+
+	AimWithPlayerController(InSourceActor, Params, TraceStart, TraceEnd);
+	
+	TArray<FHitResult> ReturnHitResults;
+	for (int32 TraceIdx = 0; TraceIdx < NumberOfTraces; ++TraceIdx)
+	{
+		TArray<FHitResult> HitResults;
+		DoTrace(HitResults, InSourceActor->GetWorld(), Filter, TraceStart, TraceEnd, TraceProfile.Name, Params);
+
+		for (int32 HitResRIdx = HitResults.Num() - 1; HitResRIdx >= 0; --HitResRIdx)
+		{
+			if (MaxHitResultsPerTrace >= 0 && HitResRIdx + 1 > MaxHitResultsPerTrace)
+			{
+				HitResults.RemoveAt(HitResRIdx);
+			}
+		}
+
+		if (HitResults.Num() < 1)
+		{
+			FHitResult HitResult;
+			HitResult.TraceStart = TraceStart;
+			HitResult.TraceEnd = TraceEnd;
+			HitResult.Location = TraceEnd;
+			HitResult.ImpactPoint = TraceEnd;
+			HitResults.Add(HitResult);
+		}
+
+		ReturnHitResults.Append(HitResults);
+	}
+
 	return ReturnHitResults;
+}
+
+void ANRGATA_Trace::AimWithPlayerController(const AActor* InSourceActor, FCollisionQueryParams Params, const FVector& TraceStart, OUT FVector& OutTraceEnd, bool bIgnorePitch) const
+{
+	if (!OwningAbility) // Server and launching client only
+	{
+		return;
+	}
+
+	APlayerController* PC = OwningAbility->GetCurrentActorInfo()->PlayerController.Get();
+	check(PC);
+
+	FVector ViewStart;
+	FRotator ViewRot;
+	PC->GetPlayerViewPoint(ViewStart, ViewRot);
+
+	const FVector ViewDir = ViewRot.Vector();
+	FVector ViewEnd = ViewStart + (ViewDir * MaxRange);
+
+	AGameplayAbilityTargetActor_Trace::ClipCameraRayToAbilityRange(ViewStart, ViewDir, TraceStart, MaxRange, ViewEnd);
+
+	OutTraceEnd = ViewEnd;
 }
 
 FGameplayAbilityTargetDataHandle ANRGATA_Trace::MakeTargetData(const TArray<FHitResult>& HitResults)
 {
 	FGameplayAbilityTargetDataHandle ReturnTargetDataHandle;
 
-	for (uint32 i = 0; i < HitResults.Num(); ++i)
+	for (int32 i = 0; i < HitResults.Num(); ++i)
 	{
 		FGameplayAbilityTargetData_SingleTargetHit* tTargetData = new FGameplayAbilityTargetData_SingleTargetHit();
 		tTargetData->HitResult = HitResults[i];
@@ -103,5 +184,14 @@ void ANRGATA_Trace::StopTargeting()
 
 		ensure(GenericDelegateBoundASC == UnboundASC); // Error checking that we have removed delegates from the same ASC we bound them to
 	}
+}
+
+void ANRGATA_Trace::ConfigParams(float InMaxRange, FCollisionProfileName InTraceProfile, bool bInTraceFromPlayerViewPoint, int32 InNumberOfTraces, int32 InMaxHitResultsPerTrace)
+{
+	MaxRange = InMaxRange;
+	TraceProfile = InTraceProfile;
+	bTraceFromPlayerViewPoint = bInTraceFromPlayerViewPoint;
+	NumberOfTraces = InNumberOfTraces;
+	MaxHitResultsPerTrace = InMaxHitResultsPerTrace;
 }
 

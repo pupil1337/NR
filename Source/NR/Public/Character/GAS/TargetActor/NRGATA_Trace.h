@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbilityTargetActor.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "NRGATA_Trace.generated.h"
 
 UCLASS()
@@ -23,21 +24,34 @@ public:
 //~Begin This Class
 	void StopTargeting();
 
-protected:
-	virtual void DoTrace(OUT FHitResult& OutHitResult, const UWorld* World, const FGameplayTargetDataFilterHandle FilterHandle, const FVector& Start, const FVector& End, FName ProfileName, const FCollisionQueryParams Params) PURE_VIRTUAL(ANRGATA_Trace);
+	void ConfigParams(float InMaxRange, FCollisionProfileName InTraceProfile, bool bInTraceFromPlayerViewPoint = true, int32 InNumberOfTraces = 1, int32 InMaxHitResultsPerTrace = 1);
 
+protected:
+	virtual void DoTrace(OUT TArray<FHitResult>& OutHitResult, const UWorld* World, const FGameplayTargetDataFilterHandle FilterHandle, const FVector& Start, const FVector& End, FName ProfileName, const FCollisionQueryParams Params) PURE_VIRTUAL(ANRGATA_Trace);
+
+#if ENABLE_DRAW_DEBUG
+	virtual void ShowDebugTrace(const TArray<FHitResult>& HitResults, EDrawDebugTrace::Type DrawDebugType, float Duration = 3.0f) PURE_VIRTUAL(ANRGATA_Trace);
+#endif
+	
 private:
 	TArray<FHitResult> PerformTrace(AActor* InSourceActor);
-	
-	FGameplayAbilityTargetDataHandle MakeTargetData(const TArray<FHitResult>& HitResults);
+
+	void AimWithPlayerController(const AActor* InSourceActor, FCollisionQueryParams Params, const FVector& TraceStart, OUT FVector& OutTraceEnd, bool bIgnorePitch = false) const;
+
+	static FGameplayAbilityTargetDataHandle MakeTargetData(const TArray<FHitResult>& HitResults);
 	
 protected:
 	/** Trace最大距离 */
 	float MaxRange;
 
+	/** 碰撞Profile名称 */
+	FCollisionProfileName TraceProfile;
+	
 	/** 每次Trace数量 */
-	uint32 NumberOfTraces;
+	int32 NumberOfTraces;
 	
 	/** 每条Trace造成的HitResult数量 */
-	uint32 MaxHitResultsPerTrace;
+	int32 MaxHitResultsPerTrace;
+
+	bool bTraceFromPlayerViewPoint;
 };
