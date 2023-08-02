@@ -8,7 +8,7 @@
 #include "Types/NRWeaponTypes.h"
 #include "NRWeaponBase.generated.h"
 
-class ANRGATA_LineTrace;
+class ANRTA_LineTrace;
 struct FNRIronSightSettingRow;
 class UDataTable;
 struct FNRMagazineSettingRow;
@@ -78,7 +78,7 @@ public:
 	FNRMagazineSettingRow* GetMagazineSettingRow();
 	FNRIronSightSettingRow* GetIronSightSettingRow();
 	
-	ANRGATA_LineTrace* GetLineTraceTargetActor();
+	ANRTA_LineTrace* GetLineTraceTargetActor();
 	
 private:
 	UFUNCTION()
@@ -106,7 +106,7 @@ private:
 	TSharedPtr<FStreamableHandle> AttachmentStreamableHandle;
 
 	UPROPERTY(Transient)
-	ANRGATA_LineTrace* TA_LineTrace;
+	ANRTA_LineTrace* TA_LineTrace;
 
 	// Temp
 	uint8 bFPS_SeparateFOVDirty : 1;

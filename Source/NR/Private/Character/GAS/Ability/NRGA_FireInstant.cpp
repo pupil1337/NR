@@ -7,7 +7,7 @@
 #include "Actor/Weapon/NRWeaponBase.h"
 #include "Character/NRCharacter.h"
 #include "Character/Component/NRInventoryComponent.h"
-#include "Character/GAS/TargetActor/NRGATA_LineTrace.h"
+#include "Character/GAS/TargetActor/NRTA_LineTrace.h"
 #include "Character/GAS/Task/NRAT_PlayMontageForMeshAndWait.h"
 #include "Character/GAS/Task/NRAT_ServerWaitClientTargetData.h"
 #include "Character/GAS/Task/NRAT_WaitTargetDataUsingActor.h"
@@ -58,7 +58,7 @@ void UNRGA_FireInstant::FireBullet()
 
 			if (EquippedWeapon)
 			{
-				if (ANRGATA_LineTrace* TA_LineTrace = EquippedWeapon->GetLineTraceTargetActor())
+				if (ANRTA_LineTrace* TA_LineTrace = EquippedWeapon->GetLineTraceTargetActor())
 				{
 					TA_LineTrace->ConfigParams(100000.0f, NRCollisionProfile::Projectile_ProfileName);
 					TA_LineTrace->bDebug = true;
@@ -75,7 +75,15 @@ void UNRGA_FireInstant::HandleTargetData(const FGameplayAbilityTargetDataHandle&
 {
 	// TODO
 
+	// 开火动画
 	PlayFireMontage();
+
+	// 开火特效
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+	{
+		FGameplayCueParameters CueParams;
+		ASC->ExecuteGameplayCue(FGameplayTag::RequestGameplayTag(FName("GameplayCue.Weapon.Fire")), CueParams);
+	}
 }
 
 void UNRGA_FireInstant::PlayFireMontage()

@@ -1,14 +1,14 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/GAS/TargetActor/NRGATA_LineTrace.h"
+#include "..\..\..\..\Public\Character\GAS\TargetActor\NRTA_LineTrace.h"
 
 
-ANRGATA_LineTrace::ANRGATA_LineTrace()
+ANRTA_LineTrace::ANRTA_LineTrace()
 {
 }
 
-void ANRGATA_LineTrace::DoTrace(OUT TArray<FHitResult>& OutHitResults, const UWorld* World, const FGameplayTargetDataFilterHandle FilterHandle, const FVector& Start, const FVector& End, FName ProfileName, const FCollisionQueryParams Params)
+void ANRTA_LineTrace::DoTrace(OUT TArray<FHitResult>& OutHitResults, const UWorld* World, const FGameplayTargetDataFilterHandle FilterHandle, const FVector& Start, const FVector& End, FName ProfileName, const FCollisionQueryParams Params)
 {
 	check(World);
 	
@@ -62,7 +62,7 @@ void DrawDebugLineTraceMulti(const UWorld* World, const FVector& Start, const FV
 	}
 }
 
-void ANRGATA_LineTrace::ShowDebugTrace(const TArray<FHitResult>& HitResults, EDrawDebugTrace::Type DrawDebugType, float Duration /* = 3.0f */)
+void ANRTA_LineTrace::ShowDebugTrace(const TArray<FHitResult>& HitResults, EDrawDebugTrace::Type DrawDebugType, float Duration /* = 3.0f */)
 {
 	FVector ViewStart = StartLocation.GetTargetingTransform().GetLocation();
 	if (PrimaryPC && bTraceFromPlayerViewPoint)

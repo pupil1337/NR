@@ -5,15 +5,15 @@
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbilityTargetActor.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "NRGATA_Trace.generated.h"
+#include "NRTA_Trace.generated.h"
 
 UCLASS()
-class NR_API ANRGATA_Trace : public AGameplayAbilityTargetActor
+class NR_API ANRTA_Trace : public AGameplayAbilityTargetActor
 {
 	GENERATED_BODY()
 
 public:
-	ANRGATA_Trace();
+	ANRTA_Trace();
 
 	virtual void StartTargeting(UGameplayAbility* Ability) override;
 

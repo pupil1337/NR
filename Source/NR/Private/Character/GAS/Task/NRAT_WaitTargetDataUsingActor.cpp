@@ -5,7 +5,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "Abilities/GameplayAbilityTargetActor.h"
-#include "Character/GAS/TargetActor/NRGATA_Trace.h"
+#include "Character/GAS/TargetActor/NRTA_Trace.h"
 
 UNRAT_WaitTargetDataUsingActor* UNRAT_WaitTargetDataUsingActor::WaitTargetDataUsingActor(UGameplayAbility* OwningAbility, TEnumAsByte<EGameplayTargetingConfirmation::Type> ConfirmationType, AGameplayAbilityTargetActor* TargetActor, bool bCreateKeyIfNotValidForMorePredicting/* =false */)
 {
@@ -242,7 +242,7 @@ void UNRAT_WaitTargetDataUsingActor::OnDestroy(bool bInOwnerFinished)
 {
 	if (TargetActor)
 	{
-		if (ANRGATA_Trace* TraceTargetActor = Cast<ANRGATA_Trace>(TargetActor))
+		if (ANRTA_Trace* TraceTargetActor = Cast<ANRTA_Trace>(TargetActor))
 		{
 			TraceTargetActor->StopTargeting();
 		}

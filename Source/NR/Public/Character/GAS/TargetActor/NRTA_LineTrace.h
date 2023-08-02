@@ -3,16 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "NRGATA_Trace.h"
-#include "NRGATA_LineTrace.generated.h"
+#include "NRTA_Trace.h"
+#include "NRTA_LineTrace.generated.h"
 
 UCLASS()
-class NR_API ANRGATA_LineTrace : public ANRGATA_Trace
+class NR_API ANRTA_LineTrace : public ANRTA_Trace
 {
 	GENERATED_BODY()
 
 public:
-	ANRGATA_LineTrace();
+	ANRTA_LineTrace();
 
 protected:
 	virtual void DoTrace(OUT TArray<FHitResult>& OutHitResults, const UWorld* World, const FGameplayTargetDataFilterHandle FilterHandle, const FVector& Start, const FVector& End, FName ProfileName, const FCollisionQueryParams Params) override;

@@ -3,14 +3,10 @@
 
 #include "Actor/Weapon/NRWeaponBase.h"
 
-#include "NiagaraComponent.h"
-#include "NiagaraSystem.h"
-#include "NRGameSingleton.h"
 #include "Character/NRCharacter.h"
-#include "Character/GAS/TargetActor/NRGATA_LineTrace.h"
+#include "Character/GAS/TargetActor/NRTA_LineTrace.h"
 #include "Static/NRStatics.h"
 #include "Net/UnrealNetwork.h"
-#include "Types/NRCollisionTypes.h"
 #include "Types/NRWeaponTypes.h"
 
 ANRWeaponBase::ANRWeaponBase()
@@ -301,7 +297,7 @@ FNRIronSightSettingRow* ANRWeaponBase::GetIronSightSettingRow()
 	return IronSightSetting;
 }
 
-ANRGATA_LineTrace* ANRWeaponBase::GetLineTraceTargetActor()
+ANRTA_LineTrace* ANRWeaponBase::GetLineTraceTargetActor()
 {
 	if (TA_LineTrace)
 	{
@@ -311,7 +307,7 @@ ANRGATA_LineTrace* ANRWeaponBase::GetLineTraceTargetActor()
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.Owner = this;
 	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	TA_LineTrace = GetWorld()->SpawnActor<ANRGATA_LineTrace>();
+	TA_LineTrace = GetWorld()->SpawnActor<ANRTA_LineTrace>();
 	return TA_LineTrace;
 }
 

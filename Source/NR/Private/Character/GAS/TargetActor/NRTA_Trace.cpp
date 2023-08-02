@@ -1,14 +1,14 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/GAS/TargetActor/NRGATA_Trace.h"
+#include "Character/GAS/TargetActor/NRTA_Trace.h"
 
 #include "AbilitySystemComponent.h"
 #include "Abilities/GameplayAbility.h"
 #include "Abilities/GameplayAbilityTargetActor_Trace.h"
 
 
-ANRGATA_Trace::ANRGATA_Trace()
+ANRTA_Trace::ANRTA_Trace()
 {
 	// AActor
 	PrimaryActorTick.bCanEverTick = true;
@@ -26,7 +26,7 @@ ANRGATA_Trace::ANRGATA_Trace()
 	bTraceFromPlayerViewPoint = true;
 }
 
-void ANRGATA_Trace::StartTargeting(UGameplayAbility* Ability)
+void ANRTA_Trace::StartTargeting(UGameplayAbility* Ability)
 {
 	Super::StartTargeting(Ability); // OwningAbility = Ability;
 
@@ -35,12 +35,12 @@ void ANRGATA_Trace::StartTargeting(UGameplayAbility* Ability)
 	SourceActor = Ability->GetCurrentActorInfo()->AvatarActor.Get();
 }
 
-void ANRGATA_Trace::Tick(float DeltaTime)
+void ANRTA_Trace::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
 
-void ANRGATA_Trace::ConfirmTargetingAndContinue()
+void ANRTA_Trace::ConfirmTargetingAndContinue()
 {
 	check(ShouldProduceTargetData());
 	if (SourceActor)
@@ -61,14 +61,14 @@ void ANRGATA_Trace::ConfirmTargetingAndContinue()
 	}
 }
 
-TArray<FHitResult> ANRGATA_Trace::PerformTrace(AActor* InSourceActor)
+TArray<FHitResult> ANRTA_Trace::PerformTrace(AActor* InSourceActor)
 {
 	bool bTraceComplex = false;
 	TArray<AActor*> ActorsToIgnore;
 	
 	ActorsToIgnore.Add(InSourceActor);
 
-	FCollisionQueryParams Params(SCENE_QUERY_STAT(ANRGATA_Trace), bTraceComplex);
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(ANRTA_Trace), bTraceComplex);
 	Params.AddIgnoredActors(ActorsToIgnore);
 	Params.bReturnPhysicalMaterial = true;
 
@@ -118,7 +118,7 @@ TArray<FHitResult> ANRGATA_Trace::PerformTrace(AActor* InSourceActor)
 	return ReturnHitResults;
 }
 
-void ANRGATA_Trace::AimWithPlayerController(const AActor* InSourceActor, FCollisionQueryParams Params, const FVector& TraceStart, OUT FVector& OutTraceEnd, bool bIgnorePitch) const
+void ANRTA_Trace::AimWithPlayerController(const AActor* InSourceActor, FCollisionQueryParams Params, const FVector& TraceStart, OUT FVector& OutTraceEnd, bool bIgnorePitch) const
 {
 	if (!OwningAbility) // Server and launching client only
 	{
@@ -140,7 +140,7 @@ void ANRGATA_Trace::AimWithPlayerController(const AActor* InSourceActor, FCollis
 	OutTraceEnd = ViewEnd;
 }
 
-FGameplayAbilityTargetDataHandle ANRGATA_Trace::MakeTargetData(const TArray<FHitResult>& HitResults)
+FGameplayAbilityTargetDataHandle ANRTA_Trace::MakeTargetData(const TArray<FHitResult>& HitResults)
 {
 	FGameplayAbilityTargetDataHandle ReturnTargetDataHandle;
 
@@ -154,7 +154,7 @@ FGameplayAbilityTargetDataHandle ANRGATA_Trace::MakeTargetData(const TArray<FHit
 	return ReturnTargetDataHandle;
 }
 
-void ANRGATA_Trace::StopTargeting()
+void ANRTA_Trace::StopTargeting()
 {
 	SetActorTickEnabled(false);
 	
@@ -186,7 +186,7 @@ void ANRGATA_Trace::StopTargeting()
 	}
 }
 
-void ANRGATA_Trace::ConfigParams(float InMaxRange, FCollisionProfileName InTraceProfile, bool bInTraceFromPlayerViewPoint, int32 InNumberOfTraces, int32 InMaxHitResultsPerTrace)
+void ANRTA_Trace::ConfigParams(float InMaxRange, FCollisionProfileName InTraceProfile, bool bInTraceFromPlayerViewPoint, int32 InNumberOfTraces, int32 InMaxHitResultsPerTrace)
 {
 	MaxRange = InMaxRange;
 	TraceProfile = InTraceProfile;
