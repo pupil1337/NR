@@ -13,4 +13,7 @@ UCLASS()
 class NR_API UNRGC_Fire : public UGameplayCueNotify_Static
 {
 	GENERATED_BODY()
+
+public:
+	virtual void HandleGameplayCue(AActor* MyTarget, EGameplayCueEvent::Type EventType, const FGameplayCueParameters& Parameters) override;
 };

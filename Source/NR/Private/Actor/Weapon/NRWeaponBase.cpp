@@ -3,6 +3,8 @@
 
 #include "Actor/Weapon/NRWeaponBase.h"
 
+#include "NiagaraComponent.h"
+#include "NiagaraDataInterfaceArrayFunctionLibrary.h"
 #include "Character/NRCharacter.h"
 #include "Character/GAS/TargetActor/NRTA_LineTrace.h"
 #include "Static/NRStatics.h"
@@ -37,6 +39,10 @@ ANRWeaponBase::ANRWeaponBase()
 	IronSight1P->SetupAttachment(Mesh1P, NAME_Socket_Default);
 	IronSight3P = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("机瞄3P"));
 	IronSight3P->SetupAttachment(Mesh3P, NAME_Socket_Default);
+
+	// FireTracerNiagara
+	FireTracerNiagara = CreateDefaultSubobject<UNiagaraComponent>(TEXT("开火Tracer"));
+	FireTracerNiagara->SetupAttachment(SceneRoot);
 
 	SetFPS_SeparateFOV(true, true);
 }
@@ -143,6 +149,24 @@ void ANRWeaponBase::UnEquip()
 	Mesh3P->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
 }
 
+void ANRWeaponBase::FireTracer(UNiagaraSystem* NiagaraAsset, const FVector& ImpactPoint) const
+{
+	// bFireTraceTrigger = !bFireTraceTrigger;
+	if (const ANRCharacter* NRCharacter = Cast<ANRCharacter>(GetOwner()))
+	{
+		FVector MuzzleRelativeLocation;
+		if (NRCharacter->IsLocallyControlled()) MuzzleRelativeLocation = Mesh1P->GetSocketLocation(NAME_Socket_Muzzle) - Mesh1P->GetComponentLocation();
+		else MuzzleRelativeLocation = Mesh3P->GetSocketLocation(NAME_Socket_Muzzle) - Mesh1P->GetComponentLocation();
+
+		FireTracerNiagara->SetAsset(NiagaraAsset);
+		FireTracerNiagara->SetNiagaraVariableBool("User.Trigger", true);
+		FireTracerNiagara->SetNiagaraVariableVec3("User.MuzzlePosition", MuzzleRelativeLocation);
+		TArray<FVector> ImpactPoints;
+		ImpactPoints.Add(ImpactPoint);
+		UNiagaraDataInterfaceArrayFunctionLibrary::SetNiagaraArrayVector(FireTracerNiagara, FName("User.ImpactPositions"), ImpactPoints);
+	}
+}
+
 void ANRWeaponBase::TickFPS_SeparateFOVDirty()
 {
 	if (bFPS_SeparateFOVDirty)
@@ -223,8 +247,10 @@ void ANRWeaponBase::OnRep_WeaponState(ENRWeaponState OldWeaponState)
 	// }
 }
 
+
+
 // Getter ================================================================================
-FNRWeaponInformationRow* ANRWeaponBase::GetWeaponInformation()
+FNRWeaponInformationRow* ANRWeaponBase::GetWeaponInformation() const
 {
 	if (!WeaponInformation)
 	{
@@ -234,7 +260,7 @@ FNRWeaponInformationRow* ANRWeaponBase::GetWeaponInformation()
 	return WeaponInformation;
 }
 
-FNRArmAnimSetRow* ANRWeaponBase::GetWeaponArmAnimSetRow()
+FNRArmAnimSetRow* ANRWeaponBase::GetWeaponArmAnimSetRow() const
 {
 	if (!WeaponArmAnimSet)
 	{
@@ -247,7 +273,7 @@ FNRArmAnimSetRow* ANRWeaponBase::GetWeaponArmAnimSetRow()
 	return WeaponArmAnimSet;
 }
 
-FNRBodyAnimSetRow* ANRWeaponBase::GetWeaponBodyAnimSetRow()
+FNRBodyAnimSetRow* ANRWeaponBase::GetWeaponBodyAnimSetRow() const
 {
 	if (!WeaponBodyAnimSet)
 	{
@@ -260,7 +286,7 @@ FNRBodyAnimSetRow* ANRWeaponBase::GetWeaponBodyAnimSetRow()
 	return WeaponBodyAnimSet;
 }
 
-FNRWeaponSettingRow* ANRWeaponBase::GetWeaponSettingRow()
+FNRWeaponSettingRow* ANRWeaponBase::GetWeaponSettingRow() const
 {
 	if (!WeaponSetting)
 	{
@@ -273,7 +299,7 @@ FNRWeaponSettingRow* ANRWeaponBase::GetWeaponSettingRow()
 	return WeaponSetting;
 }
 
-FNRMagazineSettingRow* ANRWeaponBase::GetMagazineSettingRow()
+FNRMagazineSettingRow* ANRWeaponBase::GetMagazineSettingRow() const
 {
 	if (!MagazineSetting)
 	{
@@ -285,7 +311,7 @@ FNRMagazineSettingRow* ANRWeaponBase::GetMagazineSettingRow()
 	return MagazineSetting;
 }
 
-FNRIronSightSettingRow* ANRWeaponBase::GetIronSightSettingRow()
+FNRIronSightSettingRow* ANRWeaponBase::GetIronSightSettingRow() const
 {
 	if (!IronSightSetting)
 	{

@@ -265,6 +265,12 @@ void UNRInventoryComponent::LoadCurrentWeaponAssets()
 				// Montage
 				TargetsToStream.Add(BodyAnimSetRow->FireMontage.ToSoftObjectPath());
 			}
+
+			// 特效
+			if (const FNRWeaponSettingRow* WeaponSettingRow = CurrentWeapon->GetWeaponSettingRow())
+			{
+				TargetsToStream.Add(WeaponSettingRow->InstantTraceVFX.ToSoftObjectPath());
+			}
 		}
 	}
 

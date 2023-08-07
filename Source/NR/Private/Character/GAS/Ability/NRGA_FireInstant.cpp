@@ -12,6 +12,7 @@
 #include "Character/GAS/Task/NRAT_ServerWaitClientTargetData.h"
 #include "Character/GAS/Task/NRAT_WaitTargetDataUsingActor.h"
 #include "Table/Weapon/NRAnimSetting.h"
+#include "Table/Weapon/NRWeaponSetting.h"
 #include "Types/NRCollisionTypes.h"
 
 UNRGA_FireInstant::UNRGA_FireInstant()
@@ -61,28 +62,64 @@ void UNRGA_FireInstant::FireBullet()
 				if (ANRTA_LineTrace* TA_LineTrace = EquippedWeapon->GetLineTraceTargetActor())
 				{
 					TA_LineTrace->ConfigParams(100000.0f, NRCollisionProfile::Projectile_ProfileName);
-					TA_LineTrace->bDebug = true;
+					// TA_LineTrace->bDebug = true; TODO GM
 					UNRAT_WaitTargetDataUsingActor* AT_WaitTargetDataUsingActor = UNRAT_WaitTargetDataUsingActor::WaitTargetDataUsingActor(this, EGameplayTargetingConfirmation::Type::Instant, TA_LineTrace, true);
 					AT_WaitTargetDataUsingActor->ValidData.AddDynamic(this, &ThisClass::HandleTargetData);
 					AT_WaitTargetDataUsingActor->ReadyForActivation();	
 				}
-			}	
+			}
 		}
 	}
 }
 
-void UNRGA_FireInstant::HandleTargetData(const FGameplayAbilityTargetDataHandle& Data)
+void UNRGA_FireInstant::HandleTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle)
 {
 	// TODO
 
-	// 开火动画
+	// 动画
 	PlayFireMontage();
 
-	// 开火特效
+	// GE + GC
 	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
 	{
-		FGameplayCueParameters CueParams;
-		ASC->ExecuteGameplayCue(FGameplayTag::RequestGameplayTag(FName("GameplayCue.Weapon.Fire")), CueParams);
+		switch (EquippedWeapon->GetWeaponSettingRow()->BulletType)
+		{
+			case ENRBulletType::EBT_Instant:
+				{
+					// TODO 子弹穿透
+					// Gameplay Effect
+					const FGameplayEffectSpecHandle& EffectSpecHandle = MakeOutgoingGameplayEffectSpec(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), BulletInstantEffectClass, 1.0f);
+					EffectSpecHandle.Data.Get()->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Damage")), EquippedWeapon->GetWeaponSettingRow()->InstantDamage);
+					// ReSharper disable once CppExpressionWithoutSideEffects
+					ApplyGameplayEffectSpecToTarget(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), EffectSpecHandle, TargetDataHandle);
+
+					// Gameplay Cue
+					FGameplayEffectContextHandle EffectContextHandle = EffectSpecHandle.Data.Get()->GetEffectContext();
+					if (TargetDataHandle.Data.IsValidIndex(0))
+					{
+						if (const FGameplayAbilityTargetData* Data = TargetDataHandle.Data[0].Get())
+						{
+							if (Data->HasHitResult())
+							{
+								// TODO 散弹枪
+								EffectContextHandle.AddHitResult(*Data->GetHitResult());
+							}
+						}
+					}
+
+					FGameplayCueParameters CueParams;
+					CueParams.EffectContext = EffectContextHandle;
+					CueParams.SourceObject = EquippedWeapon;
+					ASC->ExecuteGameplayCue(FGameplayTag::RequestGameplayTag(FName("GameplayCue.Weapon.Fire"/* UNRGC_Fire */)), CueParams);
+					
+					break;	
+				}
+			case ENRBulletType::EBT_Projectile:
+				// TODO ProjectileEffectClass
+				break;
+			
+			default: ;
+		}
 	}
 }
 

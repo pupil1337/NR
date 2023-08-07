@@ -8,6 +8,7 @@
 #include "Types/NRWeaponTypes.h"
 #include "NRWeaponBase.generated.h"
 
+class UNiagaraSystem;
 class ANRTA_LineTrace;
 struct FNRIronSightSettingRow;
 class UDataTable;
@@ -49,6 +50,10 @@ class NR_API ANRWeaponBase : public AActor, public INRInteractionInterface
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UStaticMeshComponent> IronSight3P;
 
+	// FireTracer
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UNiagaraComponent> FireTracerNiagara;
+	
 	// Weapon Type
 	UPROPERTY(EditDefaultsOnly)
 	ENRWeaponType WeaponType = ENRWeaponType::EWT_None;
@@ -70,13 +75,16 @@ public:
 	void Equip();
 
 	void UnEquip();
-
+	
+	// TODO const TArray<FVector>& ImpactPoints (散弹枪)
+	void FireTracer(UNiagaraSystem* NiagaraAsset, const FVector& ImpactPoint) const;
+	
 	// Getter
-	FNRArmAnimSetRow* GetWeaponArmAnimSetRow();
-	FNRBodyAnimSetRow* GetWeaponBodyAnimSetRow();
-	FNRWeaponSettingRow* GetWeaponSettingRow();
-	FNRMagazineSettingRow* GetMagazineSettingRow();
-	FNRIronSightSettingRow* GetIronSightSettingRow();
+	FNRArmAnimSetRow* GetWeaponArmAnimSetRow() const;
+	FNRBodyAnimSetRow* GetWeaponBodyAnimSetRow() const;
+	FNRWeaponSettingRow* GetWeaponSettingRow() const;
+	FNRMagazineSettingRow* GetMagazineSettingRow() const;
+	FNRIronSightSettingRow* GetIronSightSettingRow() const;
 	
 	ANRTA_LineTrace* GetLineTraceTargetActor();
 	
@@ -88,19 +96,21 @@ private:
 	
 	void TickFPS_SeparateFOVDirty();
 	
-	FNRWeaponInformationRow* GetWeaponInformation();
-	FNRWeaponInformationRow* WeaponInformation;
-	FNRArmAnimSetRow* WeaponArmAnimSet;
-	FNRBodyAnimSetRow* WeaponBodyAnimSet;
-	FNRWeaponSettingRow* WeaponSetting;
-	FNRMagazineSettingRow* MagazineSetting;
-	FNRIronSightSettingRow* IronSightSetting;
+	FNRWeaponInformationRow* GetWeaponInformation() const;
+	mutable FNRWeaponInformationRow* WeaponInformation;
+	mutable FNRArmAnimSetRow* WeaponArmAnimSet;
+	mutable FNRBodyAnimSetRow* WeaponBodyAnimSet;
+	mutable FNRWeaponSettingRow* WeaponSetting;
+	mutable FNRMagazineSettingRow* MagazineSetting;
+	mutable FNRIronSightSettingRow* IronSightSetting;
 
 	UPROPERTY(ReplicatedUsing=OnRep_WeaponState)
 	ENRWeaponState WeaponState = ENRWeaponState::EWS_None;
 
 	UPROPERTY(Transient)
 	UNiagaraComponent* PickupNiagaraComp;
+
+	mutable bool bFireTraceTrigger;
 
 	TSharedPtr<FStreamableHandle> PickupVfxStreamableHandle;
 	TSharedPtr<FStreamableHandle> AttachmentStreamableHandle;

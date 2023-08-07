@@ -7,6 +7,7 @@
 #include "NRGA_FireInstant.generated.h"
 
 class ANRWeaponBase;
+
 /**
  * 
  */
@@ -14,6 +15,9 @@ UCLASS(Abstract, Blueprintable)
 class NR_API UNRGA_FireInstant : public UNRGameplayAbility
 {
 	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UGameplayEffect> BulletInstantEffectClass;
 
 public:
 	UNRGA_FireInstant();
@@ -29,7 +33,7 @@ public:
 
 private:
 	UFUNCTION()
-	void HandleTargetData(const FGameplayAbilityTargetDataHandle& Data);
+	void HandleTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
 
 	void PlayFireMontage();
 	

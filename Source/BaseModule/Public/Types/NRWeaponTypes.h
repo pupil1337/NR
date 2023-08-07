@@ -23,6 +23,9 @@ const FName NAME_Socket_Default(TEXT("SOCKET_Default"));
 /** 武器- 弹夹插槽 */
 const FName NAME_Socket_Magazine(TEXT("SOCKET_Magazine"));
 
+/** 武器- 枪口插槽 */
+const FName NAME_Socket_Muzzle(TEXT("SOCKET_Muzzle"));
+
 UENUM()
 enum class ENRWeaponState : uint8
 {
@@ -47,5 +50,13 @@ enum class ENRWeaponFireMode : uint8
 	EWFM_Automatic = 1	UMETA(DisplayName="全自动"),
 	EWFM_Burst = 2		UMETA(DisplayName="连发"),
 	EWFM_Safe = 3		UMETA(DisplayName="保险")
+};
+
+UENUM()
+enum class ENRBulletType : uint8
+{
+	EBT_Instant = 0		UMETA(DisplayName="射线"),
+	EBT_Projectile = 1	UMETA(DisplayName="射弹"),
+	EBT_Max				UMETA(DisplayName="None")
 };
 
