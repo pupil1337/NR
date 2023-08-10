@@ -151,19 +151,19 @@ void ANRWeaponBase::UnEquip()
 
 void ANRWeaponBase::FireTracer(UNiagaraSystem* NiagaraAsset, const FVector& ImpactPoint) const
 {
-	// bFireTraceTrigger = !bFireTraceTrigger;
+	bFireTraceTrigger = !FireTracerNiagara->IsActive() ? true : !bFireTraceTrigger;
 	if (const ANRCharacter* NRCharacter = Cast<ANRCharacter>(GetOwner()))
 	{
-		FVector MuzzleRelativeLocation;
-		if (NRCharacter->IsLocallyControlled()) MuzzleRelativeLocation = Mesh1P->GetSocketLocation(NAME_Socket_Muzzle) - Mesh1P->GetComponentLocation();
-		else MuzzleRelativeLocation = Mesh3P->GetSocketLocation(NAME_Socket_Muzzle) - Mesh1P->GetComponentLocation();
-
+		if (NRCharacter->IsLocallyControlled()) FireTracerNiagara->AttachToComponent(Mesh1P, FAttachmentTransformRules::SnapToTargetIncludingScale, NAME_Socket_Muzzle);
+		else FireTracerNiagara->AttachToComponent(Mesh3P, FAttachmentTransformRules::SnapToTargetIncludingScale, NAME_Socket_Muzzle);
+		
 		FireTracerNiagara->SetAsset(NiagaraAsset);
-		FireTracerNiagara->SetNiagaraVariableBool("User.Trigger", true);
-		FireTracerNiagara->SetNiagaraVariableVec3("User.MuzzlePosition", MuzzleRelativeLocation);
+		FireTracerNiagara->SetNiagaraVariableBool("User.Trigger", bFireTraceTrigger);
 		TArray<FVector> ImpactPoints;
 		ImpactPoints.Add(ImpactPoint);
 		UNiagaraDataInterfaceArrayFunctionLibrary::SetNiagaraArrayVector(FireTracerNiagara, FName("User.ImpactPositions"), ImpactPoints);
+
+		FireTracerNiagara->Activate();
 	}
 }
 
