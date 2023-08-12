@@ -11,9 +11,14 @@
 #include "Character/GAS/Task/NRAT_PlayMontageForMeshAndWait.h"
 #include "Character/GAS/Task/NRAT_ServerWaitClientTargetData.h"
 #include "Character/GAS/Task/NRAT_WaitTargetDataUsingActor.h"
+#include "PlayerController/NRPlayerController.h"
 #include "Table/Weapon/NRAnimSetting.h"
 #include "Table/Weapon/NRWeaponSetting.h"
 #include "Types/NRCollisionTypes.h"
+
+#ifdef IMGUI_API
+#include "DebugConsole/NRDebugConsole.h"
+#endif
 
 UNRGA_FireInstant::UNRGA_FireInstant()
 {
@@ -62,7 +67,18 @@ void UNRGA_FireInstant::FireBullet()
 				if (ANRTA_LineTrace* TA_LineTrace = EquippedWeapon->GetLineTraceTargetActor())
 				{
 					TA_LineTrace->ConfigParams(100000.0f, NRCollisionProfile::Projectile_ProfileName);
-					// TA_LineTrace->bDebug = true; TODO GM
+#ifdef IMGUI_API
+					if (const FGameplayAbilityActorInfo* ActorInfo = GetCurrentActorInfo())
+					{
+						if (const ANRPlayerController* NRPlayerController = Cast<ANRPlayerController>(ActorInfo->PlayerController))
+						{
+							if (NRPlayerController->DebugConsole.IsValid())
+							{
+								TA_LineTrace->bDebug = NRPlayerController->DebugConsole->TraceLineDebug;
+							}
+						}
+					}
+#endif
 					UNRAT_WaitTargetDataUsingActor* AT_WaitTargetDataUsingActor = UNRAT_WaitTargetDataUsingActor::WaitTargetDataUsingActor(this, EGameplayTargetingConfirmation::Type::Instant, TA_LineTrace, true);
 					AT_WaitTargetDataUsingActor->ValidData.AddDynamic(this, &ThisClass::HandleTargetData);
 					AT_WaitTargetDataUsingActor->ReadyForActivation();	

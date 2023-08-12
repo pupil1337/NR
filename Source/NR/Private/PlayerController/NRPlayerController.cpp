@@ -26,8 +26,8 @@ void ANRPlayerController::BeginPlay()
 		CreateUIUserWidget();
 
 #ifdef IMGUI_API
-		DebugConsole = new NRDebugConsole(this);
-		FImGuiModule::Get().AddWorldImGuiDelegate(FImGuiDelegate::CreateRaw(DebugConsole, &NRDebugConsole::Tick));
+		DebugConsole = MakeShareable(new FNRDebugConsole(this));
+		ImGuiDelegateHandle = FImGuiModule::Get().AddWorldImGuiDelegate(FImGuiDelegate::CreateRaw(DebugConsole.Get(), &FNRDebugConsole::Tick));
 #endif
 	}
 }
@@ -37,8 +37,8 @@ void ANRPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	if (IsLocalPlayerController())
 	{
 #ifdef IMGUI_API
-		delete DebugConsole;
-		DebugConsole = nullptr;
+		FImGuiModule::Get().RemoveImGuiDelegate(ImGuiDelegateHandle);
+		DebugConsole.Reset();
 #endif	
 	}
 	

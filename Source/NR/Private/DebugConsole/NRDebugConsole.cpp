@@ -8,41 +8,49 @@
 #include "GameFramework/PlayerState.h"
 #include "PlayerController/NRPlayerController.h"
 
-
-NRDebugConsole::NRDebugConsole(ANRPlayerController* NRPlayerController):
-	NRPlayerController(NRPlayerController)
+FNRDebugConsole::FNRDebugConsole()
 {
-	GameViewportClient = NRPlayerController->GetLocalPlayer()->ViewportClient;
+	NRPlayerController.Reset();
+}
 
+FNRDebugConsole::FNRDebugConsole(ANRPlayerController* InNRPlayerController):
+	NRPlayerController(InNRPlayerController)
+{
 	NRPlayerController->ConsoleCommand("NetEmulation.PktLag 0");
 	NRPlayerController->ConsoleCommand("t.MaxFPS -1"); MaxFPS = -1;
 }
 
-NRDebugConsole::~NRDebugConsole()
+FNRDebugConsole::~FNRDebugConsole()
 {
+	NRPlayerController.Reset();
 }
 
-void NRDebugConsole::Tick()
+void FNRDebugConsole::Tick()
 {
-	ImGuiWindowFlags WindowFlags = 0;
-	WindowFlags |= ImGuiWindowFlags_MenuBar;
-	WindowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
-	if (ImGui::Begin("GM", nullptr, WindowFlags))
+	if (NRPlayerController.IsValid())
 	{
-		ConsoleSetting();
-	
-		ConsoleVar();
+		ImGuiWindowFlags WindowFlags = 0;
+		WindowFlags |= ImGuiWindowFlags_MenuBar;
+		WindowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
+		if (ImGui::Begin("GM", nullptr, WindowFlags))
+		{
+			ConsoleSetting();
+			
+			ConsoleVar();
 
-		ImGui::Dummy({0.0f, 20.0f});
-		ImGui::Separator();
-		ImGui::Text("Ping: %d ms", NRPlayerController->GetPlayerState<APlayerState>() ? static_cast<int>(NRPlayerController->GetPlayerState<APlayerState>()->GetPingInMilliseconds()) : 999);
-		ImGui::SameLine(); ImGui::Text(" %s", NRPlayerController->HasAuthority() ? "[Server]" : "[Client]");
-		
-		ImGui::End();
+			AbilitySystem();
+			
+			ImGui::Dummy({0.0f, 20.0f});
+			ImGui::Separator();
+			ImGui::Text("Ping: %d ms", NRPlayerController->GetPlayerState<APlayerState>() ? static_cast<int>(NRPlayerController->GetPlayerState<APlayerState>()->GetPingInMilliseconds()) : 999);
+			ImGui::SameLine(); ImGui::Text(" %s", NRPlayerController->HasAuthority() ? "[Server]" : "[Client]");
+			
+			ImGui::End();
+		}
 	}
 }
 
-void NRDebugConsole::ConsoleSetting()
+void FNRDebugConsole::ConsoleSetting()
 {
 	// Auto Expand/Collapse
 	ImGui::SetWindowCollapsed(FImGuiModule::Get().IsInputMode() ? false : bAutoCollapse);
@@ -63,11 +71,13 @@ void NRDebugConsole::ConsoleSetting()
     }
 }
 
-void NRDebugConsole::ConsoleVar()
+void FNRDebugConsole::ConsoleVar()
 {
 	if (ImGui::CollapsingHeader("Console Var"))
 	{
 		ImGui::Indent();
+		
+		UGameViewportClient* GameViewportClient = NRPlayerController->GetLocalPlayer()->ViewportClient;
 		// Stat FPS
 		ImGui::Checkbox("Stat FPS", &bStatFPS);
 		if (bStatFPS != GameViewportClient->IsStatEnabled("FPS"))
@@ -131,6 +141,25 @@ void NRDebugConsole::ConsoleVar()
 		}
 		ImGui::EndDisabled();
 
+		ImGui::Unindent();
+	}
+}
+
+void FNRDebugConsole::AbilitySystem()
+{
+	if (ImGui::CollapsingHeader("Ability System"))
+	{
+		ImGui::Indent();
+
+		// Fire
+		if (ImGui::TreeNode("Fire"))
+		{
+			// TraceLineDebug
+			ImGui::Checkbox("TraceLineDebug", &TraceLineDebug);
+			
+			ImGui::TreePop();
+		}
+		
 		ImGui::Unindent();
 	}
 }

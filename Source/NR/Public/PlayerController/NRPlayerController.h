@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#ifdef IMGUI_API
+#include "ImGuiDelegates.h"
+#include "DebugConsole/NRDebugConsole.h"
+#endif
 #include "NRPlayerController.generated.h"
 
 class UNRUIUserWidget;
-
-#ifdef IMGUI_API
-class NRDebugConsole;
-#endif
 
 UCLASS()
 class NR_API ANRPlayerController : public APlayerController
@@ -30,6 +30,7 @@ private:
 
 #ifdef IMGUI_API
 public:
-	NRDebugConsole* DebugConsole;
+	TSharedPtr<FNRDebugConsole> DebugConsole;
+	FImGuiDelegateHandle ImGuiDelegateHandle;
 #endif
 };

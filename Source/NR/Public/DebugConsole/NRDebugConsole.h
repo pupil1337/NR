@@ -2,6 +2,9 @@
 
 #pragma once
 
+#include "CoreMinimal.h"
+#include "NRDebugConsole.generated.h"
+
 class ANRPlayerController;
 
 enum ShowDebugFlags_
@@ -12,21 +15,27 @@ enum ShowDebugFlags_
 };
 typedef int ShowDebugFlags;
 
+
 /**
  * 
  */
-class NRDebugConsole
+USTRUCT()
+struct NR_API FNRDebugConsole
 {
-public:
-	explicit NRDebugConsole(ANRPlayerController* NRPlayerController);
-	~NRDebugConsole();
-	
-	void Tick();
+	GENERATED_BODY()
 
+	FNRDebugConsole();
+	explicit FNRDebugConsole(ANRPlayerController* InNRPlayerController);
+	~FNRDebugConsole();
+
+	void Tick();
+	
 private:
 	void ConsoleSetting();
 	void ConsoleVar();
-	
+	void AbilitySystem();
+
+public:
 	// console settings
 	inline static bool bAutoCollapse = false;
 
@@ -37,8 +46,11 @@ private:
 	bool bShowCollision = false;
 	ShowDebugFlags ShowDebugFlags = 0;
 	int NetLag = 0;
-	
-	// temp
-	ANRPlayerController* NRPlayerController;
-	UGameViewportClient* GameViewportClient;
+
+	// 2. Ability System
+		// · GA_Fire
+	bool TraceLineDebug = false;
+
+private:
+	TWeakObjectPtr<ANRPlayerController> NRPlayerController;
 };
