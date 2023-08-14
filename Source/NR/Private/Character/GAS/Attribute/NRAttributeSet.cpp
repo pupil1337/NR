@@ -23,6 +23,7 @@ void UNRAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 void UNRAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
 	Super::PreAttributeChange(Attribute, NewValue);
+	// TODO
 }
 
 void UNRAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
@@ -32,6 +33,12 @@ void UNRAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 	if (Data.EvaluatedData.Attribute == GetShieldAttribute())
 	{
 		SetShield(FMath::Clamp<float>(GetShield(), 0.0f, GetMaxShield()));
+	}
+	if (Data.EvaluatedData.Attribute == GetDamageAttribute())
+	{
+		// TODO
+		SetShield(FMath::Clamp<float>(GetShield() - GetDamage(), 0.0f, GetMaxShield()));
+		SetDamage(0.0f);
 	}
 }
 

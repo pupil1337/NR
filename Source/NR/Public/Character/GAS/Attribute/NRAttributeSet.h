@@ -22,8 +22,6 @@ UCLASS()
 class NR_API UNRAttributeSet : public UAttributeSet
 {
 	GENERATED_BODY()
-
-	friend class ANRCharacter;
 	
 public:
 	UNRAttributeSet();
@@ -33,8 +31,7 @@ public:
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
-
-private:
+	
 	/** Health */
 	UPROPERTY(ReplicatedUsing=OnRep_Health, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	FGameplayAttributeData Health;
@@ -53,7 +50,13 @@ private:
 	UPROPERTY(ReplicatedUsing=OnRep_MaxShield, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	FGameplayAttributeData MaxShield;
 	ATTRIBUTE_ACCESSORS(UNRAttributeSet, MaxShield)
-	
+
+	/** Damage (Only In Server. Not Replicated)*/
+	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
+	FGameplayAttributeData Damage;
+	ATTRIBUTE_ACCESSORS(UNRAttributeSet, Damage)
+
+private:
 	UFUNCTION()
 	void OnRep_Health(const FGameplayAttributeData& OldHealth);
 
