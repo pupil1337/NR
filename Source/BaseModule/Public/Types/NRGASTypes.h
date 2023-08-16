@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTags/Classes/GameplayTagContainer.h"
 
 UENUM(BlueprintType)
 enum class ENRAbilityInputID : uint8
@@ -20,3 +21,19 @@ enum class ENRAbilityInputID : uint8
 	// Weapon Action
 	EAIID_Fire = 7		UMETA(DisplayName="开火")
 };
+
+namespace NRGameplayTag
+{
+	// State
+	static FGameplayTag State_Falling = FGameplayTag::RequestGameplayTag("State.Falling");
+	static FGameplayTag State_RecentlyDamaged = FGameplayTag::RequestGameplayTag("State.RecentlyDamaged");
+
+	// Data
+	static FGameplayTag Data_Damage = FGameplayTag::RequestGameplayTag("Data.Damage");
+
+	// GC
+	static FGameplayTag GC_Weapon_Fire = FGameplayTag::RequestGameplayTag(FName("GameplayCue.Weapon.Fire"));
+
+	// GA
+	static FGameplayTag GA_Run = FGameplayTag::RequestGameplayTag("Ability.Run");
+}

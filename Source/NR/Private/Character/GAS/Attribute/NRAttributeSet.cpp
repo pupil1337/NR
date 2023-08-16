@@ -4,6 +4,7 @@
 #include "Character/GAS/Attribute/NRAttributeSet.h"
 
 #include "GameplayEffectExtension.h"
+#include "Types/NRGASTypes.h"
 #include "Net/UnrealNetwork.h"
 
 UNRAttributeSet::UNRAttributeSet()
@@ -30,15 +31,47 @@ void UNRAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 {
 	Super::PostGameplayEffectExecute(Data);
 
+	check(Data.Target.GetAvatarActor()->GetLocalRole() == ROLE_Authority)
+	
 	if (Data.EvaluatedData.Attribute == GetShieldAttribute())
 	{
 		SetShield(FMath::Clamp<float>(GetShield(), 0.0f, GetMaxShield()));
 	}
 	if (Data.EvaluatedData.Attribute == GetDamageAttribute())
 	{
-		// TODO
-		SetShield(FMath::Clamp<float>(GetShield() - GetDamage(), 0.0f, GetMaxShield()));
+		float LocalDamageDone = GetDamage();
 		SetDamage(0.0f);
+
+		// 应用最近收到伤害Tag
+		if (!Data.Target.HasMatchingGameplayTag(NRGameplayTag::State_RecentlyDamaged))
+		{
+			Data.Target.AddLooseGameplayTag(NRGameplayTag::State_RecentlyDamaged);
+		}
+		this->GetWorld()->GetTimerManager().ClearTimer(RecentlyDamagedHandle);
+		this->GetWorld()->GetTimerManager().SetTimer(RecentlyDamagedHandle, FTimerDelegate::CreateLambda([Data, this]()
+			{
+				Data.Target.RemoveLooseGameplayTag(NRGameplayTag::State_RecentlyDamaged);
+			}),
+		5.0f, false);
+		
+		// 减去护盾值
+		if (LocalDamageDone > 0.0f)
+		{
+			float OldShield = GetShield();
+			if (OldShield > 0.0f)
+			{
+				SetShield(FMath::Clamp<float>(OldShield - LocalDamageDone, 0.0f, GetMaxShield()));
+				LocalDamageDone -= OldShield;
+			}
+		}
+
+		// 减去血量值
+		if (LocalDamageDone > 0.0f)
+		{
+			SetHealth(FMath::Clamp<float>(GetHealth() - LocalDamageDone, 0.0f, GetMaxHealth()));
+		}
+
+		// TODO
 	}
 }
 

@@ -68,5 +68,6 @@ private:
 
 	UFUNCTION()
 	void OnRep_MaxShield(const FGameplayAttributeData& OldMaxShield);
-	
+
+	FTimerHandle RecentlyDamagedHandle;
 };

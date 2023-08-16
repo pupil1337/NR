@@ -229,14 +229,13 @@ void ANRCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 P
 
 	if (AbilitySystemComponent)
 	{
-		const FGameplayTag& FallingTag = FGameplayTag::RequestGameplayTag(FName("State.Falling"));
 		if (GetCharacterMovement()->IsFalling())
 		{
-			AbilitySystemComponent->AddLooseGameplayTag(FallingTag);
+			AbilitySystemComponent->AddLooseGameplayTag(NRGameplayTag::State_Falling);
 		}
 		else
 		{
-			AbilitySystemComponent->RemoveLooseGameplayTag(FallingTag);
+			AbilitySystemComponent->RemoveLooseGameplayTag(NRGameplayTag::State_Falling);
 		}
 	}
 }
@@ -337,7 +336,7 @@ void ANRCharacter::OnRunInput(const FInputActionValue& Value)
 	{
 		if (AbilitySystemComponent)
 		{
-			if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("Ability.Run"))))
+			if (!AbilitySystemComponent->HasMatchingGameplayTag(NRGameplayTag::GA_Run))
 			{
 				SendLocalInputToASC(true, ENRAbilityInputID::EAIID_Run);
 			}

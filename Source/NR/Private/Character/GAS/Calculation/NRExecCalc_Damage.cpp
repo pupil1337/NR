@@ -3,6 +3,7 @@
 
 #include "Character/GAS/Calculation/NRExecCalc_Damage.h"
 
+#include "Types/NRGASTypes.h"
 #include "Character/GAS/Attribute/NRAttributeSet.h"
 
 struct FNRDamageStatics
@@ -28,6 +29,19 @@ UNRExecCalc_Damage::UNRExecCalc_Damage()
 
 void UNRExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
-	// TODO
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetDamageStatics().DamageProperty, EGameplayModOp::Additive, 10));
+	float Damage = 0.0f;
+	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
+	FAggregatorEvaluateParameters EvalParams;
+	EvalParams.SourceTags = Spec.CapturedSourceTags.GetAggregatedTags();
+	EvalParams.TargetTags = Spec.CapturedTargetTags.GetAggregatedTags();
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(GetDamageStatics().DamageDef, EvalParams, Damage);
+
+	Damage += FMath::Max(Spec.GetSetByCallerMagnitude(NRGameplayTag::Data_Damage), 0.0f);
+
+	// TODO 护甲等
+	
+	if (Damage > 0.0f)
+	{
+		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetDamageStatics().DamageProperty, EGameplayModOp::Additive, 10));	
+	}
 }

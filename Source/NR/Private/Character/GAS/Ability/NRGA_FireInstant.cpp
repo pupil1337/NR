@@ -105,7 +105,7 @@ void UNRGA_FireInstant::HandleTargetData(const FGameplayAbilityTargetDataHandle&
 					// TODO 子弹穿透
 					// Gameplay Effect
 					const FGameplayEffectSpecHandle& EffectSpecHandle = MakeOutgoingGameplayEffectSpec(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), BulletInstantEffectClass, 1.0f);
-					EffectSpecHandle.Data.Get()->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Damage")), EquippedWeapon->GetWeaponSettingRow()->InstantDamage);
+					EffectSpecHandle.Data.Get()->SetSetByCallerMagnitude(NRGameplayTag::Data_Damage, EquippedWeapon->GetWeaponSettingRow()->InstantDamage);
 					// ReSharper disable once CppExpressionWithoutSideEffects
 					ApplyGameplayEffectSpecToTarget(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), EffectSpecHandle, TargetDataHandle);
 
@@ -126,7 +126,7 @@ void UNRGA_FireInstant::HandleTargetData(const FGameplayAbilityTargetDataHandle&
 					FGameplayCueParameters CueParams;
 					CueParams.EffectContext = EffectContextHandle;
 					CueParams.SourceObject = EquippedWeapon;
-					ASC->ExecuteGameplayCue(FGameplayTag::RequestGameplayTag(FName("GameplayCue.Weapon.Fire"/* UNRGC_Fire */)), CueParams);
+					ASC->ExecuteGameplayCue(NRGameplayTag::GC_Weapon_Fire/* UNRGC_Fire */, CueParams);
 					
 					break;	
 				}
