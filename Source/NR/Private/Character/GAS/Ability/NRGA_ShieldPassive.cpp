@@ -1,11 +1,11 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/GAS/Ability/NRGA_Shield.h"
+#include "Character/GAS/Ability/NRGA_ShieldPassive.h"
 
 #include "AbilitySystemComponent.h"
 
-UNRGA_Shield::UNRGA_Shield()
+UNRGA_ShieldPassive::UNRGA_ShieldPassive()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::NonInstanced;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerOnly;
@@ -14,7 +14,7 @@ UNRGA_Shield::UNRGA_Shield()
 	bAutoActiveOnGive = true;
 }
 
-void UNRGA_Shield::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+void UNRGA_ShieldPassive::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	if (HasAuthorityOrPredictionKey(ActorInfo, &ActivationInfo))
 	{

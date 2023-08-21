@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Character/GAS/NRGameplayAbility.h"
-#include "NRGA_Shield.generated.h"
+#include "NRGA_ShieldPassive.generated.h"
 
 /**
  * 
  */
 UCLASS(Abstract, Blueprintable)
-class NR_API UNRGA_Shield : public UNRGameplayAbility
+class NR_API UNRGA_ShieldPassive : public UNRGameplayAbility
 {
 	GENERATED_BODY()
 
@@ -21,7 +21,7 @@ class NR_API UNRGA_Shield : public UNRGameplayAbility
 	TSubclassOf<UGameplayEffect> ShieldRegen;
 	
 public:
-	UNRGA_Shield();
+	UNRGA_ShieldPassive();
 
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 };
