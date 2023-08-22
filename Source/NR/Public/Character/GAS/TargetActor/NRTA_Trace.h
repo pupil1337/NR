@@ -24,7 +24,7 @@ public:
 //~Begin This Class
 	void StopTargeting();
 
-	void ConfigParams(FGameplayAbilityTargetingLocationInfo InStartLocation, float InMaxRange, FCollisionProfileName InTraceProfile, bool bInTraceFromPlayerViewPoint = true, int32 InNumberOfTraces = 1, int32 InMaxHitResultsPerTrace = 1);
+	void ConfigParams(const FGameplayAbilityTargetingLocationInfo& InStartLocation, float InMaxRange, FCollisionProfileName InTraceProfile, bool bInTraceFromPlayerViewPoint = true, int32 InNumberOfTraces = 1, int32 InMaxHitResultsPerTrace = 1);
 
 protected:
 	virtual void DoTrace(OUT TArray<FHitResult>& OutHitResult, const UWorld* World, const FGameplayTargetDataFilterHandle FilterHandle, const FVector& Start, const FVector& End, FName ProfileName, const FCollisionQueryParams Params) PURE_VIRTUAL(ANRGATA_Trace);

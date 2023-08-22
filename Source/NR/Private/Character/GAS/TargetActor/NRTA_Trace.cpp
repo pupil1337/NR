@@ -72,11 +72,11 @@ TArray<FHitResult> ANRTA_Trace::PerformTrace(AActor* InSourceActor)
 	Params.AddIgnoredActors(ActorsToIgnore);
 	Params.bReturnPhysicalMaterial = true;
 
-	// TraceStart为SourceActor的位置 非摄像机位置
-	FVector TraceStart = StartLocation.GetTargetingTransform().GetLocation();// InSourceActor->GetActorLocation();
+	// TraceStart为描述目标开始位置的信息
+	FVector TraceStart = StartLocation.GetTargetingTransform().GetLocation();
 	FVector TraceEnd;
 
-	// 如果从摄像机位置Trace, 则TraceStart更改为摄像机位置
+	// 如果从摄像机位置开始, 则TraceStart更改为摄像机位置
 	if (PrimaryPC && bTraceFromPlayerViewPoint)
 	{
 		FVector ViewStart;
@@ -125,12 +125,14 @@ void ANRTA_Trace::AimWithPlayerController(const AActor* InSourceActor, FCollisio
 		return;
 	}
 
-	APlayerController* PC = OwningAbility->GetCurrentActorInfo()->PlayerController.Get();
-	check(PC);
-
-	FVector ViewStart;
-	FRotator ViewRot;
-	PC->GetPlayerViewPoint(ViewStart, ViewRot);
+	// AI 默认View为StartLocation
+	FVector ViewStart = TraceStart;
+	FRotator ViewRot = StartLocation.GetTargetingTransform().GetRotation().Rotator();
+	// 如果是PlayerController
+	if (PrimaryPC)
+	{
+		PrimaryPC->GetPlayerViewPoint(ViewStart, ViewRot);	
+	}
 
 	const FVector ViewDir = ViewRot.Vector();
 	FVector ViewEnd = ViewStart + (ViewDir * MaxRange);
@@ -186,7 +188,7 @@ void ANRTA_Trace::StopTargeting()
 	}
 }
 
-void ANRTA_Trace::ConfigParams(FGameplayAbilityTargetingLocationInfo InStartLocation, float InMaxRange, FCollisionProfileName InTraceProfile, bool bInTraceFromPlayerViewPoint, int32 InNumberOfTraces, int32 InMaxHitResultsPerTrace)
+void ANRTA_Trace::ConfigParams(const FGameplayAbilityTargetingLocationInfo& InStartLocation, float InMaxRange, FCollisionProfileName InTraceProfile, bool bInTraceFromPlayerViewPoint, int32 InNumberOfTraces, int32 InMaxHitResultsPerTrace)
 {
 	StartLocation = InStartLocation;
 	MaxRange = InMaxRange;

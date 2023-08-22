@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "..\..\..\..\Public\Character\GAS\TargetActor\NRTA_LineTrace.h"
+#include "Character/GAS/TargetActor/NRTA_LineTrace.h"
 
 
 ANRTA_LineTrace::ANRTA_LineTrace()
