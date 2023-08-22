@@ -85,7 +85,8 @@ public:
 	FNRWeaponSettingRow* GetWeaponSettingRow() const;
 	FNRMagazineSettingRow* GetMagazineSettingRow() const;
 	FNRIronSightSettingRow* GetIronSightSettingRow() const;
-	
+
+	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 	ANRTA_LineTrace* GetLineTraceTargetActor();
 	
 private:

@@ -66,7 +66,11 @@ void UNRGA_FireInstant::FireBullet()
 			{
 				if (ANRTA_LineTrace* TA_LineTrace = EquippedWeapon->GetLineTraceTargetActor())
 				{
-					TA_LineTrace->ConfigParams(100000.0f, NRCollisionProfile::Projectile_ProfileName);
+					FGameplayAbilityTargetingLocationInfo StartLocation;
+					StartLocation.LocationType = EGameplayAbilityTargetingLocationType::SocketTransform;
+					StartLocation.SourceComponent = EquippedWeapon->GetMesh1P();
+					StartLocation.SourceSocketName = NAME_Socket_Muzzle;
+					TA_LineTrace->ConfigParams(StartLocation, 100000.0f, NRCollisionProfile::Projectile_ProfileName);
 #ifdef IMGUI_API
 					if (const FGameplayAbilityActorInfo* ActorInfo = GetCurrentActorInfo())
 					{

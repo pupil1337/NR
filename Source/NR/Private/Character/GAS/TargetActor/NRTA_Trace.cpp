@@ -186,8 +186,9 @@ void ANRTA_Trace::StopTargeting()
 	}
 }
 
-void ANRTA_Trace::ConfigParams(float InMaxRange, FCollisionProfileName InTraceProfile, bool bInTraceFromPlayerViewPoint, int32 InNumberOfTraces, int32 InMaxHitResultsPerTrace)
+void ANRTA_Trace::ConfigParams(FGameplayAbilityTargetingLocationInfo InStartLocation, float InMaxRange, FCollisionProfileName InTraceProfile, bool bInTraceFromPlayerViewPoint, int32 InNumberOfTraces, int32 InMaxHitResultsPerTrace)
 {
+	StartLocation = InStartLocation;
 	MaxRange = InMaxRange;
 	TraceProfile = InTraceProfile;
 	bTraceFromPlayerViewPoint = bInTraceFromPlayerViewPoint;
