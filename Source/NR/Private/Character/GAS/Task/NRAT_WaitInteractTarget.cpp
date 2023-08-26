@@ -5,6 +5,7 @@
 
 #include "Abilities/GameplayAbilityTargetActor_Trace.h"
 #include "Character/NRCharacter.h"
+#include "Interface/NRInteractInterface.h"
 #include "Types/NRCollisionTypes.h"
 #include "Types/NRWeaponTypes.h"
 
@@ -18,19 +19,6 @@ UNRAT_WaitInteractTarget* UNRAT_WaitInteractTarget::WaitInteractTarget(UGameplay
 {
 	UNRAT_WaitInteractTarget* MyObj = NewAbilityTask<UNRAT_WaitInteractTarget>(OwningAbility);
 	MyObj->TracePeriod = Period;
-
-	if (const ANRCharacter* NRCharacter = Cast<ANRCharacter>(OwningAbility->GetCurrentActorInfo()->AvatarActor.Get()))
-	{
-		MyObj->StartLocation1P = FGameplayAbilityTargetingLocationInfo();
-		MyObj->StartLocation1P.LocationType = EGameplayAbilityTargetingLocationType::SocketTransform;
-		MyObj->StartLocation1P.SourceComponent = NRCharacter->GetMeshArm();
-		MyObj->StartLocation1P.SourceSocketName = NAME_Socket_Weapon;
-
-		MyObj->StartLocation3P = FGameplayAbilityTargetingLocationInfo();
-		MyObj->StartLocation3P.LocationType = EGameplayAbilityTargetingLocationType::SocketTransform;
-		MyObj->StartLocation3P.SourceComponent = NRCharacter->GetMesh();
-		MyObj->StartLocation3P.SourceSocketName = NAME_Socket_Weapon;
-	}
 	
 	return MyObj;
 }
@@ -39,55 +27,60 @@ void UNRAT_WaitInteractTarget::TickTask(float DeltaTime)
 {
 	Super::TickTask(DeltaTime);
 
-	CurrTime += DeltaTime;
-	if (TracePeriod >= 0.0f && CurrTime >= LastTraceTime + TracePeriod)
+	if (Ability)
 	{
-		{ /* -> PerformTrace */
-			if (AActor* SourceActor = Ability->GetCurrentActorInfo()->AvatarActor.Get())
+		if (const APlayerController* PC = Ability->GetCurrentActorInfo()->PlayerController.Get())
+		{
+			CurrTime += DeltaTime;
+			if (TracePeriod >= 0.0f && CurrTime >= LastTraceTime + TracePeriod)
 			{
-				TArray<AActor*> ActorsToIgnore;
-				ActorsToIgnore.Add(SourceActor);
+				LastTraceTime = CurrTime;
+				// 每隔Period秒检测一次
 
-				FCollisionQueryParams Params(SCENE_QUERY_STAT(UNRAT_WaitInteractTarget), false);
-				Params.AddIgnoredActors(ActorsToIgnore);
-				Params.bReturnPhysicalMaterial = true;
+				if (AActor* SourceActor = Ability->GetCurrentActorInfo()->AvatarActor.Get())
+				{
+					TArray<AActor*> ActorsToIgnore;
+					ActorsToIgnore.Add(SourceActor);
+					
+					FCollisionQueryParams Params(SCENE_QUERY_STAT(UNRAT_WaitInteractTarget), false);
+					Params.AddIgnoredActors(ActorsToIgnore);
+					Params.bReturnPhysicalMaterial = true;
+					
+					FVector ViewStart;
+					FRotator ViewRot;
+					PC->GetPlayerViewPoint(ViewStart, ViewRot);
+					
+					TArray<FHitResult> HitResults; // Profile-> ObjectType:Ability && OverlapAll ObjectType
+					GetWorld()->LineTraceMultiByProfile(HitResults, ViewStart, ViewStart + ViewRot.Vector()*10000.0f, NRCollisionProfile::Interact_ProfileName, Params);
 
-				{ /* -> AimWithPlayerController */
-					if (Ability)
+					// 是否找到可交互物
+					bool bFindInteraction = false;
+					if (HitResults.Num() > 0)
 					{
-						// TraceStart为描述目标开始位置的信息
-						const FVector TraceStart = StartLocation.GetTargetingTransform().GetLocation();
-
-						FVector ViewStart = TraceStart;
-						FRotator ViewRot = FRotator::ZeroRotator;
-						if (const APlayerController* PC = Ability->GetCurrentActorInfo()->PlayerController.Get())
+						if (HitResults[0].Component.IsValid() && HitResults[0].Component.Get()->GetCollisionResponseToChannel(NRCollisionChannel::ECC_Interact) == ECR_Overlap)
 						{
-							PC->GetPlayerViewPoint(ViewStart, ViewRot);
-						}
-						const FVector ViewDir = ViewRot.Vector();
-						FVector TraceEnd = ViewStart + ViewDir * 10000.0f;
-
-						AGameplayAbilityTargetActor_Trace::ClipCameraRayToAbilityRange(ViewStart, ViewDir, TraceStart, 10000.0f, TraceEnd);
-
-						{ /* -> LineTrace */
-							TArray<FHitResult> HitResults;
-							GetWorld()->LineTraceMultiByProfile(HitResults, TraceStart, TraceEnd, NRCollisionProfile::Interact_ProfileName, Params);
-
-							for (int32 i = 0; i < HitResults.Num(); ++i)
+							if (const AActor* HitActor = HitResults[0].GetActor())
 							{
-								const FHitResult& Hit = HitResults[i];
-								if (Hit.GetActor())
+								if (HitActor->Implements<UNRInteractInterface>())
 								{
-									
+									// TODO 距离检查
+									bFindInteraction = true;
 								}
 							}
-						}
+						}	
+					}
+
+					if (bFindInteraction)
+					{
+						GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, FString::Printf(TEXT("Find Interaction %s"), *HitResults[0].GetActor()->GetName()));
+					}
+					else
+					{
+						GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Orange, TEXT("Not Find Interaction"));
 					}
 				}
 			}
 		}
-
-		LastTraceTime = CurrTime;
 	}
 }
 

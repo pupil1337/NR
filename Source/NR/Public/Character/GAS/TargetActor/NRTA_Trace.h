@@ -30,7 +30,7 @@ protected:
 	virtual void DoTrace(OUT TArray<FHitResult>& OutHitResult, const UWorld* World, const FGameplayTargetDataFilterHandle FilterHandle, const FVector& Start, const FVector& End, FName ProfileName, const FCollisionQueryParams Params) PURE_VIRTUAL(ANRGATA_Trace);
 
 #if ENABLE_DRAW_DEBUG
-	virtual void ShowDebugTrace(const TArray<FHitResult>& HitResults, EDrawDebugTrace::Type DrawDebugType, float Duration = 3.0f) PURE_VIRTUAL(ANRGATA_Trace);
+	virtual void ShowDebugTrace(const TArray<FHitResult>& HitResults) PURE_VIRTUAL(ANRGATA_Trace);
 #endif
 	
 private:

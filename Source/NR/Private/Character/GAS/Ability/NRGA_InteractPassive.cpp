@@ -16,8 +16,6 @@ void UNRGA_InteractPassive::ActivateAbility(const FGameplayAbilitySpecHandle Han
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	//FGameplayAbilityTargetingLocationInfo StartLocation;
-	//StartLocation.LocationType = EGameplayAbilityTargetingLocationType::LiteralTransform
-	//UNRAT_WaitInteractTarget* AT_WaitInteractTarget = UNRAT_WaitInteractTarget::WaitInteractTarget(this);
-	//->ReadyForActivation();
+	UNRAT_WaitInteractTarget* AT_WaitInteractTarget = UNRAT_WaitInteractTarget::WaitInteractTarget(this);
+	AT_WaitInteractTarget->ReadyForActivation();
 }

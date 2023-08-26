@@ -30,7 +30,4 @@ private:
 	float LastTraceTime = -999.9f;
 	
 	float TracePeriod = -1.0f; // <0: no trace; ==0.0f: tick trace; >0.0f: period trace
-	FGameplayAbilityTargetingLocationInfo StartLocation1P;
-	FGameplayAbilityTargetingLocationInfo StartLocation3P;
-	FGameplayAbilityTargetingLocationInfo StartLocation;
 };

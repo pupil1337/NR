@@ -54,7 +54,7 @@ void ANRTA_Trace::ConfirmTargetingAndContinue()
 #if ENABLE_DRAW_DEBUG
 			if (bDebug)
 			{
-				ShowDebugTrace(HitResults, EDrawDebugTrace::Type::ForDuration, 3.0f);
+				ShowDebugTrace(HitResults);
 			}
 #endif
 		}	
@@ -94,25 +94,40 @@ TArray<FHitResult> ANRTA_Trace::PerformTrace(AActor* InSourceActor)
 		TArray<FHitResult> HitResults;
 		DoTrace(HitResults, InSourceActor->GetWorld(), Filter, TraceStart, TraceEnd, TraceProfile.Name, Params);
 
-		for (int32 HitResRIdx = HitResults.Num() - 1; HitResRIdx >= 0; --HitResRIdx)
+		// 同一个Actor只Trace一次
+		TArray<FHitResult> UniqueHitResults;
+		TSet<const AActor*> Actors;
+		for (int32 i = 0; i < HitResults.Num(); ++i)
+		{
+			if (const AActor* HitActor = HitResults[i].GetActor())
+			{
+				if (!Actors.Find(HitActor))
+				{
+					Actors.Add(HitActor);
+					UniqueHitResults.Add(HitResults[i]);
+				}
+			}
+		}
+		
+		for (int32 HitResRIdx = UniqueHitResults.Num() - 1; HitResRIdx >= 0; --HitResRIdx)
 		{
 			if (MaxHitResultsPerTrace >= 0 && HitResRIdx + 1 > MaxHitResultsPerTrace)
 			{
-				HitResults.RemoveAt(HitResRIdx);
+				UniqueHitResults.RemoveAt(HitResRIdx);
 			}
 		}
 
-		if (HitResults.Num() < 1)
+		if (UniqueHitResults.Num() < 1)
 		{
 			FHitResult HitResult;
 			HitResult.TraceStart = TraceStart;
 			HitResult.TraceEnd = TraceEnd;
 			HitResult.Location = TraceEnd;
 			HitResult.ImpactPoint = TraceEnd;
-			HitResults.Add(HitResult);
+			UniqueHitResults.Add(HitResult);
 		}
 
-		ReturnHitResults.Append(HitResults);
+		ReturnHitResults.Append(UniqueHitResults);
 	}
 
 	return ReturnHitResults;

@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Interface/NRInteractionInterface.h"
 #include "Types/NRWeaponTypes.h"
 #include "NRWeaponBase.generated.h"
 
@@ -22,7 +21,7 @@ class USkeletalMeshComponent;
 class UNiagaraComponent;
 
 UCLASS(Abstract, Blueprintable)
-class NR_API ANRWeaponBase : public AActor, public INRInteractionInterface
+class NR_API ANRWeaponBase : public AActor
 {
 	GENERATED_BODY()
 
@@ -65,9 +64,6 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void Destroyed() override;
-
-	// INRInteractionInterface
-	virtual ENRInteractionType GetInteractionType() const override { return ENRInteractionType::EIT_Weapon; }
 
 // This Class Func
 	void SetWeaponState(ENRWeaponState InWeaponState);

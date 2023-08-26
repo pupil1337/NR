@@ -18,6 +18,6 @@ protected:
 	virtual void DoTrace(OUT TArray<FHitResult>& OutHitResults, const UWorld* World, const FGameplayTargetDataFilterHandle FilterHandle, const FVector& Start, const FVector& End, FName ProfileName, const FCollisionQueryParams Params) override;
 
 #if ENABLE_DRAW_DEBUG
-	virtual void ShowDebugTrace(const TArray<FHitResult>& HitResults, EDrawDebugTrace::Type DrawDebugType, float Duration = 3.0f) override;
+	virtual void ShowDebugTrace(const TArray<FHitResult>& HitResults) override;
 #endif
 };

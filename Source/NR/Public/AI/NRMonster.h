@@ -5,13 +5,14 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
+#include "Interface/NRInteractInterface.h"
 #include "NRMonster.generated.h"
 
 class UAbilitySystemComponent;
 class UNRAS_Monster;
 
 UCLASS()
-class NR_API ANRMonster : public ACharacter, public IAbilitySystemInterface
+class NR_API ANRMonster : public ACharacter, public IAbilitySystemInterface, public INRInteractInterface
 {
 	GENERATED_BODY()
 
