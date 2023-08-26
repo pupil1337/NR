@@ -1,33 +1,33 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/GAS/Attribute/NRAttributeSet.h"
+#include "Character/GAS/Attribute/NRAS_Character.h"
 
 #include "GameplayEffectExtension.h"
 #include "Types/NRGASTypes.h"
 #include "Net/UnrealNetwork.h"
 
-UNRAttributeSet::UNRAttributeSet()
+UNRAS_Character::UNRAS_Character()
 {
 }
 
-void UNRAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void UNRAS_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION_NOTIFY(UNRAttributeSet, Health, COND_None, REPNOTIFY_Always)
-	DOREPLIFETIME_CONDITION_NOTIFY(UNRAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always)
-	DOREPLIFETIME_CONDITION_NOTIFY(UNRAttributeSet, Shield, COND_None, REPNOTIFY_Always)
-	DOREPLIFETIME_CONDITION_NOTIFY(UNRAttributeSet, MaxShield, COND_None, REPNOTIFY_Always)
+	DOREPLIFETIME_CONDITION_NOTIFY(UNRAS_Character, Health, COND_None, REPNOTIFY_Always)
+	DOREPLIFETIME_CONDITION_NOTIFY(UNRAS_Character, MaxHealth, COND_None, REPNOTIFY_Always)
+	DOREPLIFETIME_CONDITION_NOTIFY(UNRAS_Character, Shield, COND_None, REPNOTIFY_Always)
+	DOREPLIFETIME_CONDITION_NOTIFY(UNRAS_Character, MaxShield, COND_None, REPNOTIFY_Always)
 }
 
-void UNRAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
+void UNRAS_Character::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
 	Super::PreAttributeChange(Attribute, NewValue);
 	// TODO
 }
 
-void UNRAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
+void UNRAS_Character::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
 
@@ -75,22 +75,22 @@ void UNRAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 	}
 }
 
-void UNRAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth)
+void UNRAS_Character::OnRep_Health(const FGameplayAttributeData& OldHealth)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UNRAttributeSet, Health, OldHealth)
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UNRAS_Character, Health, OldHealth)
 }
 
-void UNRAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth)
+void UNRAS_Character::OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UNRAttributeSet, MaxHealth, OldMaxHealth)
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UNRAS_Character, MaxHealth, OldMaxHealth)
 }
 
-void UNRAttributeSet::OnRep_Shield(const FGameplayAttributeData& OldShield)
+void UNRAS_Character::OnRep_Shield(const FGameplayAttributeData& OldShield)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UNRAttributeSet, Shield, OldShield)
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UNRAS_Character, Shield, OldShield)
 }
 
-void UNRAttributeSet::OnRep_MaxShield(const FGameplayAttributeData& OldMaxShield)
+void UNRAS_Character::OnRep_MaxShield(const FGameplayAttributeData& OldMaxShield)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UNRAttributeSet, MaxShield, OldMaxShield)
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UNRAS_Character, MaxShield, OldMaxShield)
 }

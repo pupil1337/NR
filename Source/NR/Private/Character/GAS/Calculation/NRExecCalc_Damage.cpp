@@ -4,7 +4,7 @@
 #include "Character/GAS/Calculation/NRExecCalc_Damage.h"
 
 #include "Types/NRGASTypes.h"
-#include "Character/GAS/Attribute/NRAttributeSet.h"
+#include "Character/GAS/Attribute/NRAS_Character.h"
 
 struct FNRDamageStatics
 {
@@ -12,7 +12,7 @@ struct FNRDamageStatics
 
 	FNRDamageStatics()
 	{
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UNRAttributeSet, Damage, Source, true);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UNRAS_Character, Damage, Source, true);
 	}
 };
 

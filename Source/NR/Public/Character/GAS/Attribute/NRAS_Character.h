@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "AttributeSet.h"
 #include "AbilitySystemComponent.h"
-#include "NRAttributeSet.generated.h"
+#include "NRAS_Character.generated.h"
 
 
 // copy from AttributeSet.h
@@ -19,12 +19,12 @@
  * 
  */
 UCLASS()
-class NR_API UNRAttributeSet : public UAttributeSet
+class NR_API UNRAS_Character : public UAttributeSet
 {
 	GENERATED_BODY()
 	
 public:
-	UNRAttributeSet();
+	UNRAS_Character();
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
@@ -35,26 +35,26 @@ public:
 	/** Health */
 	UPROPERTY(ReplicatedUsing=OnRep_Health, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	FGameplayAttributeData Health;
-	ATTRIBUTE_ACCESSORS(UNRAttributeSet, Health)
+	ATTRIBUTE_ACCESSORS(UNRAS_Character, Health)
 
 	/** MaxHealth */
 	UPROPERTY(ReplicatedUsing=OnRep_MaxHealth, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	FGameplayAttributeData MaxHealth;
-	ATTRIBUTE_ACCESSORS(UNRAttributeSet, MaxHealth)
+	ATTRIBUTE_ACCESSORS(UNRAS_Character, MaxHealth)
 
 	/** Shield */
 	UPROPERTY(ReplicatedUsing=OnRep_Shield, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	FGameplayAttributeData Shield;
-	ATTRIBUTE_ACCESSORS(UNRAttributeSet, Shield)
+	ATTRIBUTE_ACCESSORS(UNRAS_Character, Shield)
 
 	UPROPERTY(ReplicatedUsing=OnRep_MaxShield, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	FGameplayAttributeData MaxShield;
-	ATTRIBUTE_ACCESSORS(UNRAttributeSet, MaxShield)
+	ATTRIBUTE_ACCESSORS(UNRAS_Character, MaxShield)
 
 	/** Damage (Only In Server. Not Replicated)*/
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	FGameplayAttributeData Damage;
-	ATTRIBUTE_ACCESSORS(UNRAttributeSet, Damage)
+	ATTRIBUTE_ACCESSORS(UNRAS_Character, Damage)
 
 private:
 	UFUNCTION()

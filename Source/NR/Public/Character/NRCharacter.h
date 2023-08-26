@@ -7,13 +7,12 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
 #include "InputActionValue.h"
-#include "GAS/Attribute/NRAttributeSet.h"
+#include "GAS/Attribute/NRAS_Character.h"
 #include "Types/NRGASTypes.h"
 #include "NRCharacter.generated.h"
 
 class UNRInventoryComponent;
 class UNRGameplayAbility;
-class UNRAttributeSet;
 class UNRAbilitySystemComponent;
 class USpringArmComponent;
 class USkeletalMeshComponent;
@@ -51,7 +50,7 @@ class NR_API ANRCharacter : public ANRCharacterBase, public IAbilitySystemInterf
 	TObjectPtr<UNRInventoryComponent> InventoryComponent;
 
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UNRAttributeSet> AttributeSet;
+	TObjectPtr<UNRAS_Character> AS_Character;
 
 	// Settings
 	UPROPERTY(EditDefaultsOnly, Category="配置|角色", DisplayName="摄像机-FPS弹簧臂相对eyes位置偏移")
@@ -116,10 +115,10 @@ public:
 	FORCEINLINE USkeletalMeshComponent* GetMeshArm() const { return MeshArm; }
 	FORCEINLINE UNRInventoryComponent* GetInventoryComponent() const { return InventoryComponent; }
 	FORCEINLINE FVector2D GetMoveInput() const { return MoveInputValue; } // 仅在控制端
-	FORCEINLINE float GetHealth() const { return AttributeSet->GetHealth(); }
-	FORCEINLINE float GetMaxHealth() const { return AttributeSet->GetMaxHealth(); }
-	FORCEINLINE float GetShield() const { return AttributeSet->GetShield(); }
-	FORCEINLINE float GetMaxShield() const { return AttributeSet->GetMaxShield(); }
+	FORCEINLINE float GetHealth() const { return AS_Character->GetHealth(); }
+	FORCEINLINE float GetMaxHealth() const { return AS_Character->GetMaxHealth(); }
+	FORCEINLINE float GetShield() const { return AS_Character->GetShield(); }
+	FORCEINLINE float GetMaxShield() const { return AS_Character->GetMaxShield(); }
 	
 private:
 	void InitializeAttributes() const;

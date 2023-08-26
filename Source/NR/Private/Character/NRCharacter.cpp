@@ -12,7 +12,6 @@
 #include "Character/NRCharacterMovementComponent.h"
 #include "Character/Component/NRInventoryComponent.h"
 #include "Character/GAS/NRAbilitySystemComponent.h"
-#include "Character/GAS/Attribute/NRAttributeSet.h"
 #include "Character/GAS/NRGameplayAbility.h"
 #include "Net/UnrealNetwork.h"
 
@@ -50,7 +49,7 @@ ANRCharacter::ANRCharacter(const FObjectInitializer& ObjectInitializer)
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
 	// AttributeSet
-	AttributeSet = CreateDefaultSubobject<UNRAttributeSet>(TEXT("属性集"));
+	AS_Character = CreateDefaultSubobject<UNRAS_Character>(TEXT("属性集"));
 
 	// InventoryComponent
 	InventoryComponent = CreateDefaultSubobject<UNRInventoryComponent>(TEXT("背包组件"));
