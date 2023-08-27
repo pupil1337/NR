@@ -48,7 +48,7 @@ void ANRTA_Trace::ConfirmTargetingAndContinue()
 		if (IsConfirmTargetingAllowed())
 		{
 			const TArray<FHitResult> HitResults = PerformTrace(SourceActor);
-			const FGameplayAbilityTargetDataHandle TargetDataHandle = MakeTargetData(HitResults);
+			const FGameplayAbilityTargetDataHandle& TargetDataHandle = MakeTargetData(HitResults);
 			TargetDataReadyDelegate.Broadcast(TargetDataHandle);
 
 #if ENABLE_DRAW_DEBUG
@@ -157,18 +157,9 @@ void ANRTA_Trace::AimWithPlayerController(const AActor* InSourceActor, FCollisio
 	OutTraceEnd = ViewEnd;
 }
 
-FGameplayAbilityTargetDataHandle ANRTA_Trace::MakeTargetData(const TArray<FHitResult>& HitResults)
+FGameplayAbilityTargetDataHandle ANRTA_Trace::MakeTargetData(const TArray<FHitResult>& HitResults) const
 {
-	FGameplayAbilityTargetDataHandle ReturnTargetDataHandle;
-
-	for (int32 i = 0; i < HitResults.Num(); ++i)
-	{
-		FGameplayAbilityTargetData_SingleTargetHit* tTargetData = new FGameplayAbilityTargetData_SingleTargetHit();
-		tTargetData->HitResult = HitResults[i];
-		ReturnTargetDataHandle.Add(tTargetData);
-	}
-
-	return ReturnTargetDataHandle;
+	return StartLocation.MakeTargetDataHandleFromHitResults(OwningAbility, HitResults);
 }
 
 void ANRTA_Trace::StopTargeting()

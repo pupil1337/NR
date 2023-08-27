@@ -51,10 +51,13 @@ public:
 	FGameplayAttributeData MaxShield;
 	ATTRIBUTE_ACCESSORS(UNRAS_Character, MaxShield)
 
-	/** Damage (Only In Server. Not Replicated)*/
+	/** Damage (Only In Server. Not Replicated) */
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	FGameplayAttributeData Damage;
 	ATTRIBUTE_ACCESSORS(UNRAS_Character, Damage)
+
+	/** RecentlyDamaged ActiveEffectHandle (Only In Server) */
+	FActiveGameplayEffectHandle AGE_RecentlyDamagedHandle;
 
 private:
 	UFUNCTION()

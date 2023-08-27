@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayEffect.h"
 #include "UObject/Object.h"
 #include "Engine/StreamableManager.h"
 #include "Types/NRWeaponTypes.h"
@@ -28,6 +29,15 @@ struct FNRCommonSetting
 
 	UPROPERTY(EditDefaultsOnly, DisplayName="交互距离")
 	float InteractionDistance = 200.0f;
+};
+
+USTRUCT(BlueprintType)
+struct FNRCommonGAS
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, DisplayName="GE 最近受到伤害")
+	TSubclassOf<UGameplayEffect> GE_RecentlyDamaged;
 };
 
 /**
@@ -60,4 +70,7 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly)
 	FNRCommonVFX CommonVFX;
+
+	UPROPERTY(EditDefaultsOnly)
+	FNRCommonGAS CommonGAS;
 };

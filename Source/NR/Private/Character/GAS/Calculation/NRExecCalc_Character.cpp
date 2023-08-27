@@ -1,33 +1,33 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/GAS/Calculation/NRExecCalc_Damage.h"
+#include "Character/GAS/Calculation/NRExecCalc_Character.h"
 
 #include "Types/NRGASTypes.h"
 #include "Character/GAS/Attribute/NRAS_Character.h"
 
-struct FNRDamageStatics
+struct FNRDamageCharacterStatics
 {
 	DECLARE_ATTRIBUTE_CAPTUREDEF(Damage);
 
-	FNRDamageStatics()
+	FNRDamageCharacterStatics()
 	{
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UNRAS_Character, Damage, Source, true);
 	}
 };
 
-static const FNRDamageStatics& GetDamageStatics()
+static const FNRDamageCharacterStatics& GetDamageStatics()
 {
-	static FNRDamageStatics DamageStatics;
-	return DamageStatics;
+	static FNRDamageCharacterStatics DamageCharacterStatics;
+	return DamageCharacterStatics;
 }
 
-UNRExecCalc_Damage::UNRExecCalc_Damage()
+UNRExecCalc_Character::UNRExecCalc_Character()
 {
 	RelevantAttributesToCapture.Add(GetDamageStatics().DamageDef);
 }
 
-void UNRExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
+void UNRExecCalc_Character::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
 	float Damage = 0.0f;
 	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();

@@ -38,7 +38,7 @@ private:
 
 	void AimWithPlayerController(const AActor* InSourceActor, FCollisionQueryParams Params, const FVector& TraceStart, OUT FVector& OutTraceEnd, bool bIgnorePitch = false) const;
 
-	static FGameplayAbilityTargetDataHandle MakeTargetData(const TArray<FHitResult>& HitResults);
+	FGameplayAbilityTargetDataHandle MakeTargetData(const TArray<FHitResult>& HitResults) const;
 	
 protected:
 	/** Trace最大距离 */

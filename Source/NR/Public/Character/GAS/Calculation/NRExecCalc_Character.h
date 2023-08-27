@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "GameplayEffectExecutionCalculation.h"
-#include "NRExecCalc_Damage.generated.h"
+#include "NRExecCalc_Character.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class NR_API UNRExecCalc_Damage : public UGameplayEffectExecutionCalculation
+class NR_API UNRExecCalc_Character : public UGameplayEffectExecutionCalculation
 {
 	GENERATED_BODY()
 
 public:
-	UNRExecCalc_Damage();
+	UNRExecCalc_Character();
 	
 	virtual void Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override;
 };

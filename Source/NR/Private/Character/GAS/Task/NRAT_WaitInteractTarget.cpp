@@ -3,16 +3,16 @@
 
 #include "Character/GAS/Task/NRAT_WaitInteractTarget.h"
 
-#include "Abilities/GameplayAbilityTargetActor_Trace.h"
 #include "Character/NRCharacter.h"
 #include "Interface/NRInteractInterface.h"
 #include "Types/NRCollisionTypes.h"
-#include "Types/NRWeaponTypes.h"
 
 UNRAT_WaitInteractTarget::UNRAT_WaitInteractTarget()
 {
 	// UAbilityTask
 	bTickingTask = true;
+
+	TargetData = MakeTargetData(FHitResult());
 }
 
 UNRAT_WaitInteractTarget* UNRAT_WaitInteractTarget::WaitInteractTarget(UGameplayAbility* OwningAbility, float Period/*=0.1f*/)
@@ -45,16 +45,16 @@ void UNRAT_WaitInteractTarget::TickTask(float DeltaTime)
 					FCollisionQueryParams Params(SCENE_QUERY_STAT(UNRAT_WaitInteractTarget), false);
 					Params.AddIgnoredActors(ActorsToIgnore);
 					Params.bReturnPhysicalMaterial = true;
-					
-					FVector ViewStart;
+
+					FHitResult HitResult; // 射线检测最终结果
 					FRotator ViewRot;
-					PC->GetPlayerViewPoint(ViewStart, ViewRot);
+					PC->GetPlayerViewPoint(HitResult.TraceStart, ViewRot);
+					HitResult.TraceEnd = HitResult.TraceStart + ViewRot.Vector()*10000.0f;
 					
 					TArray<FHitResult> HitResults; // Profile-> ObjectType:Ability && OverlapAll ObjectType
-					GetWorld()->LineTraceMultiByProfile(HitResults, ViewStart, ViewStart + ViewRot.Vector()*10000.0f, NRCollisionProfile::Interact_ProfileName, Params);
+					GetWorld()->LineTraceMultiByProfile(HitResults, HitResult.TraceStart, HitResult.TraceEnd, NRCollisionProfile::Interact_ProfileName, Params);
 
 					// 是否找到可交互物
-					bool bFindInteraction = false;
 					if (HitResults.Num() > 0)
 					{
 						if (HitResults[0].Component.IsValid() && HitResults[0].Component.Get()->GetCollisionResponseToChannel(NRCollisionChannel::ECC_Interact) == ECR_Overlap)
@@ -64,19 +64,28 @@ void UNRAT_WaitInteractTarget::TickTask(float DeltaTime)
 								if (HitActor->Implements<UNRInteractInterface>())
 								{
 									// TODO 距离检查
-									bFindInteraction = true;
+									HitResult = HitResults[0];
 								}
 							}
 						}	
 					}
+					
+					const AActor* OldTarget = TargetData.Get(0)->GetHitResult()->GetActor();
+					const AActor* NewTarget = HitResult.GetActor();
 
-					if (bFindInteraction)
+					// Broadcast OldTarget
+					if (OldTarget && OldTarget != NewTarget)
 					{
-						GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Green, FString::Printf(TEXT("Find Interaction %s"), *HitResults[0].GetActor()->GetName()));
+						LoseTarget.Broadcast(TargetData);
 					}
-					else
+					
+					// Update TargetData
+					TargetData = MakeTargetData(HitResult);
+
+					// Broadcast NewTarget
+					if (NewTarget && NewTarget != OldTarget)
 					{
-						GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Orange, TEXT("Not Find Interaction"));
+						FindTarget.Broadcast(TargetData);
 					}
 				}
 			}
@@ -84,7 +93,12 @@ void UNRAT_WaitInteractTarget::TickTask(float DeltaTime)
 	}
 }
 
+FGameplayAbilityTargetDataHandle UNRAT_WaitInteractTarget::MakeTargetData(const FHitResult& HitResult) const
+{
+	return FGameplayAbilityTargetingLocationInfo().MakeTargetDataHandleFromHitResult(Ability, HitResult);
+}
+
 FString UNRAT_WaitInteractTarget::GetDebugString() const
 {
-	return FString::Printf(TEXT("WaitInteractTarget. Period:%.2fs, CurrentInteraction:%s"), TracePeriod, "None");
+	return FString::Printf(TEXT("WaitInteractTarget. Period:%.2fs, CurrentInteraction:%s"), TracePeriod, TargetData.Get(0)->GetHitResult()->GetActor() ? *TargetData.Get(0)->GetHitResult()->GetActor()->GetName() : TEXT("None"));
 }

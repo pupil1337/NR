@@ -12,6 +12,8 @@ public class NR : ModuleRules
 		{
 			"Core", "CoreUObject", "Engine",
 			
+			"NetCore",
+			
 			"UMG",
 			
 			"EnhancedInput",

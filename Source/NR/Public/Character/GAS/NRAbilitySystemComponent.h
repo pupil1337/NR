@@ -195,4 +195,11 @@ private:
 	
 public:
 	FGameplayAbilitySpecHandle FindAbilitySpecHandleForClass(const TSubclassOf<UGameplayAbility>& AbilityClass);
+
+	/**
+	 * 重新设置激活的Effect持续时间
+	 * @param Handle ActiveGameplayEffectHandle
+	 * @return 指定Handle的ActiveGameplayEffect是否存在
+	 */
+	bool RestartActiveGameplayEffectDuration(const FActiveGameplayEffectHandle& Handle);
 };

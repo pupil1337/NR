@@ -6,6 +6,7 @@
 #include "AbilitySystemLog.h"
 #include "Character/GAS/NRGameplayAbility.h"
 #include "Net/UnrealNetwork.h"
+#include "Net/Serialization/FastArraySerializer.h"
 
 static TAutoConsoleVariable<float> CVarReplayMontageErrorThreshold(
 	TEXT("NR.replay.MontageErrorThreshold"),
@@ -779,4 +780,33 @@ FGameplayAbilitySpecHandle UNRAbilitySystemComponent::FindAbilitySpecHandleForCl
 	}
 
 	return FGameplayAbilitySpecHandle();
+}
+
+bool UNRAbilitySystemComponent::RestartActiveGameplayEffectDuration(const FActiveGameplayEffectHandle& Handle)
+{
+	if (!Handle.IsValid())
+	{
+		return false;
+	}
+
+	const FActiveGameplayEffect* Const_AGE = GetActiveGameplayEffect(Handle);
+	if (!Const_AGE)
+	{
+		return false;
+	}
+
+	FActiveGameplayEffect* AGE = const_cast<FActiveGameplayEffect*>(Const_AGE);
+
+	// Copy From GameplayEffect.cpp ::RestartActiveGameplayEffectDuration
+	AGE->StartServerWorldTime = ActiveGameplayEffects.GetServerWorldTime();
+	AGE->CachedStartServerWorldTime = AGE->StartServerWorldTime;
+	AGE->StartWorldTime = ActiveGameplayEffects.GetWorldTime();
+	ActiveGameplayEffects.MarkItemDirty(*AGE);
+	ActiveGameplayEffects.CheckDuration(Handle);
+	
+	AGE->EventSet.OnTimeChanged.Broadcast(AGE->Handle, AGE->StartWorldTime, AGE->GetDuration());
+	OnGameplayEffectDurationChange(*AGE);
+	// Copy end
+
+	return true;
 }

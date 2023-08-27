@@ -15,6 +15,7 @@ public class BaseModule : ModuleRules
             "OnlineSubsystem",
             
             "GameplayTags",
+            "GameplayAbilities",
             
             "Niagara"
         });
