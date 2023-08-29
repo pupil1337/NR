@@ -23,5 +23,14 @@ class NR_API UNRLifeUserWidget : public UNRUserWidgetBase
 	TObjectPtr<UProgressBar> ProgressBar_Shield;
 
 public:
-	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+	virtual void BindWidgetEvent() override;
+
+	//~Begin This Class
+	void UpdateHealth(float OldHealth, float NewHealth, float MaxHealth) const;
+
+	void UpdateMaxHealth(float OldMaxHealth, float NewMaxHealth, float Health) const;
+
+	void UpdateShield(float OldShield, float NewShield, float MaxShield) const;
+
+	void UpdateMaxShield(float OldMaxShield, float NewMaxShield, float Shield) const;
 };
