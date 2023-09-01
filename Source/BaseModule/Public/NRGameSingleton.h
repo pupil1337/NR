@@ -32,12 +32,15 @@ struct FNRCommonSetting
 };
 
 USTRUCT(BlueprintType)
-struct FNRCommonGAS
+struct FNRCharacterCommonGAS
 {
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, DisplayName="GE 最近受到伤害")
 	TSubclassOf<UGameplayEffect> GE_RecentlyDamaged;
+
+	UPROPERTY(EditDefaultsOnly, DisplayName="GE 满护盾")
+	TSubclassOf<UGameplayEffect> GE_ShieldFilled;
 };
 
 /**
@@ -72,5 +75,5 @@ public:
 	FNRCommonVFX CommonVFX;
 
 	UPROPERTY(EditDefaultsOnly)
-	FNRCommonGAS CommonGAS;
+	FNRCharacterCommonGAS CharacterCommonGAS;
 };

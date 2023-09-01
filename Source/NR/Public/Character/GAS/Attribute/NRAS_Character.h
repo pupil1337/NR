@@ -15,6 +15,8 @@
 	GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
 
+class UNRAbilitySystemComponent;
+
 /**
  * 
  */
@@ -63,6 +65,9 @@ public:
 	FActiveGameplayEffectHandle AGE_RecentlyDamagedHandle;
 
 private:
+
+	void OnShieldChanged(UNRAbilitySystemComponent* ASC);
+	
 	UFUNCTION()
 	void OnRep_Health(const FGameplayAttributeData& OldHealth);
 
@@ -74,6 +79,4 @@ private:
 
 	UFUNCTION()
 	void OnRep_MaxShield(const FGameplayAttributeData& OldMaxShield);
-
-	FTimerHandle RecentlyDamagedHandle;
 };

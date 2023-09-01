@@ -42,28 +42,25 @@ void UNRAS_Character::PostGameplayEffectExecute(const FGameplayEffectModCallback
 
 		if (Data.EvaluatedData.Attribute == GetShieldAttribute())
 		{
-			SetShield(FMath::Clamp<float>(GetShield(), 0.0f, GetMaxShield()));
+			if (GetShield() < 0.0f || GetShield() > GetMaxShield())
+			{
+				ensureMsgf(false, TEXT("ensure: 护盾Effect计算错误 检查一下"));
+				SetShield(FMath::Clamp<float>(GetShield(), 0.0f, GetMaxShield()));
+			}
 
-			if (GetShield() < GetMaxShield() && AGE_ShieldFilledHandle.IsValid())
-			{
-				ASC->RemoveActiveGameplayEffect(AGE_ShieldFilledHandle);
-			}
-			else if (GetShield() == GetMaxShield() && !AGE_ShieldFilledHandle.IsValid())
-			{
-				// TODO
-			}
+			OnShieldChanged(ASC);
 		}
 		if (Data.EvaluatedData.Attribute == GetDamageAttribute())
 		{
 			float LocalDamageDone = GetDamage();
 			SetDamage(0.0f);
 
-			// 应用最近收到伤害Tag
+			// 应用最近收到伤害GE
 			if (!ASC->RestartActiveGameplayEffectDuration(AGE_RecentlyDamagedHandle))
 			{
 				FGameplayEffectContextHandle EffectContextHandle = ASC->MakeEffectContext();
 				EffectContextHandle.AddSourceObject(ASC->GetAvatarActor());
-				const FGameplayEffectSpecHandle& RecentlyDamagedSpecHandle = ASC->MakeOutgoingSpec(UNRGameSingleton::Get()->CommonGAS.GE_RecentlyDamaged, 1.0f, EffectContextHandle);
+				const FGameplayEffectSpecHandle& RecentlyDamagedSpecHandle = ASC->MakeOutgoingSpec(UNRGameSingleton::Get()->CharacterCommonGAS.GE_RecentlyDamaged, 1.0f, EffectContextHandle);
 				AGE_RecentlyDamagedHandle = ASC->ApplyGameplayEffectSpecToSelf(*RecentlyDamagedSpecHandle.Data.Get());
 			}
 		
@@ -74,6 +71,8 @@ void UNRAS_Character::PostGameplayEffectExecute(const FGameplayEffectModCallback
 				if (OldShield > 0.0f)
 				{
 					SetShield(FMath::Clamp<float>(OldShield - LocalDamageDone, 0.0f, GetMaxShield()));
+					OnShieldChanged(ASC);
+					
 					LocalDamageDone -= OldShield;
 				}
 			}
@@ -86,6 +85,23 @@ void UNRAS_Character::PostGameplayEffectExecute(const FGameplayEffectModCallback
 
 			// TODO
 		}
+	}
+}
+
+void UNRAS_Character::OnShieldChanged(UNRAbilitySystemComponent* ASC)
+{
+	// 应用护盾充满GE
+	if (GetShield() < GetMaxShield() && AGE_ShieldFilledHandle.IsValid())
+	{
+		ASC->RemoveActiveGameplayEffect(AGE_ShieldFilledHandle);
+		AGE_ShieldFilledHandle.Invalidate();
+	}
+	else if (GetShield() >= GetMaxShield() && !AGE_ShieldFilledHandle.IsValid())
+	{
+		FGameplayEffectContextHandle EffectContextHandle = ASC->MakeEffectContext();
+		EffectContextHandle.AddSourceObject(ASC->GetAvatarActor());
+		const FGameplayEffectSpecHandle& ShieldFilledSpecHandle = ASC->MakeOutgoingSpec(UNRGameSingleton::Get()->CharacterCommonGAS.GE_ShieldFilled, 1.0f, EffectContextHandle);
+		AGE_ShieldFilledHandle = ASC->ApplyGameplayEffectSpecToSelf(*ShieldFilledSpecHandle.Data.Get());
 	}
 }
 
