@@ -56,7 +56,10 @@ public:
 	FGameplayAttributeData Damage;
 	ATTRIBUTE_ACCESSORS(UNRAS_Character, Damage)
 
-	/** RecentlyDamaged ActiveEffectHandle (Only In Server) */
+	/** GE ShieldFilled ActiveEffectHandle (Only In Server) */
+	FActiveGameplayEffectHandle AGE_ShieldFilledHandle;
+	
+	/** GE RecentlyDamaged ActiveEffectHandle (Only In Server) */
 	FActiveGameplayEffectHandle AGE_RecentlyDamagedHandle;
 
 private:

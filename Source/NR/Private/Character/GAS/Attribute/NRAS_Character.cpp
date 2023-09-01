@@ -43,6 +43,15 @@ void UNRAS_Character::PostGameplayEffectExecute(const FGameplayEffectModCallback
 		if (Data.EvaluatedData.Attribute == GetShieldAttribute())
 		{
 			SetShield(FMath::Clamp<float>(GetShield(), 0.0f, GetMaxShield()));
+
+			if (GetShield() < GetMaxShield() && AGE_ShieldFilledHandle.IsValid())
+			{
+				ASC->RemoveActiveGameplayEffect(AGE_ShieldFilledHandle);
+			}
+			else if (GetShield() == GetMaxShield() && !AGE_ShieldFilledHandle.IsValid())
+			{
+				// TODO
+			}
 		}
 		if (Data.EvaluatedData.Attribute == GetDamageAttribute())
 		{
