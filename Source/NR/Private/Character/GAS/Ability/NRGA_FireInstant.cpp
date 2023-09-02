@@ -78,7 +78,7 @@ void UNRGA_FireInstant::FireBullet()
 						{
 							if (NRPlayerController->DebugConsole.IsValid())
 							{
-								TA_LineTrace->bDebug = NRPlayerController->DebugConsole->TraceLineDebug;
+								TA_LineTrace->bDebug = NRPlayerController->DebugConsole->FireTraceDebug;
 							}
 						}
 					}

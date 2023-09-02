@@ -154,9 +154,18 @@ void FNRDebugConsole::AbilitySystem()
 		// Fire
 		if (ImGui::TreeNode("Fire"))
 		{
-			// TraceLineDebug
-			ImGui::Checkbox("TraceLineDebug", &TraceLineDebug);
+			// FireTraceDebug
+			ImGui::Checkbox("FireTraceDebug", &FireTraceDebug);
 			
+			ImGui::TreePop();
+		}
+
+		// Interact
+		if (ImGui::TreeNode("Interact"))
+		{
+			// InteractTraceDebug
+			ImGui::Checkbox("InteractTraceDebug", &InteractTraceDebug);
+
 			ImGui::TreePop();
 		}
 		

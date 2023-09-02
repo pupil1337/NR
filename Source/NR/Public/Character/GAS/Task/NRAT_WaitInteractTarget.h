@@ -30,6 +30,7 @@ public:
 	FWaitInteractTargetDelegate FindTarget;
 
 private:
+	void UpdateHitResult(OUT FHitResult& HitResult, const TArray<FHitResult>& HitResults) const;
 	FGameplayAbilityTargetDataHandle MakeTargetData(const FHitResult& HitResult) const;
 	
 	// Temp

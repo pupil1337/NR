@@ -49,7 +49,10 @@ public:
 
 	// 2. Ability System
 		// · GA_Fire
-	bool TraceLineDebug = false;
+	bool FireTraceDebug = false;
+
+		// · GA_InteractPassive
+	bool InteractTraceDebug = false;
 
 private:
 	TWeakObjectPtr<ANRPlayerController> NRPlayerController;
