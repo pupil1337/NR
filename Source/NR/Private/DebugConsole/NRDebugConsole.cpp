@@ -166,6 +166,12 @@ void FNRDebugConsole::AbilitySystem()
 			// InteractTraceDebug
 			ImGui::Checkbox("InteractTraceDebug", &InteractTraceDebug);
 
+			// InteractAngle
+			ImGui::SliderInt("InteractAngle", &InteractAngle, 1, 30);
+
+			// InteractDistance
+			ImGui::SliderInt("InteractDistance", &InteractDistance, 100, 10000.0f);
+
 			ImGui::TreePop();
 		}
 		

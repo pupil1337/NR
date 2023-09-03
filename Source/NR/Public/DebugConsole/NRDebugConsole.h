@@ -53,6 +53,8 @@ public:
 
 		// · GA_InteractPassive
 	bool InteractTraceDebug = false;
+	int InteractAngle = 2;
+	int InteractDistance = 10000;
 
 private:
 	TWeakObjectPtr<ANRPlayerController> NRPlayerController;

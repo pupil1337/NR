@@ -6,6 +6,7 @@
 #include "NRGameSingleton.h"
 #include "Engine/DataTable.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Types/NRWeaponTypes.h"
 
 void UNRStatics::RequestAsyncLoad(OUT TSharedPtr<FStreamableHandle>& OutStreamableHandle, const TArray<FSoftObjectPath>& TargetsToStream, const FStreamableDelegate& DelegateToCall, const TAsyncLoadPriority Priority, const bool bManageActiveHandle, const bool bStartStalled, const FString& DebugName)
@@ -69,6 +70,88 @@ bool UNRStatics::CrosshairTrace(const APlayerController* PlayerController, float
 	}
 	
 	return false;
+}
+
+void UNRStatics::ConeTraceMultiByProfile(const UWorld* World, TArray<FHitResult>& OutHits, const FVector& Start, const FVector& End, float Angle, FName ProfileName, const FCollisionQueryParams& Params/* FCollisionQueryParams::DefaultQueryParam */, int32 FindActorNum/* =-1 */, bool bDebug/* =false */, float DebugLifeTime/* =3.0f */)
+{
+	if (!World || Angle<=0.0f || Angle>=90.0f)
+	{
+		return;
+	}
+	
+	// 圆锥属性
+	const FVector& Dir = (End - Start).GetSafeNormal();
+	const float H = (End - Start).Size();
+	const float TanAngle = FMath::Tan(FMath::DegreesToRadians(Angle));
+
+#ifdef ENABLE_DRAW_DEBUG
+	if (bDebug)
+	{
+		DrawDebugCone(World, Start, Dir, H, FMath::DegreesToRadians(Angle), FMath::DegreesToRadians(Angle), 8, FColor::Cyan, false, DebugLifeTime);
+	}
+#endif
+
+
+	TArray<FHitResult> Hits;
+	FCollisionShape Shape; Shape.SetSphere(1.0f);
+	FVector TraceStart = Start;
+	float TracedLength = 0.0f;
+	TSet<const AActor*> Actors;
+
+	do
+	{
+		float L = Shape.Sphere.Radius / TanAngle;
+		if ((TracedLength - Shape.Sphere.Radius/2.0f) + L + Shape.Sphere.Radius*2.0f > H)
+		{
+			L = H - (TracedLength - Shape.Sphere.Radius/2.0f) - Shape.Sphere.Radius;
+		}
+		FVector TraceEnd = TraceStart + Dir * L;
+
+#ifdef ENABLE_DRAW_DEBUG
+		if (bDebug)
+		{
+			DrawDebugCapsule(World, (TraceStart+TraceEnd)/2.0f, L/2.0f + Shape.Sphere.Radius, Shape.Sphere.Radius, FRotationMatrix::MakeFromYZ(UKismetMathLibrary::GetRightVector(Dir.Rotation()), Dir).ToQuat(), FColor::Orange, false, DebugLifeTime);
+		}
+#endif
+		Hits.Empty();
+		World->SweepMultiByProfile(Hits, TraceStart, TraceEnd, FRotator::ZeroRotator.Quaternion(), ProfileName, Shape, Params);
+		for (const FHitResult& Hit : Hits)
+		{
+#ifdef ENABLE_DRAW_DEBUG
+			if (bDebug)
+			{
+				DrawDebugPoint(World, Hit.Location, 16.0f, Hit.bBlockingHit ? FColor::Red : FColor::Green, false, DebugLifeTime);
+			}
+#endif
+			if (const AActor* HitActor = Hit.GetActor())
+			{
+				if (!Actors.Find(HitActor))
+				{
+					Actors.Add(HitActor);
+					OutHits.Add(Hit);
+
+					if (FindActorNum > 0 && Actors.Num() >= FindActorNum)
+					{
+						return;
+					}
+				}
+			}
+			else
+			{
+				OutHits.Add(Hit);
+			}
+			
+			if (Hit.bBlockingHit)
+			{
+				return;
+			}
+		}
+		
+		TraceStart = TraceEnd;
+		TracedLength = (TracedLength - Shape.Sphere.Radius/2.0f) + L + Shape.Sphere.Radius;
+		Shape.Sphere.Radius *= 2.0f;
+	}
+	while (TracedLength < H);
 }
 
 FNRWeaponInformationRow* UNRStatics::GetWeaponInformationRow(ENRWeaponType WeaponType)
