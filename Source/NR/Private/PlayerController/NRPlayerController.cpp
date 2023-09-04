@@ -3,10 +3,6 @@
 
 #include "PlayerController/NRPlayerController.h"
 
-#include "NRGameSingleton.h"
-#include "NRUserWidgetBase.h"
-#include "UI/NRUIUserWidget.h"
-
 #ifdef IMGUI_API
 #include "ImGuiModule.h"
 #include "DebugConsole/NRDebugConsole.h"
@@ -43,20 +39,5 @@ void ANRPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	}
 	
 	Super::EndPlay(EndPlayReason);
-}
-
-void ANRPlayerController::CreateUIUserWidget()
-{
-	if (!UIUserWidget)
-	{
-		if (const UNRGameSingleton* NRGameSingleton = UNRGameSingleton::Get())
-		{
-			if (NRGameSingleton->UIWidgetClass)
-			{
-				UIUserWidget = CreateWidget<UNRUIUserWidget>(this, NRGameSingleton->UIWidgetClass);
-				UIUserWidget->AddToViewport();
-			}
-		}
-	}
 }
 

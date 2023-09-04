@@ -11,6 +11,7 @@
 #include "NRPlayerController.generated.h"
 
 class UNRUIUserWidget;
+struct FGameplayAbilityTargetDataHandle;
 
 UCLASS()
 class NR_API ANRPlayerController : public APlayerController
@@ -22,11 +23,26 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 //~ Begin This Class
+
+	// ----------------------------------------------------------------------------------------------------------------
+	// UI Begin
+	// ----------------------------------------------------------------------------------------------------------------
+public:
+	UFUNCTION()
+	void OnLoseInteraction(const FGameplayAbilityTargetDataHandle& Data);
+
+	UFUNCTION()
+	void OnFindInteraction(const FGameplayAbilityTargetDataHandle& Data);
+	
 private:
 	void CreateUIUserWidget();
 	
 	UPROPERTY(Transient)
 	UNRUIUserWidget* UIUserWidget;
+
+	// ----------------------------------------------------------------------------------------------------------------
+	// UI End
+	// ----------------------------------------------------------------------------------------------------------------
 
 #ifdef IMGUI_API
 public:

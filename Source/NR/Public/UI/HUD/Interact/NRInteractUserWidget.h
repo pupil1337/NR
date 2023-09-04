@@ -4,25 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "NRUserWidgetBase.h"
-#include "NRUIUserWidget.generated.h"
-
-class UNRInteractUserWidget;
-class UNRLifeUserWidget;
-class UNRCrosshairUserWidget;
+#include "NRInteractUserWidget.generated.h"
 
 /**
  * 
  */
 UCLASS(Abstract, Blueprintable)
-class NR_API UNRUIUserWidget : public UNRUserWidgetBase
+class NR_API UNRInteractUserWidget : public UNRUserWidgetBase
 {
 	GENERATED_BODY()
-
-	UPROPERTY(meta=(BindWidget))
-	TObjectPtr<UNRInteractUserWidget> InteractUserWidget;
-
-//~Begin This Class
+	
 public:
+	
+//~Begin This Class
 	void OnLoseInteraction(AActor* InActor);
 
 	void OnFindInteraction(AActor* InActor);
