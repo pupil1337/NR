@@ -58,11 +58,11 @@ public:
 	 * @param Angle 圆锥角度 (底面半径/高=Tan(Angle°))
 	 * @param TraceChannel 碰撞Channel
 	 * @param Params 碰撞参数
-	 * @param FindActorNum 最多查找到Actor数量 (<=0为不限制)
 	 * @param bDebug bDebug
 	 * @param DebugLifeTime DebugLifeTime
+	 * @return bBlockHit
 	 */
-	static void ConeTraceMultiByChannel(const UWorld* World, OUT TArray<FHitResult>& OutHits, const FVector& Start, const FVector& End, float Angle, ECollisionChannel TraceChannel, const FCollisionQueryParams& Params = FCollisionQueryParams::DefaultQueryParam, int32 FindActorNum = -1, bool bDebug = false, float DebugLifeTime = 3.0f);
+	static bool ConeTraceMultiByChannel(const UWorld* World, OUT TArray<FHitResult>& OutHits, const FVector& Start, const FVector& End, float Angle, ECollisionChannel TraceChannel, const FCollisionQueryParams& Params = FCollisionQueryParams::DefaultQueryParam, bool bDebug = false, float DebugLifeTime = 3.0f);
 
 	/**
 	 * @brief 根据武器型号获取武器信息

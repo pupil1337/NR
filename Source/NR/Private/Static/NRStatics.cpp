@@ -72,11 +72,11 @@ bool UNRStatics::CrosshairTrace(const APlayerController* PlayerController, float
 	return false;
 }
 
-void UNRStatics::ConeTraceMultiByChannel(const UWorld* World, TArray<FHitResult>& OutHits, const FVector& Start, const FVector& End, float Angle, ECollisionChannel TraceChannel, const FCollisionQueryParams& Params/* FCollisionQueryParams::DefaultQueryParam */, int32 FindActorNum/* =-1 */, bool bDebug/* =false */, float DebugLifeTime/* =3.0f */)
+bool UNRStatics::ConeTraceMultiByChannel(const UWorld* World, TArray<FHitResult>& OutHits, const FVector& Start, const FVector& End, float Angle, ECollisionChannel TraceChannel, const FCollisionQueryParams& Params/* FCollisionQueryParams::DefaultQueryParam */, bool bDebug/* =false */, float DebugLifeTime/* =3.0f */)
 {
 	if (!World || Angle<=0.0f || Angle>=90.0f)
 	{
-		return;
+		return false;
 	}
 	
 	// 圆锥属性
@@ -88,6 +88,7 @@ void UNRStatics::ConeTraceMultiByChannel(const UWorld* World, TArray<FHitResult>
 	if (bDebug)
 	{
 		DrawDebugCone(World, Start, Dir, H, FMath::DegreesToRadians(Angle), FMath::DegreesToRadians(Angle), 8, FColor::Cyan, false, DebugLifeTime);
+		DrawDebugSphere(World, Start + Dir*10.0f, 10.0f * (H*TanAngle)/H, 10, FColor::Purple, false, DebugLifeTime);
 	}
 #endif
 
@@ -96,7 +97,6 @@ void UNRStatics::ConeTraceMultiByChannel(const UWorld* World, TArray<FHitResult>
 	FCollisionShape Shape; Shape.SetSphere(1.0f);
 	FVector TraceStart = Start;
 	float TracedLength = 0.0f;
-	TSet<const AActor*> Actors;
 
 	do
 	{
@@ -120,30 +120,14 @@ void UNRStatics::ConeTraceMultiByChannel(const UWorld* World, TArray<FHitResult>
 #ifdef ENABLE_DRAW_DEBUG
 			if (bDebug)
 			{
-				DrawDebugPoint(World, Hit.Location, 16.0f, Hit.bBlockingHit ? FColor::Red : FColor::Green, false, DebugLifeTime);
+				DrawDebugPoint(World, Hit.ImpactPoint, 16.0f, Hit.bBlockingHit ? FColor::Red : FColor::Green, false, DebugLifeTime);
 			}
 #endif
-			if (const AActor* HitActor = Hit.GetActor())
-			{
-				if (!Actors.Find(HitActor))
-				{
-					Actors.Add(HitActor);
-					OutHits.Add(Hit);
 
-					if (FindActorNum > 0 && Actors.Num() >= FindActorNum)
-					{
-						return;
-					}
-				}
-			}
-			else
-			{
-				OutHits.Add(Hit);
-			}
-			
+			OutHits.Add(Hit);
 			if (Hit.bBlockingHit)
 			{
-				return;
+				return true;
 			}
 		}
 		
@@ -152,6 +136,8 @@ void UNRStatics::ConeTraceMultiByChannel(const UWorld* World, TArray<FHitResult>
 		Shape.Sphere.Radius *= 2.0f;
 	}
 	while (TracedLength < H);
+
+	return false;
 }
 
 FNRWeaponInformationRow* UNRStatics::GetWeaponInformationRow(ENRWeaponType WeaponType)

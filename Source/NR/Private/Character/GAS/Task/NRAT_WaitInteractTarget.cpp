@@ -75,7 +75,7 @@ void UNRAT_WaitInteractTarget::TickTask(float DeltaTime)
 					Params.AddIgnoredActors(ActorsToIgnore);
 					
 					TArray<FHitResult> HitResults; // Interact Channel: Overlap Interaction, Ignore Others
-					UNRStatics::ConeTraceMultiByChannel(GetWorld(), HitResults, ViewLoc, ViewEnd, Angle, NRCollisionChannel::ECC_Interact, Params, 0, bDebug, TracePeriod);
+					UNRStatics::ConeTraceMultiByChannel(GetWorld(), HitResults, ViewLoc, ViewEnd, Angle, NRCollisionChannel::ECC_Interact, Params, bDebug, TracePeriod);
 
 					for (const FHitResult& Hit : HitResults)
 					{
@@ -83,17 +83,16 @@ void UNRAT_WaitInteractTarget::TickTask(float DeltaTime)
 						{
 							if (HitActor->Implements<UNRInteractInterface>())
 							{
-								// TODO 可视性检查 (重新执行一次ConeTrace, Channel改为Camera)
-								FHitResult ViewHit;
+								FHitResult CameraHit;
 								FCollisionQueryParams ViewParams;
 								ViewParams.AddIgnoredActor(SourceActor);
 								ViewParams.AddIgnoredActor(HitActor);
-								if (GetWorld()->LineTraceSingleByChannel(ViewHit, ViewLoc, HitActor->GetActorLocation(), ECC_Camera, ViewParams))
+								if (GetWorld()->LineTraceSingleByChannel(CameraHit, ViewLoc, Hit.ImpactPoint, ECC_Camera, ViewParams))
 								{
 #ifdef ENABLE_DRAW_DEBUG
 									if (bDebug)
 									{
-										DrawDebugPoint(GetWorld(), ViewHit.Location, 16.0f, FColor::Red, false, TracePeriod);
+										DrawDebugPoint(GetWorld(), CameraHit.ImpactPoint, 16.0f, FColor::Red, false, TracePeriod);
 									}
 #endif
 								}
