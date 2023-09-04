@@ -9,5 +9,6 @@ UENUM()
 enum class ENRInteractionType : uint8
 {
 	EIT_None = 0,
-	EIT_Weapon = 1
+	EIT_Weapon = 1,
+	EIT_Monster = 2,
 };

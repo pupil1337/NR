@@ -7,7 +7,6 @@
 namespace NRCollisionProfile
 {
 	const FName Projectile_ProfileName = FName(TEXT("Projectile"));
-	const FName Interact_ProfileName = FName(TEXT("Interact"));
 }
 
 namespace NRCollisionChannel

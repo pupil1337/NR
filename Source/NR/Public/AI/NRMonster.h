@@ -24,6 +24,9 @@ class NR_API ANRMonster : public ACharacter, public IAbilitySystemInterface, pub
 
 	// IAbilitySystemInterface
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return AbilitySystemComponent; }
+
+	// INRInteractInterface
+	virtual ENRInteractionType GetInteractionType() override { return ENRInteractionType::EIT_Monster; }
 	
 public:
 	ANRMonster();

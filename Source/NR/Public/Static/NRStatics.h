@@ -50,19 +50,19 @@ public:
 	static bool CrosshairTrace(const APlayerController* PlayerController, float TraceDistance, FHitResult& HitResult);
 
 	/**
-	 * 模拟圆锥扫描，返回圆锥内的Actor(近似值)
+	 * 模拟圆锥扫描(Channel)，返回圆锥内的Actor(近似值)
 	 * @param World World
 	 * @param OutHits 返回的HitResults
 	 * @param Start 圆锥顶点
 	 * @param End 圆锥底面中心
 	 * @param Angle 圆锥角度 (底面半径/高=Tan(Angle°))
-	 * @param ProfileName 碰撞预设
+	 * @param TraceChannel 碰撞Channel
 	 * @param Params 碰撞参数
 	 * @param FindActorNum 最多查找到Actor数量 (<=0为不限制)
 	 * @param bDebug bDebug
 	 * @param DebugLifeTime DebugLifeTime
 	 */
-	static void ConeTraceMultiByProfile(const UWorld* World, OUT TArray<FHitResult>& OutHits, const FVector& Start, const FVector& End, float Angle, FName ProfileName, const FCollisionQueryParams& Params = FCollisionQueryParams::DefaultQueryParam, int32 FindActorNum = -1, bool bDebug = false, float DebugLifeTime = 3.0f);
+	static void ConeTraceMultiByChannel(const UWorld* World, OUT TArray<FHitResult>& OutHits, const FVector& Start, const FVector& End, float Angle, ECollisionChannel TraceChannel, const FCollisionQueryParams& Params = FCollisionQueryParams::DefaultQueryParam, int32 FindActorNum = -1, bool bDebug = false, float DebugLifeTime = 3.0f);
 
 	/**
 	 * @brief 根据武器型号获取武器信息

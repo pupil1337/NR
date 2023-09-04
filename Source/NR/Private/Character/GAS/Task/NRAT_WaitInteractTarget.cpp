@@ -29,6 +29,12 @@ void UNRAT_WaitInteractTarget::TickTask(float DeltaTime)
 {
 	Super::TickTask(DeltaTime);
 
+	if (!GetWorld())
+	{
+		check(false);
+		return;
+	}
+	
 	if (Ability)
 	{
 		if (const ANRPlayerController* PC = Cast<ANRPlayerController>(Ability->GetCurrentActorInfo()->PlayerController.Get()))
@@ -43,10 +49,6 @@ void UNRAT_WaitInteractTarget::TickTask(float DeltaTime)
 				{
 					TArray<AActor*> ActorsToIgnore;
 					ActorsToIgnore.Add(SourceActor);
-					
-					FCollisionQueryParams Params(SCENE_QUERY_STAT(UNRAT_WaitInteractTarget), false);
-					Params.AddIgnoredActors(ActorsToIgnore);
-					Params.bReturnPhysicalMaterial = true;
 
 					bool bDebug = false;
 					float Angle = 2;
@@ -68,22 +70,40 @@ void UNRAT_WaitInteractTarget::TickTask(float DeltaTime)
 					FHitResult HitResult;
 					HitResult.TraceStart = ViewLoc;
 					HitResult.TraceEnd = ViewEnd;
+
+					FCollisionQueryParams Params(SCENE_QUERY_STAT(UNRAT_WaitInteractTarget), false);
+					Params.AddIgnoredActors(ActorsToIgnore);
 					
-					TArray<FHitResult> HitResults; // Interact_ProfileName-> ObjectType:Ability && OverlapAll ObjectType
-					UNRStatics::ConeTraceMultiByProfile(GetWorld(), HitResults, ViewLoc, ViewEnd, Angle, NRCollisionProfile::Interact_ProfileName, Params, 1, bDebug, TracePeriod);
-					// 是否找到可交互物
-					if (HitResults.Num() > 0)
+					TArray<FHitResult> HitResults; // Interact Channel: Overlap Interaction, Ignore Others
+					UNRStatics::ConeTraceMultiByChannel(GetWorld(), HitResults, ViewLoc, ViewEnd, Angle, NRCollisionChannel::ECC_Interact, Params, 0, bDebug, TracePeriod);
+
+					for (const FHitResult& Hit : HitResults)
 					{
-						if (HitResults[0].Component.IsValid() && HitResults[0].Component.Get()->GetCollisionResponseToChannel(NRCollisionChannel::ECC_Interact) == ECR_Overlap)
+						if (AActor* HitActor = Hit.GetActor())
 						{
-							if (HitResults[0].GetActor() && HitResults[0].GetActor()->Implements<UNRInteractInterface>())
+							if (HitActor->Implements<UNRInteractInterface>())
 							{
-								if (!HitResult.GetActor() || HitResults[0].Distance < HitResult.Distance)
+								// TODO 可视性检查 (重新执行一次ConeTrace, Channel改为Camera)
+								FHitResult ViewHit;
+								FCollisionQueryParams ViewParams;
+								ViewParams.AddIgnoredActor(SourceActor);
+								ViewParams.AddIgnoredActor(HitActor);
+								if (GetWorld()->LineTraceSingleByChannel(ViewHit, ViewLoc, HitActor->GetActorLocation(), ECC_Camera, ViewParams))
+								{
+#ifdef ENABLE_DRAW_DEBUG
+									if (bDebug)
+									{
+										DrawDebugPoint(GetWorld(), ViewHit.Location, 16.0f, FColor::Red, false, TracePeriod);
+									}
+#endif
+								}
+								else
 								{
 									// TODO 距离检查
-									HitResult = HitResults[0];
+									HitResult = Hit;
+									break;
 								}
-							}
+							}	
 						}
 					}
 					

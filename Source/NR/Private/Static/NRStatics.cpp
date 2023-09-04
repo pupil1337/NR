@@ -72,7 +72,7 @@ bool UNRStatics::CrosshairTrace(const APlayerController* PlayerController, float
 	return false;
 }
 
-void UNRStatics::ConeTraceMultiByProfile(const UWorld* World, TArray<FHitResult>& OutHits, const FVector& Start, const FVector& End, float Angle, FName ProfileName, const FCollisionQueryParams& Params/* FCollisionQueryParams::DefaultQueryParam */, int32 FindActorNum/* =-1 */, bool bDebug/* =false */, float DebugLifeTime/* =3.0f */)
+void UNRStatics::ConeTraceMultiByChannel(const UWorld* World, TArray<FHitResult>& OutHits, const FVector& Start, const FVector& End, float Angle, ECollisionChannel TraceChannel, const FCollisionQueryParams& Params/* FCollisionQueryParams::DefaultQueryParam */, int32 FindActorNum/* =-1 */, bool bDebug/* =false */, float DebugLifeTime/* =3.0f */)
 {
 	if (!World || Angle<=0.0f || Angle>=90.0f)
 	{
@@ -114,7 +114,7 @@ void UNRStatics::ConeTraceMultiByProfile(const UWorld* World, TArray<FHitResult>
 		}
 #endif
 		Hits.Empty();
-		World->SweepMultiByProfile(Hits, TraceStart, TraceEnd, FRotator::ZeroRotator.Quaternion(), ProfileName, Shape, Params);
+		World->SweepMultiByChannel(Hits, TraceStart, TraceEnd, FRotator::ZeroRotator.Quaternion(), TraceChannel, Shape, Params);
 		for (const FHitResult& Hit : Hits)
 		{
 #ifdef ENABLE_DRAW_DEBUG
