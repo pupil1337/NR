@@ -230,7 +230,10 @@ void ANRCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 P
 	{
 		if (GetCharacterMovement()->IsFalling())
 		{
-			AbilitySystemComponent->AddLooseGameplayTag(NRGameplayTag::State_Falling);
+			if (!AbilitySystemComponent->HasMatchingGameplayTag(NRGameplayTag::State_Falling))
+			{
+				AbilitySystemComponent->AddLooseGameplayTag(NRGameplayTag::State_Falling);	
+			}
 		}
 		else
 		{
