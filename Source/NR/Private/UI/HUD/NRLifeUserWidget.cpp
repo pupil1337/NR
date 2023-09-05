@@ -10,39 +10,40 @@ void UNRLifeUserWidget::BindWidgetEvent()
 {
 	Super::BindWidgetEvent();
 
-	if (ANRCharacter* NRCharacter = Cast<ANRCharacter>(GetOwningPlayerPawn()))
+	if (const ANRCharacter* NRCharacter = Cast<ANRCharacter>(GetOwningPlayerPawn()))
 	{
 		if (UAbilitySystemComponent* ASC = NRCharacter->GetAbilitySystemComponent())
 		{
 			if (const UNRAS_Character* AS_Character = Cast<UNRAS_Character>(ASC->GetAttributeSet(UNRAS_Character::StaticClass())))
 			{
+				// 1. Update UI
+				UpdateHealth(0.0f, AS_Character->GetHealth(), AS_Character->GetMaxHealth());
+				UpdateShield(0.0f, AS_Character->GetShield(), AS_Character->GetMaxShield());
+
+				// 2. Bind Attribute Changed
 				// Health
-				ASC->GetGameplayAttributeValueChangeDelegate(AS_Character->GetHealthAttribute()).AddLambda([NRCharacter, this](const FOnAttributeChangeData& Data)
+				ASC->GetGameplayAttributeValueChangeDelegate(AS_Character->GetHealthAttribute()).AddLambda([AS_Character, this](const FOnAttributeChangeData& Data)
 				{
-					UpdateHealth(Data.OldValue, Data.NewValue, NRCharacter->GetMaxHealth());
+					UpdateHealth(Data.OldValue, Data.NewValue, AS_Character->GetMaxHealth());
 				});
 
 				// MaxHealth
-				ASC->GetGameplayAttributeValueChangeDelegate(AS_Character->GetMaxHealthAttribute()).AddLambda([NRCharacter, this](const FOnAttributeChangeData& Data)
+				ASC->GetGameplayAttributeValueChangeDelegate(AS_Character->GetMaxHealthAttribute()).AddLambda([AS_Character, this](const FOnAttributeChangeData& Data)
 				{
-					UpdateMaxHealth(Data.OldValue, Data.NewValue, NRCharacter->GetHealth());
+					UpdateMaxHealth(Data.OldValue, Data.NewValue, AS_Character->GetHealth());
 				});
 
-				UpdateHealth(0.0f, NRCharacter->GetHealth(), NRCharacter->GetMaxHealth());
-
 				// Shield
-				ASC->GetGameplayAttributeValueChangeDelegate(AS_Character->GetShieldAttribute()).AddLambda([NRCharacter, this](const FOnAttributeChangeData& Data)
+				ASC->GetGameplayAttributeValueChangeDelegate(AS_Character->GetShieldAttribute()).AddLambda([AS_Character, this](const FOnAttributeChangeData& Data)
 				{
-					UpdateShield(Data.OldValue, Data.NewValue, NRCharacter->GetMaxShield());
+					UpdateShield(Data.OldValue, Data.NewValue, AS_Character->GetMaxShield());
 				});
 
 				// MaxShield
-				ASC->GetGameplayAttributeValueChangeDelegate(AS_Character->GetMaxShieldAttribute()).AddLambda([NRCharacter, this](const FOnAttributeChangeData& Data)
+				ASC->GetGameplayAttributeValueChangeDelegate(AS_Character->GetMaxShieldAttribute()).AddLambda([AS_Character, this](const FOnAttributeChangeData& Data)
 				{
-					UpdateMaxShield(Data.OldValue, Data.NewValue, NRCharacter->GetShield());
+					UpdateMaxShield(Data.OldValue, Data.NewValue, AS_Character->GetShield());
 				});
-
-				UpdateShield(0.0f, NRCharacter->GetShield(), NRCharacter->GetMaxShield());
 			}
 		}
 	}

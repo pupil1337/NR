@@ -47,11 +47,8 @@ void UNRAT_WaitInteractTarget::TickTask(float DeltaTime)
 
 				if (AActor* SourceActor = Ability->GetCurrentActorInfo()->AvatarActor.Get())
 				{
-					TArray<AActor*> ActorsToIgnore;
-					ActorsToIgnore.Add(SourceActor);
-
 					bool bDebug = false;
-					float Angle = 2;
+					float Angle = 4.0f;
 					float MaxDistance = 10000.0f;
 #ifdef IMGUI_API
 					if (PC->DebugConsole.IsValid())
@@ -67,16 +64,15 @@ void UNRAT_WaitInteractTarget::TickTask(float DeltaTime)
 					PC->GetPlayerViewPoint(ViewLoc, ViewRot);
 					FVector ViewEnd = ViewLoc + ViewRot.Vector()*MaxDistance;
 
-					FHitResult HitResult;
-					HitResult.TraceStart = ViewLoc;
-					HitResult.TraceEnd = ViewEnd;
-
 					FCollisionQueryParams Params(SCENE_QUERY_STAT(UNRAT_WaitInteractTarget), false);
-					Params.AddIgnoredActors(ActorsToIgnore);
+					Params.AddIgnoredActor(SourceActor);
 					
 					TArray<FHitResult> HitResults; // Interact Channel: Overlap Interaction, Ignore Others
 					UNRStatics::ConeTraceMultiByChannel(GetWorld(), HitResults, ViewLoc, ViewEnd, Angle, NRCollisionChannel::ECC_Interact, Params, bDebug, TracePeriod);
 
+					FHitResult HitResult;
+					HitResult.TraceStart = ViewLoc;
+					HitResult.TraceEnd = ViewEnd;
 					for (const FHitResult& Hit : HitResults)
 					{
 						if (AActor* HitActor = Hit.GetActor())

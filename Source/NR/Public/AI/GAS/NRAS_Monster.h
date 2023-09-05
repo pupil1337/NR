@@ -32,10 +32,35 @@ public:
 
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 	
+	/** Armor */
+	UPROPERTY(ReplicatedUsing=OnRep_Armor, BlueprintReadOnly)
+	FGameplayAttributeData Armor;
+	ATTRIBUTE_ACCESSORS(UNRAS_Monster, Armor)
+
+	/** MaxArmor */
+	UPROPERTY(ReplicatedUsing=OnRep_MaxArmor, BlueprintReadOnly)
+	FGameplayAttributeData MaxArmor;
+	ATTRIBUTE_ACCESSORS(UNRAS_Monster, MaxArmor)
+	
+	/** Shield */
+	UPROPERTY(ReplicatedUsing=OnRep_Shield, BlueprintReadOnly)
+	FGameplayAttributeData Shield;
+	ATTRIBUTE_ACCESSORS(UNRAS_Monster, Shield)
+
+	/** MaxShield */
+	UPROPERTY(ReplicatedUsing=OnRep_MaxShield, BlueprintReadOnly)
+	FGameplayAttributeData MaxShield;
+	ATTRIBUTE_ACCESSORS(UNRAS_Monster, MaxShield)
+	
 	/** Health */
 	UPROPERTY(ReplicatedUsing=OnRep_Health, BlueprintReadOnly)
 	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(UNRAS_Monster, Health)
+
+	/** MaxHealth */
+	UPROPERTY(ReplicatedUsing=OnRep_MaxHealth, BlueprintReadOnly)
+	FGameplayAttributeData MaxHealth;
+	ATTRIBUTE_ACCESSORS(UNRAS_Monster, MaxHealth)
 
 	/** Damage (Only On Server) */
 	UPROPERTY(BlueprintReadOnly)
@@ -43,6 +68,22 @@ public:
 	ATTRIBUTE_ACCESSORS(UNRAS_Monster, Damage)
 
 private:
+
+	UFUNCTION()
+	void OnRep_Armor(const FGameplayAttributeData& OldArmor);
+
+	UFUNCTION()
+	void OnRep_MaxArmor(const FGameplayAttributeData& OldMaxArmor);
+	
+	UFUNCTION()
+	void OnRep_Shield(const FGameplayAttributeData& OldShield);
+	
+	UFUNCTION()
+	void OnRep_MaxShield(const FGameplayAttributeData& OldMaxShield);
+	
 	UFUNCTION()
 	void OnRep_Health(const FGameplayAttributeData& OldHealth);
+	
+	UFUNCTION()
+	void OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth);
 };

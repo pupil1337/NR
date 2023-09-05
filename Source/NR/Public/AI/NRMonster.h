@@ -21,15 +21,15 @@ class NR_API ANRMonster : public ACharacter, public IAbilitySystemInterface, pub
 
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UNRAS_Monster> AS_Monster;
+	
+public:
+	ANRMonster();
+
+	virtual void PossessedBy(AController* NewController) override;
 
 	// IAbilitySystemInterface
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return AbilitySystemComponent; }
 
 	// INRInteractInterface
 	virtual ENRInteractionType GetInteractionType() override { return ENRInteractionType::EIT_Monster; }
-	
-public:
-	ANRMonster();
-
-	virtual void PossessedBy(AController* NewController) override;
 };
