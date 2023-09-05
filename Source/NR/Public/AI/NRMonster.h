@@ -10,6 +10,7 @@
 
 class UAbilitySystemComponent;
 class UNRAS_Monster;
+class UGameplayEffect;
 
 UCLASS()
 class NR_API ANRMonster : public ACharacter, public IAbilitySystemInterface, public INRInteractInterface
@@ -21,6 +22,10 @@ class NR_API ANRMonster : public ACharacter, public IAbilitySystemInterface, pub
 
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UNRAS_Monster> AS_Monster;
+
+	// Settings
+	UPROPERTY(EditDefaultsOnly, Category = "配置|技能系统", DisplayName = "怪物默认GE (设置Attributes)")
+	TSubclassOf<UGameplayEffect> GE_Default;
 	
 public:
 	ANRMonster();
@@ -32,4 +37,7 @@ public:
 
 	// INRInteractInterface
 	virtual ENRInteractionType GetInteractionType() override { return ENRInteractionType::EIT_Monster; }
+
+//~Begin This Class
+	void InitializeAttributes() const;
 };

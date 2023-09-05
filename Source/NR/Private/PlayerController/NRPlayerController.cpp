@@ -3,6 +3,8 @@
 
 #include "PlayerController/NRPlayerController.h"
 
+#include "Character/NRCharacter.h"
+
 #ifdef IMGUI_API
 #include "ImGuiModule.h"
 #include "DebugConsole/NRDebugConsole.h"
@@ -25,6 +27,19 @@ void ANRPlayerController::BeginPlay()
 		DebugConsole = MakeShareable(new FNRDebugConsole(this));
 		ImGuiDelegateHandle = FImGuiModule::Get().AddWorldImGuiDelegate(FImGuiDelegate::CreateRaw(DebugConsole.Get(), &FNRDebugConsole::Tick));
 #endif
+	}
+}
+
+void ANRPlayerController::AcknowledgePossession(APawn* P)
+{
+	Super::AcknowledgePossession(P);
+
+	if (ANRCharacter* NRCharacter = Cast<ANRCharacter>(P))
+	{
+		if (UAbilitySystemComponent* ASC = NRCharacter->GetAbilitySystemComponent())
+		{
+			ASC->InitAbilityActorInfo(NRCharacter, NRCharacter);
+		}
 	}
 }
 

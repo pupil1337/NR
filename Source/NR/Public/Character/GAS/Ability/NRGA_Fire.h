@@ -44,13 +44,13 @@ private:
 	
 	// Temp
 	UPROPERTY(Transient)
-	ANRWeaponBase* EquippedWeapon;
+	ANRWeaponBase* EquippedWeapon = nullptr;
 
 	UPROPERTY(Transient)
-	UNRAbilitySystemComponent* NRAbilitySystemComponent;
+	UNRAbilitySystemComponent* NRAbilitySystemComponent = nullptr;
 	FGameplayAbilitySpecHandle GA_FireInstantSpecHandle;
 	UPROPERTY(Transient)
-	UNRGA_FireInstant* GA_FireInstant;
+	UNRGA_FireInstant* GA_FireInstant = nullptr;
 	
-	float PreFireTime;
+	float PreFireTime = -999.9f;
 };

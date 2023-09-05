@@ -3,9 +3,7 @@
 
 #include "UI/HUD/Interact/NRInteractUserWidget.h"
 
-#include "AbilitySystemComponent.h"
 #include "AI/NRMonster.h"
-#include "AI/GAS/NRAS_Monster.h"
 #include "Interface/NRInteractInterface.h"
 #include "UI/HUD/Interact/NRInteractMonsterLifeUserWidget.h"
 
@@ -34,7 +32,10 @@ void UNRInteractUserWidget::DoInteract(EInteractViewOp ViewOp)
 	{
 		if (CurrInteraction.Get()->Implements<UNRInteractInterface>())
 		{
-			switch (Cast<INRInteractInterface>(CurrInteraction.Get())->GetInteractionType())
+			const ENRInteractionType InteractionType = Cast<INRInteractInterface>(CurrInteraction.Get())->GetInteractionType();
+			if (ViewOp == Find) CloseOtherInteract(InteractionType);
+			
+			switch (InteractionType)
 			{
 			case ENRInteractionType::EIT_Weapon:
 				{
@@ -42,7 +43,7 @@ void UNRInteractUserWidget::DoInteract(EInteractViewOp ViewOp)
 				}
 			case ENRInteractionType::EIT_Monster:
 				{
-					if (ViewOp == Lose) OnLoseMonster();
+					if (ViewOp == Lose) OnLoseMonster(true);
 					if (ViewOp == Find) OnFindMonster();
 					break;
 				}
@@ -52,28 +53,31 @@ void UNRInteractUserWidget::DoInteract(EInteractViewOp ViewOp)
 	}
 }
 
-void UNRInteractUserWidget::OnLoseMonster()
+void UNRInteractUserWidget::CloseOtherInteract(ENRInteractionType CurrType)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Silver, FString::Printf(TEXT("Interact LoseMonster: %s"), *CurrInteraction.Get()->GetName()));
+	if (CurrType != ENRInteractionType::EIT_Monster) OnLoseMonster(false);
+}
 
-	InteractMonsterLifeUserWidget->SetVisibility(ESlateVisibility::Collapsed);
+void UNRInteractUserWidget::OnLoseMonster(bool bDelay)
+{
+	if (bDelay)
+	{
+		GetWorld()->GetTimerManager().SetTimer(CloseMonsterHandle, FTimerDelegate::CreateLambda([this]()
+		{
+			InteractMonsterLifeUserWidget->OnLoseMonster();
+		}),
+		1.0f, false);	
+	}
+	else
+	{
+		GetWorld()->GetTimerManager().ClearTimer(CloseMonsterHandle);
+		InteractMonsterLifeUserWidget->OnLoseMonster();
+	}
 }
 
 void UNRInteractUserWidget::OnFindMonster()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::White, FString::Printf(TEXT("Interact FindMonster: %s"), *CurrInteraction.Get()->GetName()));
-
+	GetWorld()->GetTimerManager().ClearTimer(CloseMonsterHandle);
 	InteractMonsterLifeUserWidget->OnFindMonster(Cast<ANRMonster>(CurrInteraction.Get()));
-	
-	// if (ANRMonster* Monster = Cast<ANRMonster>(CurrInteraction.Get()))
-	// {
-	// 	if (UAbilitySystemComponent* ASC = Monster->GetAbilitySystemComponent())
-	// 	{
-	// 		if (const UNRAS_Monster* AS_Monster = Cast<UNRAS_Monster>(ASC->GetAttributeSet(UNRAS_Monster::StaticClass())))
-	// 		{
-	// 			// ASC->GetGameplayAttributeValueChangeDelegate(AS_Monster->GetHealth)
-	// 		}
-	// 	}
-	// }
 }
 

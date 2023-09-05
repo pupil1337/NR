@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "NRUserWidgetBase.h"
+#include "Types/NRInteractionTypes.h"
 #include "NRInteractUserWidget.generated.h"
-
 
 class UNRInteractMonsterLifeUserWidget;
 
@@ -34,13 +34,17 @@ private:
 	};
 	void DoInteract(EInteractViewOp ViewOp);
 	
+	void CloseOtherInteract(ENRInteractionType CurrType);
+	
 	// -----------------------------------------------------------------------------------------------------------------
 	// Monster Begin
 	// -----------------------------------------------------------------------------------------------------------------
 
-	void OnLoseMonster();
+	void OnLoseMonster(bool bDelay);
 
 	void OnFindMonster();
+
+	FTimerHandle CloseMonsterHandle;
 	
 	// -----------------------------------------------------------------------------------------------------------------
 	// Monster End

@@ -126,17 +126,6 @@ void ANRCharacter::PossessedBy(AController* NewController)
 	}
 }
 
-void ANRCharacter::OnRep_PlayerState()
-{
-	Super::OnRep_PlayerState();
-
-	if (AbilitySystemComponent)
-	{
-		AbilitySystemComponent->InitAbilityActorInfo(this, this);
-		InitializeAttributes();
-	}
-}
-
 void ANRCharacter::PawnClientRestart()
 {
 	Super::PawnClientRestart();

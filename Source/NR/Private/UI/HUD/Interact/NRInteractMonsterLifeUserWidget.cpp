@@ -32,58 +32,61 @@ void UNRInteractMonsterLifeUserWidget::OnLoseMonster()
 
 void UNRInteractMonsterLifeUserWidget::OnFindMonster(ANRMonster* InMonster)
 {
-	OnLoseMonster();
-
-	Monster = InMonster;
-	if (UAbilitySystemComponent* ASC = Monster.Get()->GetAbilitySystemComponent())
+	if (InMonster && InMonster != Monster.Get())
 	{
-		if (const UNRAS_Monster* AS_Monster = Cast<UNRAS_Monster>(ASC->GetAttributeSet(UNRAS_Monster::StaticClass())))
+		OnLoseMonster();
+
+		Monster = InMonster;
+		if (UAbilitySystemComponent* ASC = Monster.Get()->GetAbilitySystemComponent())
 		{
-			// 1. Update UI
-			UpdateArmor(0.0f, AS_Monster->GetArmor(), AS_Monster->GetMaxArmor());
-			UpdateShield(0.0f, AS_Monster->GetShield(), AS_Monster->GetMaxShield());
-			UpdateHealth(0.0f, AS_Monster->GetHealth(), AS_Monster->GetMaxHealth());
-
-			// 2. Bind Attribute Changed
-			// Armor
-			ASC->GetGameplayAttributeValueChangeDelegate(AS_Monster->GetArmorAttribute()).AddLambda([this, AS_Monster](const FOnAttributeChangeData& Data)
+			if (const UNRAS_Monster* AS_Monster = Cast<UNRAS_Monster>(ASC->GetAttributeSet(UNRAS_Monster::StaticClass())))
 			{
-				UpdateArmor(Data.OldValue, Data.NewValue, AS_Monster->GetMaxArmor());
-			});
-
-			// MaxArmor
-			ASC->GetGameplayAttributeValueChangeDelegate(AS_Monster->GetMaxArmorAttribute()).AddLambda([this, AS_Monster](const FOnAttributeChangeData& Data)
-			{
-				UpdateMaxArmor(Data.OldValue, Data.NewValue, AS_Monster->GetArmor());
-			});
-
-			// Shield
-			ASC->GetGameplayAttributeValueChangeDelegate(AS_Monster->GetShieldAttribute()).AddLambda([this, AS_Monster](const FOnAttributeChangeData& Data)
-			{
-				UpdateShield(Data.OldValue, Data.NewValue, AS_Monster->GetMaxShield());
-			});
-
-			// MaxShield
-			ASC->GetGameplayAttributeValueChangeDelegate(AS_Monster->GetMaxShieldAttribute()).AddLambda([this, AS_Monster](const FOnAttributeChangeData& Data)
-			{
-				UpdateMaxShield(Data.OldValue, Data.NewValue, AS_Monster->GetShield());
-			});
-
-			// Health
-			ASC->GetGameplayAttributeValueChangeDelegate(AS_Monster->GetHealthAttribute()).AddLambda([this, AS_Monster](const FOnAttributeChangeData& Data)
-			{
-				UpdateHealth(Data.OldValue, Data.NewValue, AS_Monster->GetMaxHealth());
-			});
-
-			// MaxHealth
-			ASC->GetGameplayAttributeValueChangeDelegate(AS_Monster->GetMaxHealthAttribute()).AddLambda([this, AS_Monster](const FOnAttributeChangeData& Data)
-			{
-				UpdateMaxHealth(Data.OldValue, Data.NewValue, AS_Monster->GetHealth());
-			});
+				// 1. Update UI
+				UpdateArmor(0.0f, AS_Monster->GetArmor(), AS_Monster->GetMaxArmor());
+				UpdateShield(0.0f, AS_Monster->GetShield(), AS_Monster->GetMaxShield());
+				UpdateHealth(0.0f, AS_Monster->GetHealth(), AS_Monster->GetMaxHealth());
+		
+				// 2. Bind Attribute Changed
+				// Armor
+				ASC->GetGameplayAttributeValueChangeDelegate(AS_Monster->GetArmorAttribute()).AddLambda([this, AS_Monster](const FOnAttributeChangeData& Data)
+				{
+					UpdateArmor(Data.OldValue, Data.NewValue, AS_Monster->GetMaxArmor());
+				});
+		
+				// MaxArmor
+				ASC->GetGameplayAttributeValueChangeDelegate(AS_Monster->GetMaxArmorAttribute()).AddLambda([this, AS_Monster](const FOnAttributeChangeData& Data)
+				{
+					UpdateMaxArmor(Data.OldValue, Data.NewValue, AS_Monster->GetArmor());
+				});
+		
+				// Shield
+				ASC->GetGameplayAttributeValueChangeDelegate(AS_Monster->GetShieldAttribute()).AddLambda([this, AS_Monster](const FOnAttributeChangeData& Data)
+				{
+					UpdateShield(Data.OldValue, Data.NewValue, AS_Monster->GetMaxShield());
+				});
+		
+				// MaxShield
+				ASC->GetGameplayAttributeValueChangeDelegate(AS_Monster->GetMaxShieldAttribute()).AddLambda([this, AS_Monster](const FOnAttributeChangeData& Data)
+				{
+					UpdateMaxShield(Data.OldValue, Data.NewValue, AS_Monster->GetShield());
+				});
+		
+				// Health
+				ASC->GetGameplayAttributeValueChangeDelegate(AS_Monster->GetHealthAttribute()).AddLambda([this, AS_Monster](const FOnAttributeChangeData& Data)
+				{
+					UpdateHealth(Data.OldValue, Data.NewValue, AS_Monster->GetMaxHealth());
+				});
+		
+				// MaxHealth
+				ASC->GetGameplayAttributeValueChangeDelegate(AS_Monster->GetMaxHealthAttribute()).AddLambda([this, AS_Monster](const FOnAttributeChangeData& Data)
+				{
+					UpdateMaxHealth(Data.OldValue, Data.NewValue, AS_Monster->GetHealth());
+				});
+			}
 		}
+		
+		SetVisibility(ESlateVisibility::HitTestInvisible);
 	}
-
-	SetVisibility(ESlateVisibility::HitTestInvisible);
 }
 
 void UNRInteractMonsterLifeUserWidget::UpdateArmor(float OldArmor, float NewArmor, float MaxArmor)

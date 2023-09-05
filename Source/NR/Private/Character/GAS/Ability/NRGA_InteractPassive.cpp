@@ -17,14 +17,30 @@ void UNRGA_InteractPassive::ActivateAbility(const FGameplayAbilitySpecHandle Han
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	if (ActorInfo)
+	UNRAT_WaitInteractTarget* AT_WaitInteractTarget = UNRAT_WaitInteractTarget::WaitInteractTarget(this);
+	AT_WaitInteractTarget->LoseTarget.AddDynamic(this, &ThisClass::OnLoseInteraction);
+	AT_WaitInteractTarget->FindTarget.AddDynamic(this, &ThisClass::OnFindInteraction);
+	AT_WaitInteractTarget->ReadyForActivation();
+}
+
+void UNRGA_InteractPassive::OnLoseInteraction(const FGameplayAbilityTargetDataHandle& Data)
+{
+	if (const FGameplayAbilityActorInfo* ActorInfo = GetCurrentActorInfo())
 	{
 		if (ANRPlayerController* PC = Cast<ANRPlayerController>(ActorInfo->PlayerController))
 		{
-			UNRAT_WaitInteractTarget* AT_WaitInteractTarget = UNRAT_WaitInteractTarget::WaitInteractTarget(this);
-			AT_WaitInteractTarget->LoseTarget.AddDynamic(PC, &ANRPlayerController::OnLoseInteraction);
-			AT_WaitInteractTarget->FindTarget.AddDynamic(PC, &ANRPlayerController::OnFindInteraction);
-			AT_WaitInteractTarget->ReadyForActivation();		
+			PC->OnLoseInteraction(Data);
+		}
+	}
+}
+
+void UNRGA_InteractPassive::OnFindInteraction(const FGameplayAbilityTargetDataHandle& Data)
+{
+	if (const FGameplayAbilityActorInfo* ActorInfo = GetCurrentActorInfo())
+	{
+		if (ANRPlayerController* PC = Cast<ANRPlayerController>(ActorInfo->PlayerController))
+		{
+			PC->OnFindInteraction(Data);
 		}
 	}
 }

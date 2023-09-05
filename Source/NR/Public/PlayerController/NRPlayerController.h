@@ -20,6 +20,7 @@ class NR_API ANRPlayerController : public APlayerController
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void AcknowledgePossession(APawn* P) override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 //~ Begin This Class

@@ -18,4 +18,11 @@ public:
 	UNRGA_InteractPassive();
 
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+
+//~Begin This Class
+	UFUNCTION()
+	void OnLoseInteraction(const FGameplayAbilityTargetDataHandle& Data);
+	
+	UFUNCTION()
+	void OnFindInteraction(const FGameplayAbilityTargetDataHandle& Data);
 };
