@@ -3,6 +3,7 @@
 
 #include "AI/GAS/NRAS_Monster.h"
 
+#include "GameplayEffectExtension.h"
 #include "Net/UnrealNetwork.h"
 
 UNRAS_Monster::UNRAS_Monster()
@@ -29,6 +30,40 @@ void UNRAS_Monster::PreAttributeChange(const FGameplayAttribute& Attribute, floa
 void UNRAS_Monster::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
+
+	if (Data.EvaluatedData.Attribute == GetDamageAttribute())
+	{
+		float LocalDamageCone = GetDamage();
+		SetDamage(0.0f);
+
+		// 减去护甲
+		if (LocalDamageCone > 0.0f)
+		{
+			const float OldArmor = GetArmor();
+			if (OldArmor > 0.0f)
+			{
+				SetArmor(FMath::Clamp<float>(OldArmor - LocalDamageCone, 0.0f, GetMaxArmor()));
+				LocalDamageCone -= OldArmor;
+			}
+		}
+
+		// 减去护盾
+		if (LocalDamageCone > 0.0f)
+		{
+			const float OldShield = GetShield();
+			if (OldShield > 0.0f)
+			{
+				SetShield(FMath::Clamp<float>(OldShield - LocalDamageCone, 0.0f, GetMaxShield()));
+				LocalDamageCone -= OldShield;
+			}
+		}
+
+		// 减去血量
+		if (LocalDamageCone > 0.0f)
+		{
+			SetHealth(FMath::Clamp<float>(GetHealth() - LocalDamageCone, 0.0f, GetMaxHealth()));
+		}
+	}
 }
 
 void UNRAS_Monster::OnRep_Armor(const FGameplayAttributeData& OldArmor)
