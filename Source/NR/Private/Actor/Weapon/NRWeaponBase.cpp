@@ -158,7 +158,7 @@ void ANRWeaponBase::FireTracer(UNiagaraSystem* NiagaraAsset, const FVector& Impa
 		else FireTracerNiagara->AttachToComponent(Mesh3P, FAttachmentTransformRules::SnapToTargetIncludingScale, NAME_Socket_Muzzle);
 		
 		FireTracerNiagara->SetAsset(NiagaraAsset);
-		FireTracerNiagara->SetNiagaraVariableBool("User.Trigger", bFireTraceTrigger);
+		FireTracerNiagara->SetVariableBool("User.Trigger", bFireTraceTrigger);
 		TArray<FVector> ImpactPoints;
 		ImpactPoints.Add(ImpactPoint);
 		UNiagaraDataInterfaceArrayFunctionLibrary::SetNiagaraArrayVector(FireTracerNiagara, FName("User.ImpactPositions"), ImpactPoints);
