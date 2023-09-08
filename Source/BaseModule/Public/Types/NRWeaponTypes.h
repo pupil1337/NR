@@ -37,9 +37,10 @@ enum class ENRWeaponState : uint8
 UENUM()
 enum class ENRWeaponType : uint8
 {
-	EWT_None = 0,
-	EWT_Box = 1,
-	EWT_AR_01 = 2,
+	EWT_None,
+	EWT_Box,
+	EWT_AR_01,
+	EWT_Handgun_01,
 	EWT_Max
 };
 

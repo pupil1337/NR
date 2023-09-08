@@ -257,6 +257,7 @@ FNRWeaponInformationRow* ANRWeaponBase::GetWeaponInformation() const
 		WeaponInformation = UNRStatics::GetWeaponInformationRow(WeaponType);
 	}
 
+	check(WeaponInformation)
 	return WeaponInformation;
 }
 
@@ -270,6 +271,7 @@ FNRArmAnimSetRow* ANRWeaponBase::GetWeaponArmAnimSetRow() const
 		}
 	}
 
+	check(WeaponArmAnimSet)
 	return WeaponArmAnimSet;
 }
 
@@ -283,6 +285,7 @@ FNRBodyAnimSetRow* ANRWeaponBase::GetWeaponBodyAnimSetRow() const
 		}
 	}
 
+	check(WeaponBodyAnimSet)
 	return WeaponBodyAnimSet;
 }
 
@@ -296,6 +299,7 @@ FNRWeaponSettingRow* ANRWeaponBase::GetWeaponSettingRow() const
 		}
 	}
 
+	check(WeaponSetting)
 	return WeaponSetting;
 }
 
@@ -308,6 +312,8 @@ FNRMagazineSettingRow* ANRWeaponBase::GetMagazineSettingRow() const
 			MagazineSetting = WeaponInfo->GetMagazineSetting();
 		}
 	}
+
+	check(MagazineSetting)
 	return MagazineSetting;
 }
 
@@ -320,6 +326,8 @@ FNRIronSightSettingRow* ANRWeaponBase::GetIronSightSettingRow() const
 			IronSightSetting = WeaponInfo->GetIronSightSetting();
 		}
 	}
+
+	check(IronSightSetting)
 	return IronSightSetting;
 }
 

@@ -28,7 +28,7 @@ void FNRArmAnimInstanceProxy::PreUpdate(UAnimInstance* InAnimInstance, float Del
 			/** AnimSetting */
 			if (const UNRInventoryComponent* InventoryComponent = NRCharacter->GetInventoryComponent())
 			{
-				if (ANRWeaponBase* Weapon = InventoryComponent->GetCurrentWeapon())
+				if (const ANRWeaponBase* Weapon = InventoryComponent->GetCurrentWeapon())
 				{
 					AnimSetting = *Weapon->GetWeaponArmAnimSetRow();
 				}

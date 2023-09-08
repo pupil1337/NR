@@ -87,7 +87,7 @@ void UNRInventoryComponent::Server_InitInventory_Implementation()
 {
 	if (ANRCharacter* NRCharacter = Cast<ANRCharacter>(GetOwner()))
 	{
-		if (ANRWeaponBase* NewWeapon = UNRItemFactory::SpawnWeapon(this, ENRWeaponType::EWT_AR_01))
+		if (ANRWeaponBase* NewWeapon = UNRItemFactory::SpawnWeapon(this, ENRWeaponType::EWT_Handgun_01))
 		{
 			NewWeapon->SetOwner(NRCharacter);
 			NewWeapon->SetReplicates(true);
