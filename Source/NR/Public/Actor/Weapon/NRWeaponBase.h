@@ -9,9 +9,7 @@
 
 class UNiagaraSystem;
 class ANRTA_LineTrace;
-struct FNRIronSightSettingRow;
 class UDataTable;
-struct FNRMagazineSettingRow;
 struct FNRWeaponSettingRow;
 struct FNRArmAnimSetRow;
 struct FNRWeaponInformationRow;
@@ -79,8 +77,6 @@ public:
 	FNRArmAnimSetRow* GetWeaponArmAnimSetRow() const;
 	FNRBodyAnimSetRow* GetWeaponBodyAnimSetRow() const;
 	FNRWeaponSettingRow* GetWeaponSettingRow() const;
-	FNRMagazineSettingRow* GetMagazineSettingRow() const;
-	FNRIronSightSettingRow* GetIronSightSettingRow() const;
 
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 	ANRTA_LineTrace* GetLineTraceTargetActor();
@@ -98,8 +94,6 @@ private:
 	mutable FNRArmAnimSetRow* WeaponArmAnimSet;
 	mutable FNRBodyAnimSetRow* WeaponBodyAnimSet;
 	mutable FNRWeaponSettingRow* WeaponSetting;
-	mutable FNRMagazineSettingRow* MagazineSetting;
-	mutable FNRIronSightSettingRow* IronSightSetting;
 
 	UPROPERTY(ReplicatedUsing=OnRep_WeaponState)
 	ENRWeaponState WeaponState = ENRWeaponState::EWS_None;

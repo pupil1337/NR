@@ -44,33 +44,17 @@ ANRWeaponBase::ANRWeaponBase()
 	FireTracerNiagara = CreateDefaultSubobject<UNiagaraComponent>(TEXT("开火Tracer"));
 	FireTracerNiagara->SetupAttachment(SceneRoot);
 
-	SetFPS_SeparateFOV(true, true);
+	// SetFPS_SeparateFOV(true, true);
 }
 
 void ANRWeaponBase::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
 
-	// 加载+设置配件模型
-	TArray<FSoftObjectPath> TargetsToStream;
-	if (GetMagazineSettingRow()) TargetsToStream.Add(MagazineSetting->Mesh.Get());
-	if (GetIronSightSettingRow()) TargetsToStream.Add(IronSightSetting->Mesh.Get());
-
-	const TDelegate<void()> DelegateToCall = FStreamableDelegate::CreateLambda([this]()
-		{
-			if (MagazineSetting && MagazineSetting->Mesh.IsValid())
-			{
-				Magazine1P->SetStaticMesh(MagazineSetting->Mesh.Get());
-				Magazine3P->SetStaticMesh(MagazineSetting->Mesh.Get());
-			}
-			if (IronSightSetting && IronSightSetting->Mesh.IsValid())
-			{
-				IronSight1P->SetStaticMesh(IronSightSetting->Mesh.Get());
-				IronSight3P->SetStaticMesh(IronSightSetting->Mesh.Get());
-			}
-		}
-	);
-	UNRStatics::RequestAsyncLoad(AttachmentStreamableHandle, TargetsToStream, DelegateToCall);
+	// Copy 1P to 3P
+	Mesh3P->SetSkeletalMeshAsset(Mesh1P->GetSkeletalMeshAsset());
+	Magazine3P->SetStaticMesh(Magazine1P->GetStaticMesh());
+	IronSight3P->SetStaticMesh(IronSight1P->GetStaticMesh());
 }
 
 void ANRWeaponBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -301,34 +285,6 @@ FNRWeaponSettingRow* ANRWeaponBase::GetWeaponSettingRow() const
 
 	check(WeaponSetting)
 	return WeaponSetting;
-}
-
-FNRMagazineSettingRow* ANRWeaponBase::GetMagazineSettingRow() const
-{
-	if (!MagazineSetting)
-	{
-		if (const FNRWeaponInformationRow* WeaponInfo = GetWeaponInformation())
-		{
-			MagazineSetting = WeaponInfo->GetMagazineSetting();
-		}
-	}
-
-	check(MagazineSetting)
-	return MagazineSetting;
-}
-
-FNRIronSightSettingRow* ANRWeaponBase::GetIronSightSettingRow() const
-{
-	if (!IronSightSetting)
-	{
-		if (const FNRWeaponInformationRow* WeaponInfo = GetWeaponInformation())
-		{
-			IronSightSetting = WeaponInfo->GetIronSightSetting();
-		}
-	}
-
-	check(IronSightSetting)
-	return IronSightSetting;
 }
 
 ANRTA_LineTrace* ANRWeaponBase::GetLineTraceTargetActor()

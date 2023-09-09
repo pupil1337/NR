@@ -48,7 +48,7 @@ void UNRAT_WaitInteractTarget::TickTask(float DeltaTime)
 				if (AActor* SourceActor = Ability->GetCurrentActorInfo()->AvatarActor.Get())
 				{
 					bool bDebug = false;
-					float Angle = 4.0f;
+					float Angle = 2.0f;
 					float MaxDistance = 10000.0f;
 #ifdef IMGUI_API
 					if (PC->DebugConsole.IsValid())
