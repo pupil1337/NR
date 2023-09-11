@@ -26,8 +26,7 @@ struct NR_API FNRDebugConsole
 
 	FNRDebugConsole();
 	explicit FNRDebugConsole(ANRPlayerController* InNRPlayerController);
-	~FNRDebugConsole();
-
+	
 	void Tick();
 	
 private:
@@ -58,4 +57,5 @@ public:
 
 private:
 	TWeakObjectPtr<ANRPlayerController> NRPlayerController;
+	bool bInitialized = false;
 };

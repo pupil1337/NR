@@ -4,6 +4,8 @@
 	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Abbreviations/=ASC/@EntryIndexedValue">ASC</s:String>
 	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Abbreviations/=GA/@EntryIndexedValue">GA</s:String>
 	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Abbreviations/=GAS/@EntryIndexedValue">GAS</s:String>
+	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Abbreviations/=IA/@EntryIndexedValue">IA</s:String>
+	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Abbreviations/=IMC/@EntryIndexedValue">IMC</s:String>
 	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Abbreviations/=NR/@EntryIndexedValue">NR</s:String>
 	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Abbreviations/=NRAS/@EntryIndexedValue">NRAS</s:String>
 	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Abbreviations/=NRAT/@EntryIndexedValue">NRAT</s:String>

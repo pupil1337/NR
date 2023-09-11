@@ -10,7 +10,7 @@
 
 FNRDebugConsole::FNRDebugConsole()
 {
-	NRPlayerController.Reset();
+	// Not Use
 }
 
 FNRDebugConsole::FNRDebugConsole(ANRPlayerController* InNRPlayerController):
@@ -20,15 +20,19 @@ FNRDebugConsole::FNRDebugConsole(ANRPlayerController* InNRPlayerController):
 	NRPlayerController->ConsoleCommand("t.MaxFPS -1"); MaxFPS = -1;
 }
 
-FNRDebugConsole::~FNRDebugConsole()
-{
-	NRPlayerController.Reset();
-}
-
 void FNRDebugConsole::Tick()
 {
 	if (NRPlayerController.IsValid())
 	{
+		// Initialize
+		if (!bInitialized)
+		{
+			ImGui::SetNextWindowPos(ImVec2(100.0f, 80.0f));
+			
+			bInitialized = true;
+		}
+
+		// ImGui:: Begin
 		ImGuiWindowFlags WindowFlags = 0;
 		WindowFlags |= ImGuiWindowFlags_MenuBar;
 		WindowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
@@ -47,6 +51,7 @@ void FNRDebugConsole::Tick()
 			
 			ImGui::End();
 		}
+		// ImGui:: End
 	}
 }
 

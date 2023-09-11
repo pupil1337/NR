@@ -79,7 +79,7 @@ class NR_API ANRCharacter : public ANRCharacterBase, public IAbilitySystemInterf
 	TObjectPtr<UInputAction> IA_Fire;
 	
 public:
-	ANRCharacter(const FObjectInitializer& ObjectInitializer);
+	explicit ANRCharacter(const FObjectInitializer& ObjectInitializer);
 	virtual void OnConstruction(const FTransform& Transform) override;
 	virtual void PreInitializeComponents() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
