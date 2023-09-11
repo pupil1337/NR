@@ -43,18 +43,11 @@ ANRWeaponBase::ANRWeaponBase()
 	// FireTracerNiagara
 	FireTracerNiagara = CreateDefaultSubobject<UNiagaraComponent>(TEXT("开火Tracer"));
 	FireTracerNiagara->SetupAttachment(SceneRoot);
-
-	// SetFPS_SeparateFOV(true, true);
 }
 
 void ANRWeaponBase::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
-
-	// Copy 1P to 3P
-	Mesh3P->SetSkeletalMeshAsset(Mesh1P->GetSkeletalMeshAsset());
-	Magazine3P->SetStaticMesh(Magazine1P->GetStaticMesh());
-	IronSight3P->SetStaticMesh(IronSight1P->GetStaticMesh());
 }
 
 void ANRWeaponBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -124,6 +117,10 @@ void ANRWeaponBase::Equip()
 	}
 	
 	Mesh1P->AttachToComponent(NRCharacter->GetMeshArm(), FAttachmentTransformRules::SnapToTargetIncludingScale, NAME_Socket_Weapon);
+	Mesh1P->SetSkeletalMeshAsset(Mesh3P->GetSkeletalMeshAsset());
+	Magazine1P->SetStaticMesh(Magazine3P->GetStaticMesh());
+	IronSight1P->SetStaticMesh(IronSight3P->GetStaticMesh());
+	
 	Mesh3P->AttachToComponent(NRCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, NAME_HandR_IkHandGun);
 }
 
