@@ -31,51 +31,51 @@ class NR_API ANRCharacter : public ANRCharacterBase, public IAbilitySystemInterf
 	GENERATED_BODY()
 
 	// Components
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(Category="配置|角色", VisibleAnywhere)
 	TObjectPtr<USpringArmComponent> Spring;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(Category="配置|角色", VisibleAnywhere)
 	TObjectPtr<USkeletalMeshComponent> MeshArm;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(Category="配置|角色", VisibleAnywhere)
 	TObjectPtr<USkeletalMeshComponent> MeshLeg;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(Category="配置|角色", VisibleAnywhere)
 	TObjectPtr<UCameraComponent> Camera;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY()
 	TObjectPtr<UNRAbilitySystemComponent> AbilitySystemComponent;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY()
 	TObjectPtr<UNRInventoryComponent> InventoryComponent;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY()
 	TObjectPtr<UNRAS_Character> AS_Character;
 
 	// Settings
-	UPROPERTY(EditDefaultsOnly, Category="配置|角色", DisplayName="摄像机-FPS弹簧臂相对eyes位置偏移")
+	UPROPERTY(Category="配置|角色", EditAnywhere)
 	FVector SpringOffsetFPS = FVector(30.0f, 0.0f, 0.0f);
 
-	UPROPERTY(EditDefaultsOnly, Category="配置|技能系统", DisplayName="角色默认Attribute-GameplayEffect")
+	UPROPERTY(Category="配置|技能系统", EditDefaultsOnly)
 	TSubclassOf<UGameplayEffect> DefaultAttributeEffect;
 
-	UPROPERTY(EditDefaultsOnly, Category="配置|技能系统", DisplayName="角色默认技能列表")
+	UPROPERTY(Category="配置|技能系统", EditDefaultsOnly)
 	TArray<TSubclassOf<UNRGameplayAbility> > DefaultAbilities;
 	
 	// Inputs
-	UPROPERTY(EditDefaultsOnly, Category="配置|输入")
+	UPROPERTY(Category="配置|输入", EditDefaultsOnly)
 	TObjectPtr<UInputMappingContext> IMC_Character;
-	UPROPERTY(EditDefaultsOnly, Category="配置|输入")
+	UPROPERTY(Category="配置|输入", EditDefaultsOnly)
 	TObjectPtr<UInputAction> IA_Move;
-	UPROPERTY(EditDefaultsOnly, Category="配置|输入")
+	UPROPERTY(Category="配置|输入", EditDefaultsOnly)
 	TObjectPtr<UInputAction> IA_Look;
-	UPROPERTY(EditDefaultsOnly, Category="配置|输入")
+	UPROPERTY(Category="配置|输入", EditDefaultsOnly)
 	TObjectPtr<UInputAction> IA_Jump;
-	UPROPERTY(EditDefaultsOnly, Category="配置|输入")
+	UPROPERTY(Category="配置|输入", EditDefaultsOnly)
 	TObjectPtr<UInputAction> IA_Crouch;
-	UPROPERTY(EditDefaultsOnly, Category="配置|输入")
+	UPROPERTY(Category="配置|输入", EditDefaultsOnly)
 	TObjectPtr<UInputAction> IA_Run;
-	UPROPERTY(EditDefaultsOnly, Category="配置|输入")
+	UPROPERTY(Category="配置|输入", EditDefaultsOnly)
 	TObjectPtr<UInputAction> IA_Fire;
 	
 public:
