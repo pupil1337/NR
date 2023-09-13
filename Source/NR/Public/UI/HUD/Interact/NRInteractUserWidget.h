@@ -8,6 +8,7 @@
 #include "NRInteractUserWidget.generated.h"
 
 class UNRInteractMonsterLifeUserWidget;
+class UNRInteractWeaponUserWidget;
 
 /**
  * 
@@ -19,6 +20,9 @@ class NR_API UNRInteractUserWidget : public UNRUserWidgetBase
 
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UNRInteractMonsterLifeUserWidget> InteractMonsterLifeUserWidget;
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UNRInteractWeaponUserWidget> InteractWeaponUserWidget;
 	
 //~Begin This Class
 public:
@@ -37,7 +41,7 @@ private:
 	void CloseOtherInteract(ENRInteractionType CurrType);
 	
 	// -----------------------------------------------------------------------------------------------------------------
-	// Monster Begin
+	// Monster
 	// -----------------------------------------------------------------------------------------------------------------
 
 	void OnLoseMonster(bool bDelay);
@@ -47,8 +51,12 @@ private:
 	FTimerHandle CloseMonsterHandle;
 	
 	// -----------------------------------------------------------------------------------------------------------------
-	// Monster End
+	// Weapon
 	// -----------------------------------------------------------------------------------------------------------------
+
+	void OnLoseWeapon();
+
+	void OnFindWeapon();
 	
 private:
 	TWeakObjectPtr<AActor> CurrInteraction;

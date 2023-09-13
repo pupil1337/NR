@@ -6,6 +6,7 @@
 #include "AI/NRMonster.h"
 #include "Interface/NRInteractInterface.h"
 #include "UI/HUD/Interact/NRInteractMonsterLifeUserWidget.h"
+#include "UI/HUD/Interact/NRInteractWeaponUserWidget.h"
 
 void UNRInteractUserWidget::OnLoseInteraction(AActor* InActor)
 {
@@ -39,6 +40,8 @@ void UNRInteractUserWidget::DoInteract(EInteractViewOp ViewOp)
 			{
 			case ENRInteractionType::EIT_Weapon:
 				{
+					if (ViewOp == Lose) OnLoseWeapon();
+					if (ViewOp == Find) OnFindWeapon();
 					break;
 				}
 			case ENRInteractionType::EIT_Monster:
@@ -56,7 +59,10 @@ void UNRInteractUserWidget::DoInteract(EInteractViewOp ViewOp)
 void UNRInteractUserWidget::CloseOtherInteract(ENRInteractionType CurrType)
 {
 	if (CurrType != ENRInteractionType::EIT_Monster) OnLoseMonster(false);
+	if (CurrType != ENRInteractionType::EIT_Weapon) OnLoseWeapon();
 }
+
+// Monster -------------------------------------------------------------------------------------------------------------
 
 void UNRInteractUserWidget::OnLoseMonster(bool bDelay)
 {
@@ -79,5 +85,17 @@ void UNRInteractUserWidget::OnFindMonster()
 {
 	GetWorld()->GetTimerManager().ClearTimer(CloseMonsterHandle);
 	InteractMonsterLifeUserWidget->OnFindMonster(Cast<ANRMonster>(CurrInteraction.Get()));
+}
+
+// Weapon --------------------------------------------------------------------------------------------------------------
+
+void UNRInteractUserWidget::OnLoseWeapon()
+{
+	InteractWeaponUserWidget->OnLoseWeapon();
+}
+
+void UNRInteractUserWidget::OnFindWeapon()
+{
+	InteractWeaponUserWidget->OnFindWeapon();
 }
 

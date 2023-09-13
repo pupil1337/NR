@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Types/NRWeaponTypes.h"
+#include "Interface/NRInteractInterface.h"
 #include "NRWeaponBase.generated.h"
 
 class UNiagaraSystem;
@@ -19,7 +20,7 @@ class USkeletalMeshComponent;
 class UNiagaraComponent;
 
 UCLASS(Abstract, Blueprintable)
-class NR_API ANRWeaponBase : public AActor
+class NR_API ANRWeaponBase : public AActor, public INRInteractInterface
 {
 	GENERATED_BODY()
 
@@ -54,6 +55,9 @@ class NR_API ANRWeaponBase : public AActor
 	// Weapon Type
 	UPROPERTY(EditDefaultsOnly)
 	ENRWeaponType WeaponType = ENRWeaponType::EWT_None;
+
+	// INRInteractInterface
+	virtual ENRInteractionType GetInteractionType() override { return ENRInteractionType::EIT_Weapon; }
 	
 public:
 	ANRWeaponBase();
