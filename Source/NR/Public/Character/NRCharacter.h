@@ -77,6 +77,8 @@ class NR_API ANRCharacter : public ANRCharacterBase, public IAbilitySystemInterf
 	TObjectPtr<UInputAction> IA_Run;
 	UPROPERTY(Category="配置|输入", EditDefaultsOnly)
 	TObjectPtr<UInputAction> IA_Fire;
+	UPROPERTY(Category="配置|输入", EditDefaultsOnly)
+	TObjectPtr<UInputAction> IA_Interact;
 	
 public:
 	explicit ANRCharacter(const FObjectInitializer& ObjectInitializer);
@@ -136,4 +138,5 @@ private:
 	void OnCrouchInput(const FInputActionValue& Value);
 	void OnRunInput(const FInputActionValue& Value);
 	void OnFireInput(const FInputActionValue& Value);
+	void OnInteractInput(const FInputActionValue& Value);
 };

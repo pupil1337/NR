@@ -6,6 +6,8 @@
 #include "NRUserWidgetBase.h"
 #include "NRInteractWeaponUserWidget.generated.h"
 
+class ANRWeaponBase;
+
 /**
  * 
  */
@@ -18,5 +20,8 @@ class NR_API UNRInteractWeaponUserWidget : public UNRUserWidgetBase
 public:
 	void OnLoseWeapon();
 	
-	void OnFindWeapon();
+	void OnFindWeapon(ANRWeaponBase* InWeapon);
+
+private:
+	TWeakObjectPtr<ANRWeaponBase> Weapon;
 };

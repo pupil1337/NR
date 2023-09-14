@@ -30,10 +30,10 @@ protected:
 	// ----------------------------------------------------------------------------------------------------------------
 public:
 	UFUNCTION()
-	void OnLoseInteraction(const FGameplayAbilityTargetDataHandle& Data);
+	void OnLoseInteraction(AActor* Interaction) const;
 
 	UFUNCTION()
-	void OnFindInteraction(const FGameplayAbilityTargetDataHandle& Data);
+	void OnFindInteraction(AActor* Interaction) const;
 	
 private:
 	void CreateUIUserWidget();

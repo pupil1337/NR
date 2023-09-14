@@ -6,6 +6,9 @@
 #include "Character/GAS/NRGameplayAbility.h"
 #include "NRGA_InteractPassive.generated.h"
 
+class UAbilityTask_WaitInputPress;
+class UAbilityTask_WaitInputRelease;
+
 /**
  * 
  */
@@ -25,4 +28,16 @@ public:
 	
 	UFUNCTION()
 	void OnFindInteraction(const FGameplayAbilityTargetDataHandle& Data);
+
+private:
+	UFUNCTION()
+	void OnInputPressed(float TimeWaited);
+
+	UFUNCTION()
+	void OnInputRelease(float TimeHeld);
+
+	TWeakObjectPtr<AActor> CurrInteraction;
+	
+	TWeakObjectPtr<UAbilityTask_WaitInputPress> AT_WaitInputPress;
+	TWeakObjectPtr<UAbilityTask_WaitInputRelease> AT_WaitInputRelease;
 };

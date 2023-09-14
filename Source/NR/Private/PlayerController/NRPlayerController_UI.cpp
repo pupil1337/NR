@@ -22,19 +22,19 @@ void ANRPlayerController::CreateUIUserWidget()
 	}
 }
 
-void ANRPlayerController::OnLoseInteraction(const FGameplayAbilityTargetDataHandle& Data)
+void ANRPlayerController::OnLoseInteraction(AActor* Interaction) const
 {
 	if (UIUserWidget)
 	{
-		UIUserWidget->OnLoseInteraction(Data.Get(0)->GetHitResult()->GetActor());
+		UIUserWidget->OnLoseInteraction(Interaction);
 	}
 }
 
-void ANRPlayerController::OnFindInteraction(const FGameplayAbilityTargetDataHandle& Data)
+void ANRPlayerController::OnFindInteraction(AActor* Interaction) const
 {
 	if (UIUserWidget)
 	{
-		UIUserWidget->OnFindInteraction(Data.Get(0)->GetHitResult()->GetActor());
+		UIUserWidget->OnFindInteraction(Interaction);
 	}
 }
 

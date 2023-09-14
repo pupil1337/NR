@@ -178,6 +178,11 @@ void ANRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 								EnhancedInputComponent->BindAction(IA_Fire, ETriggerEvent::Started, this, &ThisClass::OnFireInput);
 								EnhancedInputComponent->BindAction(IA_Fire, ETriggerEvent::Completed, this, &ThisClass::OnFireInput);
 							}
+							if (IA_Interact)
+							{
+								EnhancedInputComponent->BindAction(IA_Interact, ETriggerEvent::Started, this, &ThisClass::OnInteractInput);
+								EnhancedInputComponent->BindAction(IA_Interact, ETriggerEvent::Completed, this, &ThisClass::OnInteractInput);
+							}
 						}
 					}
 				}
@@ -338,5 +343,10 @@ void ANRCharacter::OnRunInput(const FInputActionValue& Value)
 void ANRCharacter::OnFireInput(const FInputActionValue& Value)
 {
 	SendLocalInputToASC(static_cast<bool>(Value.Get<FInputActionValue::Axis1D>()), ENRAbilityInputID::EAIID_Fire);
+}
+
+void ANRCharacter::OnInteractInput(const FInputActionValue& Value)
+{
+	SendLocalInputToASC(static_cast<bool>(Value.Get<FInputActionValue::Axis1D>()), ENRAbilityInputID::EAIID_Interact);
 }
 

@@ -7,6 +7,7 @@
 #include "Interface/NRInteractInterface.h"
 #include "UI/HUD/Interact/NRInteractMonsterLifeUserWidget.h"
 #include "UI/HUD/Interact/NRInteractWeaponUserWidget.h"
+#include "Actor/Weapon/NRWeaponBase.h"
 
 void UNRInteractUserWidget::OnLoseInteraction(AActor* InActor)
 {
@@ -96,6 +97,6 @@ void UNRInteractUserWidget::OnLoseWeapon()
 
 void UNRInteractUserWidget::OnFindWeapon()
 {
-	InteractWeaponUserWidget->OnFindWeapon();
+	InteractWeaponUserWidget->OnFindWeapon(Cast<ANRWeaponBase>(CurrInteraction.Get()));
 }
 
