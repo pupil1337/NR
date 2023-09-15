@@ -24,20 +24,14 @@ public:
 
 //~Begin This Class
 	UFUNCTION()
-	void OnLoseInteraction(const FGameplayAbilityTargetDataHandle& Data);
-	
-	UFUNCTION()
-	void OnFindInteraction(const FGameplayAbilityTargetDataHandle& Data);
+	void OnUpdateViewTarget(const FGameplayAbilityTargetDataHandle& Data);
 
 private:
 	UFUNCTION()
 	void OnInputPressed(float TimeWaited);
 
-	UFUNCTION()
-	void OnInputRelease(float TimeHeld);
-
+	FGameplayAbilityTargetDataHandle ViewTarget;
 	TWeakObjectPtr<AActor> CurrInteraction;
 	
 	TWeakObjectPtr<UAbilityTask_WaitInputPress> AT_WaitInputPress;
-	TWeakObjectPtr<UAbilityTask_WaitInputRelease> AT_WaitInputRelease;
 };

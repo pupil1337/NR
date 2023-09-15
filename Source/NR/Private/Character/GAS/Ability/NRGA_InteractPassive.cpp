@@ -21,51 +21,42 @@ void UNRGA_InteractPassive::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 	UNRAT_WaitInteractTarget* AT_WaitInteractTarget = UNRAT_WaitInteractTarget::WaitInteractTarget(this);
-	AT_WaitInteractTarget->LoseTarget.AddDynamic(this, &ThisClass::OnLoseInteraction);
-	AT_WaitInteractTarget->FindTarget.AddDynamic(this, &ThisClass::OnFindInteraction);
+	AT_WaitInteractTarget->UpdateTarget.AddDynamic(this, &ThisClass::OnUpdateViewTarget);
 	AT_WaitInteractTarget->ReadyForActivation();
 }
 
-void UNRGA_InteractPassive::OnLoseInteraction(const FGameplayAbilityTargetDataHandle& Data)
+void UNRGA_InteractPassive::OnUpdateViewTarget(const FGameplayAbilityTargetDataHandle& Data)
 {
-	CurrInteraction.Reset();
-	
-	if (const FGameplayAbilityActorInfo* ActorInfo = GetCurrentActorInfo())
+	ViewTarget = Data;
+
+	// 如果当前没有交互操作 则更新UI/输入
+	if (!CurrInteraction.IsValid())
 	{
-		if (const ANRPlayerController* PC = Cast<ANRPlayerController>(ActorInfo->PlayerController))
+		if (const FGameplayAbilityActorInfo* ActorInfo = GetCurrentActorInfo())
 		{
-			PC->OnLoseInteraction(Data.Get(0)->GetHitResult()->GetActor());
-
-			if (AT_WaitInputPress.IsValid())
+			if (const ANRPlayerController* PC = Cast<ANRPlayerController>(ActorInfo->PlayerController))
 			{
-				AT_WaitInputPress->EndTask();
-				AT_WaitInputPress.Reset();
-			}
+				// UI
+				PC->OnFindInteraction(ViewTarget.Get(0)->GetHitResult()->GetActor());
 
-			if (AT_WaitInputRelease.IsValid())
-			{
-				AT_WaitInputRelease->EndTask();
-				AT_WaitInputRelease.Reset();
-			}
-		}
-	}
-}
-
-void UNRGA_InteractPassive::OnFindInteraction(const FGameplayAbilityTargetDataHandle& Data)
-{
-	CurrInteraction = Data.Get(0)->GetHitResult()->GetActor();
-	
-	if (const FGameplayAbilityActorInfo* ActorInfo = GetCurrentActorInfo())
-	{
-		if (const ANRPlayerController* PC = Cast<ANRPlayerController>(ActorInfo->PlayerController))
-		{
-			PC->OnFindInteraction(CurrInteraction.Get());
-
-			if (!AT_WaitInputPress.IsValid())
-			{
-				AT_WaitInputPress = UAbilityTask_WaitInputPress::WaitInputPress(this);
-				AT_WaitInputPress->OnPress.AddDynamic(this, &ThisClass::OnInputPressed);
-				AT_WaitInputPress->ReadyForActivation();
+				// 输入
+				if (ViewTarget.Get(0)->GetHitResult()->GetActor())
+				{
+					if (!AT_WaitInputPress.IsValid())
+					{
+						AT_WaitInputPress = UAbilityTask_WaitInputPress::WaitInputPress(this);
+						AT_WaitInputPress->OnPress.AddDynamic(this, &ThisClass::OnInputPressed);
+						AT_WaitInputPress->ReadyForActivation();
+					}
+				}
+				else
+				{
+					if (AT_WaitInputPress.IsValid())
+					{
+						AT_WaitInputPress->EndTask();
+						AT_WaitInputPress.Reset();
+					}
+				}
 			}
 		}
 	}
@@ -73,23 +64,5 @@ void UNRGA_InteractPassive::OnFindInteraction(const FGameplayAbilityTargetDataHa
 
 void UNRGA_InteractPassive::OnInputPressed(float TimeWaited)
 {
-	if (!AT_WaitInputRelease.IsValid())
-	{
-		AT_WaitInputRelease = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
-		AT_WaitInputRelease->OnRelease.AddDynamic(this, &ThisClass::OnInputRelease);
-		AT_WaitInputRelease->ReadyForActivation();
-	}
-}
-
-void UNRGA_InteractPassive::OnInputRelease(float TimeHeld)
-{
-	if (CurrInteraction.IsValid())
-	{
-		if (!AT_WaitInputPress.IsValid())
-		{
-			AT_WaitInputPress = UAbilityTask_WaitInputPress::WaitInputPress(this);
-			AT_WaitInputPress->OnPress.AddDynamic(this, &ThisClass::OnInputPressed);
-			AT_WaitInputPress->ReadyForActivation();
-		}
-	}
+	// TODO
 }

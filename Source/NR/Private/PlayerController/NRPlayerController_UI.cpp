@@ -4,7 +4,6 @@
 #include "PlayerController/NRPlayerController.h"
 
 #include "NRGameSingleton.h"
-#include "Abilities/GameplayAbilityTargetTypes.h"
 #include "UI/NRUIUserWidget.h"
 
 void ANRPlayerController::CreateUIUserWidget()
@@ -22,19 +21,11 @@ void ANRPlayerController::CreateUIUserWidget()
 	}
 }
 
-void ANRPlayerController::OnLoseInteraction(AActor* Interaction) const
+void ANRPlayerController::OnFindInteraction(AActor* NewInteraction) const
 {
 	if (UIUserWidget)
 	{
-		UIUserWidget->OnLoseInteraction(Interaction);
-	}
-}
-
-void ANRPlayerController::OnFindInteraction(AActor* Interaction) const
-{
-	if (UIUserWidget)
-	{
-		UIUserWidget->OnFindInteraction(Interaction);
+		UIUserWidget->OnFindInteraction(NewInteraction);
 	}
 }
 

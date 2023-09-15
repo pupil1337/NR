@@ -23,7 +23,5 @@ class NR_API UNRUIUserWidget : public UNRUserWidgetBase
 
 //~Begin This Class
 public:
-	void OnLoseInteraction(AActor* InActor);
-
-	void OnFindInteraction(AActor* InActor);
+	void OnFindInteraction(AActor* NewInteraction);
 };

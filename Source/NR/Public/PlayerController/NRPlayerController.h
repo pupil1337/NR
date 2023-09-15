@@ -30,10 +30,7 @@ protected:
 	// ----------------------------------------------------------------------------------------------------------------
 public:
 	UFUNCTION()
-	void OnLoseInteraction(AActor* Interaction) const;
-
-	UFUNCTION()
-	void OnFindInteraction(AActor* Interaction) const;
+	void OnFindInteraction(AActor* NewInteraction) const;
 	
 private:
 	void CreateUIUserWidget();

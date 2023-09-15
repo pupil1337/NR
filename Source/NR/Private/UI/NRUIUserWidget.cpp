@@ -5,12 +5,7 @@
 
 #include "UI/HUD/Interact/NRInteractUserWidget.h"
 
-void UNRUIUserWidget::OnLoseInteraction(AActor* InActor)
+void UNRUIUserWidget::OnFindInteraction(AActor* NewInteraction)
 {
-	InteractUserWidget->OnLoseInteraction(InActor);
-}
-
-void UNRUIUserWidget::OnFindInteraction(AActor* InActor)
-{
-	InteractUserWidget->OnFindInteraction(InActor);
+	InteractUserWidget->OnFindInteraction(NewInteraction);
 }

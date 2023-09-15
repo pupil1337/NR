@@ -26,9 +26,7 @@ class NR_API UNRInteractUserWidget : public UNRUserWidgetBase
 	
 //~Begin This Class
 public:
-	void OnLoseInteraction(AActor* InActor);
-
-	void OnFindInteraction(AActor* InActor);
+	void OnFindInteraction(AActor* NewInteraction);
 
 private:
 	enum EInteractViewOp : uint8
@@ -36,9 +34,9 @@ private:
 		Lose = 0,
 		Find = 1
 	};
-	void DoInteract(EInteractViewOp ViewOp);
+	void DoViewOp(ENRInteractionType Type, EInteractViewOp ViewOp);
 	
-	void CloseOtherInteract(ENRInteractionType CurrType);
+	void CloseOtherInteractImmediately(ENRInteractionType CurrType);
 	
 	// -----------------------------------------------------------------------------------------------------------------
 	// Monster

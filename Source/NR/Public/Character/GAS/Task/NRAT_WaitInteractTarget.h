@@ -25,9 +25,8 @@ public:
 
 //~Begin This Class
 	static UNRAT_WaitInteractTarget* WaitInteractTarget(UGameplayAbility* OwningAbility, float Period = 0.1f);
-
-	FWaitInteractTargetDelegate LoseTarget;
-	FWaitInteractTargetDelegate FindTarget;
+	
+	FWaitInteractTargetDelegate UpdateTarget;
 
 private:
 	FGameplayAbilityTargetDataHandle MakeTargetData(const FHitResult& HitResult) const;

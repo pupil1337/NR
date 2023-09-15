@@ -9,55 +9,48 @@
 #include "UI/HUD/Interact/NRInteractWeaponUserWidget.h"
 #include "Actor/Weapon/NRWeaponBase.h"
 
-void UNRInteractUserWidget::OnLoseInteraction(AActor* InActor)
+void UNRInteractUserWidget::OnFindInteraction(AActor* NewInteraction)
 {
-	ensureAlwaysMsgf(CurrInteraction.IsValid(), TEXT("Lose Interaction, But: CurrInteraction == nullptr"));
-	ensureAlwaysMsgf(InActor == CurrInteraction.Get(), TEXT("Lose Interaction, But: InActor != CurrInteraction"));
-
-	DoInteract(Lose);
-	CurrInteraction.Reset();
-}
-
-void UNRInteractUserWidget::OnFindInteraction(AActor* InActor)
-{
-	ensureAlwaysMsgf(!CurrInteraction.IsValid(), TEXT("Find Interaction, But: CurrInteraction != nullptr"));
-	ensureAlwaysMsgf(InActor != nullptr,               TEXT("Find Interaction, But: InActor == nullptr"));
-
-	DoInteract(Lose);
-	CurrInteraction = InActor;
-	DoInteract(Find);
-}
-
-void UNRInteractUserWidget::DoInteract(EInteractViewOp ViewOp)
-{
-	if (CurrInteraction.IsValid())
+	if (CurrInteraction.Get() != NewInteraction)
 	{
-		if (CurrInteraction.Get()->Implements<UNRInteractInterface>())
+		// 旧的失去视野
+		if (CurrInteraction.IsValid() && CurrInteraction->Implements<UNRInteractInterface>())
 		{
-			const ENRInteractionType InteractionType = Cast<INRInteractInterface>(CurrInteraction.Get())->GetInteractionType();
-			if (ViewOp == Find) CloseOtherInteract(InteractionType);
-			
-			switch (InteractionType)
-			{
-			case ENRInteractionType::EIT_Weapon:
-				{
-					if (ViewOp == Lose) OnLoseWeapon();
-					if (ViewOp == Find) OnFindWeapon();
-					break;
-				}
-			case ENRInteractionType::EIT_Monster:
-				{
-					if (ViewOp == Lose) OnLoseMonster(true);
-					if (ViewOp == Find) OnFindMonster();
-					break;
-				}
-			default: ;
-			}
-		}	
+			DoViewOp(Cast<INRInteractInterface>(CurrInteraction.Get())->GetInteractionType(), Lose);
+		}
+
+		// 新的进入视野
+		CurrInteraction = NewInteraction;
+		if (CurrInteraction.IsValid() && CurrInteraction->Implements<UNRInteractInterface>())
+		{
+			DoViewOp(Cast<INRInteractInterface>(CurrInteraction.Get())->GetInteractionType(), Find);
+		}
 	}
 }
 
-void UNRInteractUserWidget::CloseOtherInteract(ENRInteractionType CurrType)
+void UNRInteractUserWidget::DoViewOp(ENRInteractionType Type, EInteractViewOp ViewOp)
+{
+	if (ViewOp == Find) CloseOtherInteractImmediately(Type);
+	
+	switch (Type)
+	{
+		case ENRInteractionType::EIT_Weapon:
+		{
+			if (ViewOp == Lose) OnLoseWeapon();
+			if (ViewOp == Find) OnFindWeapon();
+			break;
+		}
+		case ENRInteractionType::EIT_Monster:
+		{
+			if (ViewOp == Lose) OnLoseMonster(true);
+			if (ViewOp == Find) OnFindMonster();
+			break;
+		}
+		default:;
+	}
+}
+
+void UNRInteractUserWidget::CloseOtherInteractImmediately(ENRInteractionType CurrType)
 {
 	if (CurrType != ENRInteractionType::EIT_Monster) OnLoseMonster(false);
 	if (CurrType != ENRInteractionType::EIT_Weapon) OnLoseWeapon();

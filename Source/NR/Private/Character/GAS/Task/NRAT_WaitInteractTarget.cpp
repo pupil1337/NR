@@ -102,22 +102,13 @@ void UNRAT_WaitInteractTarget::TickTask(float DeltaTime)
 						}
 					}
 					
-					const AActor* OldTarget = TargetData.Get(0)->GetHitResult()->GetActor();
-					const AActor* NewTarget = HitResult.GetActor();
+					const AActor* OldActor = TargetData.Get(0)->GetHitResult()->GetActor();
+					const AActor* NewActor = HitResult.GetActor();
 
-					// Broadcast OldTarget
-					if (OldTarget && OldTarget != NewTarget)
+					if (NewActor != OldActor)
 					{
-						LoseTarget.Broadcast(TargetData);
-					}
-					
-					// Update TargetData
-					TargetData = MakeTargetData(HitResult);
-
-					// Broadcast NewTarget
-					if (NewTarget && NewTarget != OldTarget)
-					{
-						FindTarget.Broadcast(TargetData);
+						TargetData = MakeTargetData(HitResult);
+						UpdateTarget.Broadcast(TargetData);
 					}
 				}
 			}
