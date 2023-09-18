@@ -40,6 +40,8 @@ class NR_API UNRGameplayAbility : public UGameplayAbility
 {
 	GENERATED_BODY()
 
+	friend class UNRAbilitySystemComponent;
+	
 public:
 	UNRGameplayAbility();
 	
@@ -68,6 +70,9 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly)
 	ENRAbilityInputID NRAbilityInputID = ENRAbilityInputID::EAIID_None;
 
-	UPROPERTY(VisibleDefaultsOnly, DisplayName="自动激活")
+	UPROPERTY(VisibleDefaultsOnly)
 	bool bAutoActiveOnGive = false;
+
+	UPROPERTY(VisibleDefaultsOnly)
+	bool bActivateOnInput = true;
 };

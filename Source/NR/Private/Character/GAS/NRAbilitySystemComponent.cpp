@@ -768,6 +768,68 @@ bool UNRAbilitySystemComponent::Server_CurrentMontageSetPlayRateForMesh_Validate
 	return true;
 }
 
+void UNRAbilitySystemComponent::AbilityLocalInputPressed(int32 InputID)
+{
+	// Copy From -> Super::AbilityLocalInputPressed(InputID)
+	
+	// Consume the input if this InputID is overloaded with GenericConfirm/Cancel and the GenericConfim/Cancel callback is bound
+	if (IsGenericConfirmInputBound(InputID))
+	{
+		LocalInputConfirm();
+		return;
+	}
+
+	if (IsGenericCancelInputBound(InputID))
+	{
+		LocalInputCancel();
+		return;
+	}
+
+	// ---------------------------------------------------------
+
+	ABILITYLIST_SCOPE_LOCK();
+	for (FGameplayAbilitySpec& Spec : ActivatableAbilities.Items)
+	{
+		if (Spec.InputID == InputID)
+		{
+			if (Spec.Ability)
+			{
+				Spec.InputPressed = true;
+				if (Spec.IsActive())
+				{
+					if (Spec.Ability->bReplicateInputDirectly && IsOwnerActorAuthoritative() == false)
+					{
+						ServerSetInputPressed(Spec.Handle);
+					}
+
+					AbilitySpecInputPressed(Spec);
+
+					// Invoke the InputPressed event. This is not replicated here. If someone is listening, they may replicate the InputPressed event to the server.
+					InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputPressed, Spec.Handle, Spec.ActivationInfo.GetActivationPredictionKey());					
+				}
+				else
+				{
+					//~New Begin 技能是否在输入时激活
+					ensureAlwaysMsgf(Cast<UNRGameplayAbility>(Spec.Ability), TEXT("%s 竟然不是NR Ability?"), ANSI_TO_TCHAR(__FUNCTION__));
+					if (const UNRGameplayAbility* GA = Cast<UNRGameplayAbility>(Spec.Ability))
+					{
+						if (GA && GA->bActivateOnInput)
+						{
+							TryActivateAbility(Spec.Handle);
+						}
+					}
+					//~New End
+					
+					//~Old Begin
+					// Ability is not active, so try to activate it
+					// TryActivateAbility(Spec.Handle);
+					//~Old End
+				}
+			}
+		}
+	}
+}
+
 FGameplayAbilitySpecHandle UNRAbilitySystemComponent::FindAbilitySpecHandleForClass(const TSubclassOf<UGameplayAbility>& AbilityClass)
 {
 	ABILITYLIST_SCOPE_LOCK()

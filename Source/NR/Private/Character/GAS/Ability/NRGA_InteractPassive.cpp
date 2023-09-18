@@ -18,8 +18,6 @@ UNRGA_InteractPassive::UNRGA_InteractPassive()
 
 void UNRGA_InteractPassive::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
 	UNRAT_WaitInteractTarget* AT_WaitInteractTarget = UNRAT_WaitInteractTarget::WaitInteractTarget(this);
 	AT_WaitInteractTarget->UpdateTarget.AddDynamic(this, &ThisClass::OnUpdateViewTarget);
 	AT_WaitInteractTarget->ReadyForActivation();
@@ -64,5 +62,7 @@ void UNRGA_InteractPassive::OnUpdateViewTarget(const FGameplayAbilityTargetDataH
 
 void UNRGA_InteractPassive::OnInputPressed(float TimeWaited)
 {
-	// TODO
+	FGameplayEventData EventData;
+	EventData.TargetData = ViewTarget;
+	SendGameplayEvent(NRGameplayTag::GA_Interact, EventData);
 }

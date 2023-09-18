@@ -32,8 +32,6 @@ bool UNRGA_Fire::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 
 void UNRGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
 	if (ResetData(ActorInfo))
 	{
 		// Automatic

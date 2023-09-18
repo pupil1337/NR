@@ -89,11 +89,12 @@ public:
 //~Begin This Class
 public:
 	// ----------------------------------------------------------------------------------------------------------------
-	//	AnimMontage Support [Override] 因为原先AvatarActor默认它只有一个Mesh, 我们项目Character有多个mesh用来播放动画
+	//	AnimMontage Support [Override]
+	//	因为原先AvatarActor默认它只有一个Mesh, 我们项目Character有多个mesh用来播放动画
 	//
-	//	Note: 从Ability中触发PlayMontage(), 模拟客户端通过Replicates触发同步Montage. 如果服务器某个Mesh在很短时间内播放两个Montage,
-	//	可能导致同步变量只同步后一个, 从而造成模拟客户端只播放后一个Montage,
-	//	暂不考虑这个, 因为原始ASC也有这个问题, 并且Ability很少在很短时间内播放两个不同的Montage
+	//	TODO:
+	//	从Ability中触发PlayMontage(), 模拟客户端通过Replicates触发同步Montage. 如果服务器某个Mesh在很短时间内播放两个Montage,
+	//	可能导致同步变量只同步后一个, 从而造成模拟客户端只播放后一个Montage.
 	// ----------------------------------------------------------------------------------------------------------------
 
 	/** Plays a montage and handles replication and prediction based on passed in ability/activation info */
@@ -190,9 +191,14 @@ private:
 	TArray<FGameplayAbilityRepAnimMontageForMesh> RepAnimMontageInfoForMeshes;
 
 	// ----------------------------------------------------------------------------------------------------------------
-	// AnimMontage Support end
+	//	Input handling/targeting [Override]
+	// ----------------------------------------------------------------------------------------------------------------	
+public:
+	virtual void AbilityLocalInputPressed(int32 InputID) override;
+
 	// ----------------------------------------------------------------------------------------------------------------
-	
+	// Custom
+	// ----------------------------------------------------------------------------------------------------------------
 public:
 	FGameplayAbilitySpecHandle FindAbilitySpecHandleForClass(const TSubclassOf<UGameplayAbility>& AbilityClass);
 

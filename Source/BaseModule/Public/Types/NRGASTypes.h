@@ -39,4 +39,5 @@ namespace NRGameplayTag
 
 	// GA
 	static FGameplayTag GA_Run = FGameplayTag::RequestGameplayTag("Ability.Run");
+	static FGameplayTag GA_Interact = FGameplayTag::RequestGameplayTag("Ability.Interact");
 }
