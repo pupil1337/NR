@@ -1,0 +1,1 @@
+start ../UE_5.3/Engine/Binaries/Win64/UnrealEditor-Win64-DebugGame.exe ../../../../NR/NR.uproject

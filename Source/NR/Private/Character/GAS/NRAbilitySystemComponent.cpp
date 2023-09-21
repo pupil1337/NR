@@ -810,7 +810,7 @@ void UNRAbilitySystemComponent::AbilityLocalInputPressed(int32 InputID)
 				else
 				{
 					//~New Begin 技能是否在输入时激活
-					ensureAlwaysMsgf(Cast<UNRGameplayAbility>(Spec.Ability), TEXT("%s 竟然不是NR Ability?"), ANSI_TO_TCHAR(__FUNCTION__));
+					ensureAlwaysMsgf(Cast<UNRGameplayAbility>(Spec.Ability), TEXT("%s 竟然不是NR Ability?"), StringCast<TCHAR>(__FUNCTION__).Get());
 					if (const UNRGameplayAbility* GA = Cast<UNRGameplayAbility>(Spec.Ability))
 					{
 						if (GA && GA->bActivateOnInput)

@@ -32,13 +32,13 @@ ANRWeaponBase::ANRWeaponBase()
 	Magazine1P = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("弹夹1P"));
 	Magazine1P->SetupAttachment(Mesh1P);
 	Magazine3P = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("弹夹3P"));
-	Magazine3P->SetupAttachment(Mesh3P);
+	Magazine3P->SetupAttachment(Mesh3P, NAME_Socket_Magazine);
 	
 	// IronSight1P/3P
 	IronSight1P = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("机瞄1P"));
 	IronSight1P->SetupAttachment(Mesh1P);
 	IronSight3P = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("机瞄3P"));
-	IronSight3P->SetupAttachment(Mesh3P);
+	IronSight3P->SetupAttachment(Mesh3P, NAME_Socket_Default);
 
 	// FireTracerNiagara
 	FireTracerNiagara = CreateDefaultSubobject<UNiagaraComponent>(TEXT("开火Tracer"));
@@ -119,9 +119,9 @@ void ANRWeaponBase::Equip()
 	Mesh1P->AttachToComponent(NRCharacter->GetMeshArm(), FAttachmentTransformRules::SnapToTargetIncludingScale, NAME_Socket_Weapon);
 	Mesh1P->SetSkeletalMeshAsset(Mesh3P->GetSkeletalMeshAsset());
 	Magazine1P->SetStaticMesh(Magazine3P->GetStaticMesh());
-	Magazine1P->AttachToComponent(Mesh3P, FAttachmentTransformRules::SnapToTargetIncludingScale, NAME_Socket_Magazine);
+	Magazine1P->AttachToComponent(Mesh1P, FAttachmentTransformRules::SnapToTargetIncludingScale, NAME_Socket_Magazine);
 	IronSight1P->SetStaticMesh(IronSight3P->GetStaticMesh());
-	IronSight1P->AttachToComponent(Mesh3P, FAttachmentTransformRules::SnapToTargetIncludingScale, NAME_Socket_Default);
+	IronSight1P->AttachToComponent(Mesh1P, FAttachmentTransformRules::SnapToTargetIncludingScale, NAME_Socket_Default);
 	
 	Mesh3P->AttachToComponent(NRCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, NAME_HandR_IkHandGun);
 }
